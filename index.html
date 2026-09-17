@@ -1,10 +1,13 @@
-```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Tạo bảng giúp tôi nhé</title>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
@@ -46,6 +49,7 @@
         Roboto,
         Arial,
         sans-serif;
+
       background: var(--bg);
       color: var(--text);
       transition: background .2s, color .2s;
@@ -111,6 +115,41 @@
 
     button.danger:hover {
       background: rgba(220,38,38,.08);
+    }
+
+    .auth-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .auth-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .auth-row input {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .auth-status {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .logged-in {
+      display: none;
+    }
+
+    .logged-out {
+      display: flex;
     }
 
     .toolbar {
@@ -254,6 +293,7 @@
     }
 
     @media (max-width: 700px) {
+
       .container {
         padding: 20px 12px 40px;
       }
@@ -281,6 +321,15 @@
       #search {
         min-width: 100%;
       }
+
+      .auth-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .auth-row button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -289,32 +338,148 @@
 
 <div class="container">
 
+  <!-- HEADER -->
+
   <header>
+
     <div>
       <h1>📚 Tạo bảng giúp tôi nhé</h1>
+
       <p class="subtitle">
         Collocation & English Communication — UI/UX · Technology · Insurance · Banking · UX
       </p>
     </div>
 
     <div class="top-actions">
-      <button class="secondary" onclick="toggleDarkMode()">
+
+      <button
+        class="secondary"
+        onclick="toggleDarkMode()">
         🌙 Dark mode
       </button>
 
-      <button class="secondary" onclick="exportJSON()">
+      <button
+        class="secondary"
+        onclick="exportJSON()">
         💾 Backup
       </button>
 
-      <button class="secondary" onclick="document.getElementById('fileInput').click()">
+      <button
+        class="secondary"
+        onclick="document.getElementById('fileInput').click()">
         ↩️ Restore
       </button>
 
-      <button class="secondary" onclick="exportCSV()">
+      <button
+        class="secondary"
+        onclick="exportCSV()">
         📥 CSV
       </button>
+
     </div>
+
   </header>
+
+
+  <!-- AUTH -->
+
+  <div class="auth-card">
+
+    <!-- LOGGED OUT -->
+
+    <div
+      id="loggedOut"
+      class="logged-out">
+
+      <div style="width:100%;">
+
+        <strong>🔐 Đăng nhập để lưu dữ liệu online</strong>
+
+        <div
+          class="auth-row"
+          style="margin-top:12px;">
+
+          <input
+            id="email"
+            type="email"
+            placeholder="Email">
+
+          <input
+            id="password"
+            type="password"
+            placeholder="Mật khẩu">
+
+          <button onclick="signIn()">
+            Đăng nhập
+          </button>
+
+          <button
+            class="secondary"
+            onclick="signUp()">
+            Tạo tài khoản
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- LOGGED IN -->
+
+    <div
+      id="loggedIn"
+      class="logged-in">
+
+      <div
+        style="
+          width:100%;
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+          flex-wrap:wrap;
+        ">
+
+        <div>
+
+          <strong>☁️ Đã kết nối Supabase</strong>
+
+          <div
+            id="userEmail"
+            style="
+              color:var(--muted);
+              font-size:13px;
+              margin-top:4px;
+            ">
+          </div>
+
+        </div>
+
+        <button
+          class="secondary"
+          onclick="signOut()">
+          Đăng xuất
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="authStatus"
+      class="auth-status">
+
+      Chưa đăng nhập — dữ liệu hiện đang được lưu trên trình duyệt.
+
+    </div>
+
+  </div>
+
+
+  <!-- TOOLBAR -->
 
   <div class="toolbar">
 
@@ -322,18 +487,25 @@
       id="search"
       type="search"
       placeholder="🔍 Tìm collocation, chủ đề hoặc câu ví dụ..."
-      oninput="renderTable()"
-    >
+      oninput="renderTable()">
 
-    <select id="topicFilter" onchange="renderTable()">
-      <option value="">Tất cả chủ đề</option>
+    <select
+      id="topicFilter"
+      onchange="renderTable()">
+
+      <option value="">
+        Tất cả chủ đề
+      </option>
+
     </select>
 
     <button onclick="addRow()">
       + Thêm collocation
     </button>
 
-    <button class="danger" onclick="clearAll()">
+    <button
+      class="danger"
+      onclick="clearAll()">
       Xóa tất cả
     </button>
 
@@ -342,44 +514,87 @@
       class="file-input"
       type="file"
       accept=".json"
-      onchange="importJSON(event)"
-    >
+      onchange="importJSON(event)">
 
   </div>
+
+
+  <!-- TABLE -->
 
   <div class="table-card">
 
     <div class="table-wrapper">
 
       <table>
+
         <thead>
+
           <tr>
-            <th class="stt">STT</th>
-            <th class="collocation">Collocation</th>
-            <th class="topic">Chủ đề</th>
-            <th class="example">Câu giao tiếp ví dụ</th>
-            <th style="width:90px;">Xóa</th>
+
+            <th class="stt">
+              STT
+            </th>
+
+            <th class="collocation">
+              Collocation
+            </th>
+
+            <th class="topic">
+              Chủ đề
+            </th>
+
+            <th class="example">
+              Câu giao tiếp ví dụ
+            </th>
+
+            <th style="width:90px;">
+              Xóa
+            </th>
+
           </tr>
+
         </thead>
 
         <tbody id="tableBody"></tbody>
+
       </table>
 
     </div>
 
-    <div id="emptyState" class="empty" style="display:none;">
+    <div
+      id="emptyState"
+      class="empty"
+      style="display:none;">
+
       Chưa có dữ liệu.
+
       <br><br>
-      Hãy bấm <strong>+ Thêm collocation</strong> để bắt đầu.
+
+      Hãy bấm
+      <strong>+ Thêm collocation</strong>
+      để bắt đầu.
+
     </div>
 
   </div>
 
+
+  <!-- FOOTER -->
+
   <div class="footer">
-    <span id="count">0 collocation</span>
-    <span id="saveStatus" class="status">
-      ✓ Dữ liệu được lưu tự động trên trình duyệt
+
+    <span id="count">
+      0 collocation
     </span>
+
+    <span
+      id="saveStatus"
+      class="status">
+
+      ✓ Dữ liệu được lưu tự động trên trình duyệt
+
+    </span>
+
   </div>
 
 </div>
@@ -388,58 +603,100 @@
 <script>
 
   /* =====================================================
+     SUPABASE CONFIG
+     ===================================================== */
+
+  const SUPABASE_URL =
+    "https://abvdosqnbwoscbvzsjde.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_qyAVw3nNQksO3RXxMyPS0g_whEtuJiG";
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+  /* =====================================================
      DATA
      ===================================================== */
 
-  const STORAGE_KEY = "english_collocation_table_v1";
+  const STORAGE_KEY =
+    "english_collocation_table_v1";
+
+  const MIGRATION_PREFIX =
+    "english_collocations_migration_";
+
 
   const defaultData = [
+
     {
       id: crypto.randomUUID(),
       collocation: "work on a project",
       topic: "Work",
       example: "I'm currently working on a new banking app."
     },
+
     {
       id: crypto.randomUUID(),
       collocation: "improve user experience",
       topic: "UI/UX",
       example: "We need to improve the user experience."
     },
+
     {
       id: crypto.randomUUID(),
       collocation: "meet a deadline",
       topic: "Work",
       example: "We need to meet the deadline by Friday."
     }
+
   ];
+
 
   let data = loadData();
 
+  let currentUser = null;
+
 
   /* =====================================================
-     LOAD / SAVE
+     LOAD LOCAL DATA
      ===================================================== */
 
   function loadData() {
 
     try {
 
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved =
+        localStorage.getItem(STORAGE_KEY);
 
       if (saved) {
+
         return JSON.parse(saved);
+
       }
 
     } catch (error) {
-      console.error("Cannot load data:", error);
+
+      console.error(
+        "Cannot load local data:",
+        error
+      );
+
     }
 
     return defaultData;
+
   }
 
 
-  function saveData() {
+  /* =====================================================
+     LOCAL SAVE
+     ===================================================== */
+
+  function saveLocalData() {
 
     try {
 
@@ -448,22 +705,447 @@
         JSON.stringify(data)
       );
 
-      const status = document.getElementById("saveStatus");
-
-      status.textContent = "✓ Đã lưu tự động";
-
-      setTimeout(() => {
-        status.textContent =
-          "✓ Dữ liệu được lưu tự động trên trình duyệt";
-      }, 1500);
-
     } catch (error) {
 
-      alert(
-        "Không thể lưu dữ liệu. Có thể trình duyệt đang chặn localStorage."
+      console.error(
+        "Cannot save local data:",
+        error
       );
 
     }
+
+  }
+
+
+  /* =====================================================
+     SAVE STATUS
+     ===================================================== */
+
+  function setStatus(message) {
+
+    const status =
+      document.getElementById("saveStatus");
+
+    status.textContent = message;
+
+  }
+
+
+  /* =====================================================
+     AUTH UI
+     ===================================================== */
+
+  function updateAuthUI() {
+
+    const loggedOut =
+      document.getElementById("loggedOut");
+
+    const loggedIn =
+      document.getElementById("loggedIn");
+
+    const userEmail =
+      document.getElementById("userEmail");
+
+    const authStatus =
+      document.getElementById("authStatus");
+
+
+    if (currentUser) {
+
+      loggedOut.style.display = "none";
+
+      loggedIn.style.display = "flex";
+
+      userEmail.textContent =
+        currentUser.email || "";
+
+      authStatus.textContent =
+        "✓ Dữ liệu đang được đồng bộ với Supabase.";
+
+    } else {
+
+      loggedOut.style.display = "flex";
+
+      loggedIn.style.display = "none";
+
+      authStatus.textContent =
+        "Chưa đăng nhập — dữ liệu hiện đang được lưu trên trình duyệt.";
+
+    }
+
+  }
+
+
+  /* =====================================================
+     SIGN UP
+     ===================================================== */
+
+  async function signUp() {
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+
+    if (!email || !password) {
+
+      alert(
+        "Vui lòng nhập email và mật khẩu."
+      );
+
+      return;
+
+    }
+
+
+    if (password.length < 6) {
+
+      alert(
+        "Mật khẩu nên có ít nhất 6 ký tự."
+      );
+
+      return;
+
+    }
+
+
+    setStatus("Đang tạo tài khoản...");
+
+
+    const { data: result, error } =
+      await supabaseClient.auth.signUp({
+
+        email,
+        password
+
+      });
+
+
+    if (error) {
+
+      console.error(error);
+
+      alert(
+        "Không thể tạo tài khoản:\n" +
+        error.message
+      );
+
+      setStatus(
+        "✓ Dữ liệu được lưu tự động trên trình duyệt"
+      );
+
+      return;
+
+    }
+
+
+    if (result.session) {
+
+      alert(
+        "✓ Tạo tài khoản thành công!"
+      );
+
+    } else {
+
+      alert(
+        "✓ Tạo tài khoản thành công.\n\n" +
+        "Nếu Supabase yêu cầu xác nhận email, " +
+        "hãy mở email và xác nhận trước khi đăng nhập."
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     SIGN IN
+     ===================================================== */
+
+  async function signIn() {
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+
+    if (!email || !password) {
+
+      alert(
+        "Vui lòng nhập email và mật khẩu."
+      );
+
+      return;
+
+    }
+
+
+    setStatus("Đang đăng nhập...");
+
+
+    const { data: result, error } =
+      await supabaseClient.auth.signInWithPassword({
+
+        email,
+        password
+
+      });
+
+
+    if (error) {
+
+      console.error(error);
+
+      alert(
+        "Đăng nhập thất bại:\n" +
+        error.message
+      );
+
+      setStatus(
+        "✓ Dữ liệu được lưu tự động trên trình duyệt"
+      );
+
+      return;
+
+    }
+
+
+    currentUser =
+      result.user;
+
+
+    updateAuthUI();
+
+
+    await syncLocalDataToSupabase();
+
+  }
+
+
+  /* =====================================================
+     SIGN OUT
+     ===================================================== */
+
+  async function signOut() {
+
+    await supabaseClient.auth.signOut();
+
+    currentUser = null;
+
+    updateAuthUI();
+
+    renderTable();
+
+    setStatus(
+      "✓ Đã đăng xuất. Dữ liệu local vẫn được giữ."
+    );
+
+  }
+
+
+  /* =====================================================
+     MIGRATION / INITIAL SYNC
+     ===================================================== */
+
+  async function syncLocalDataToSupabase() {
+
+    if (!currentUser) return;
+
+
+    const migrationKey =
+      MIGRATION_PREFIX + currentUser.id;
+
+
+    const alreadyMigrated =
+      localStorage.getItem(migrationKey);
+
+
+    /*
+       Nếu đã migration trước đó:
+       tải dữ liệu từ Supabase.
+    */
+
+    if (alreadyMigrated === "1") {
+
+      await loadFromSupabase();
+
+      return;
+
+    }
+
+
+    setStatus(
+      "☁️ Đang đưa dữ liệu hiện tại lên Supabase..."
+    );
+
+
+    /*
+       Chỉ lấy những dòng local có nội dung.
+    */
+
+    const localRows =
+      data
+        .filter(row =>
+          row.collocation ||
+          row.topic ||
+          row.example
+        )
+        .map(row => ({
+
+          collocation:
+            row.collocation || "",
+
+          topic:
+            row.topic || "",
+
+          example:
+            row.example || "",
+
+          meaning_vi:
+            row.meaning_vi || "",
+
+          level:
+            row.level || "",
+
+          notes:
+            row.notes || "",
+
+          user_id:
+            currentUser.id
+
+        }));
+
+
+    /*
+       Kiểm tra dữ liệu online hiện có.
+    */
+
+    const { data: cloudRows, error: cloudError } =
+      await supabaseClient
+        .from("collocations")
+        .select("id")
+        .eq("user_id", currentUser.id);
+
+
+    if (cloudError) {
+
+      console.error(cloudError);
+
+      alert(
+        "Không thể kiểm tra dữ liệu Supabase:\n" +
+        cloudError.message
+      );
+
+      return;
+
+    }
+
+
+    /*
+       Nếu cloud đang trống:
+       upload dữ liệu local.
+    */
+
+    if (cloudRows.length === 0 && localRows.length > 0) {
+
+      const { error } =
+        await supabaseClient
+          .from("collocations")
+          .insert(localRows);
+
+
+      if (error) {
+
+        console.error(error);
+
+        alert(
+          "Không thể đồng bộ dữ liệu:\n" +
+          error.message
+        );
+
+        return;
+
+      }
+
+    }
+
+
+    /*
+       Đánh dấu migration hoàn tất.
+    */
+
+    localStorage.setItem(
+      migrationKey,
+      "1"
+    );
+
+
+    await loadFromSupabase();
+
+  }
+
+
+  /* =====================================================
+     LOAD FROM SUPABASE
+     ===================================================== */
+
+  async function loadFromSupabase() {
+
+    if (!currentUser) return;
+
+
+    setStatus(
+      "☁️ Đang tải dữ liệu online..."
+    );
+
+
+    const { data: rows, error } =
+      await supabaseClient
+        .from("collocations")
+        .select(
+          "id, collocation, topic, example, meaning_vi, level, notes"
+        )
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .order(
+          "id",
+          { ascending: true }
+        );
+
+
+    if (error) {
+
+      console.error(error);
+
+      alert(
+        "Không thể tải dữ liệu:\n" +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    data =
+      rows || [];
+
+
+    saveLocalData();
+
+    renderTable();
+
+
+    setStatus(
+      "✓ Dữ liệu đã được đồng bộ với Supabase"
+    );
+
   }
 
 
@@ -473,8 +1155,12 @@
 
   function renderTable() {
 
-    const tbody = document.getElementById("tableBody");
-    const emptyState = document.getElementById("emptyState");
+    const tbody =
+      document.getElementById("tableBody");
+
+    const emptyState =
+      document.getElementById("emptyState");
+
 
     const search =
       document
@@ -483,27 +1169,43 @@
         .toLowerCase()
         .trim();
 
+
     const topic =
-      document.getElementById("topicFilter").value;
+      document
+        .getElementById("topicFilter")
+        .value;
 
-    const filtered = data.filter(row => {
 
-      const text = (
-        row.collocation +
-        " " +
-        row.topic +
-        " " +
-        row.example
-      ).toLowerCase();
+    const filtered =
+      data.filter(row => {
 
-      const matchesSearch =
-        !search || text.includes(search);
+        const text = (
 
-      const matchesTopic =
-        !topic || row.topic === topic;
+          (row.collocation || "") +
+          " " +
+          (row.topic || "") +
+          " " +
+          (row.example || "")
 
-      return matchesSearch && matchesTopic;
-    });
+        ).toLowerCase();
+
+
+        const matchesSearch =
+          !search ||
+          text.includes(search);
+
+
+        const matchesTopic =
+          !topic ||
+          row.topic === topic;
+
+
+        return (
+          matchesSearch &&
+          matchesTopic
+        );
+
+      });
 
 
     tbody.innerHTML = "";
@@ -511,67 +1213,82 @@
 
     if (filtered.length === 0) {
 
-      emptyState.style.display = "block";
+      emptyState.style.display =
+        "block";
 
     } else {
 
-      emptyState.style.display = "none";
+      emptyState.style.display =
+        "none";
 
     }
 
 
-    filtered.forEach((row, index) => {
+    filtered.forEach(
+      (row, index) => {
 
-      const tr = document.createElement("tr");
+        const tr =
+          document.createElement("tr");
 
-      tr.innerHTML = `
 
-        <td class="stt">
-          ${index + 1}
-        </td>
+        tr.innerHTML = `
 
-        <td>
-          <input
-            class="collocation"
-            value="${escapeHTML(row.collocation)}"
-            onchange="updateRow('${row.id}', 'collocation', this.value)"
-            placeholder="e.g. conduct research"
-          >
-        </td>
+          <td class="stt">
+            ${index + 1}
+          </td>
 
-        <td>
-          <input
-            value="${escapeHTML(row.topic)}"
-            onchange="updateRow('${row.id}', 'topic', this.value)"
-            placeholder="e.g. UI/UX"
-          >
-        </td>
+          <td>
 
-        <td>
-          <textarea
-            onchange="updateRow('${row.id}', 'example', this.value)"
-            placeholder="Write a natural communication sentence..."
-          >${escapeHTML(row.example)}</textarea>
-        </td>
+            <input
+              class="collocation"
+              value="${escapeHTML(row.collocation)}"
+              onchange="updateRow('${row.id}', 'collocation', this.value)"
+              placeholder="e.g. conduct research">
 
-        <td>
-          <button
-            class="delete-btn"
-            onclick="deleteRow('${row.id}')"
-          >
-            🗑️
-          </button>
-        </td>
+          </td>
 
-      `;
+          <td>
 
-      tbody.appendChild(tr);
+            <input
+              value="${escapeHTML(row.topic)}"
+              onchange="updateRow('${row.id}', 'topic', this.value)"
+              placeholder="e.g. UI/UX">
 
-    });
+          </td>
+
+          <td>
+
+            <textarea
+              onchange="updateRow('${row.id}', 'example', this.value)"
+              placeholder="Write a natural communication sentence..."
+            >${escapeHTML(row.example)}</textarea>
+
+          </td>
+
+          <td>
+
+            <button
+              class="delete-btn"
+              onclick="deleteRow('${row.id}')">
+
+              🗑️
+
+            </button>
+
+          </td>
+
+        `;
+
+
+        tbody.appendChild(tr);
+
+      }
+    );
 
 
     document.getElementById("count").textContent =
       `${data.length} collocation${data.length !== 1 ? "s" : ""}`;
+
 
     updateTopicFilter();
 
@@ -582,17 +1299,94 @@
      UPDATE ROW
      ===================================================== */
 
-  function updateRow(id, field, value) {
+  async function updateRow(
+    id,
+    field,
+    value
+  ) {
 
-    const row = data.find(item => item.id === id);
+    const row =
+      data.find(
+        item => String(item.id) === String(id)
+      );
+
 
     if (!row) return;
 
-    row[field] = value;
 
-    saveData();
+    row[field] =
+      value;
 
-    updateTopicFilter();
+
+    saveLocalData();
+
+
+    /*
+       Chưa đăng nhập:
+       chỉ lưu local.
+    */
+
+    if (!currentUser) {
+
+      setStatus(
+        "✓ Đã lưu tự động trên trình duyệt"
+      );
+
+      return;
+
+    }
+
+
+    /*
+       Đã đăng nhập:
+       cập nhật Supabase.
+    */
+
+    const allowedFields = [
+      "collocation",
+      "topic",
+      "example",
+      "meaning_vi",
+      "level",
+      "notes"
+    ];
+
+
+    if (!allowedFields.includes(field)) {
+      return;
+    }
+
+
+    const updateObject = {};
+
+    updateObject[field] =
+      value;
+
+
+    const { error } =
+      await supabaseClient
+        .from("collocations")
+        .update(updateObject)
+        .eq("id", id)
+        .eq("user_id", currentUser.id);
+
+
+    if (error) {
+
+      console.error(error);
+
+      setStatus(
+        "⚠️ Đã lưu local nhưng chưa đồng bộ online"
+      );
+
+      return;
+
+    }
+
+
+    setStatus(
+      "✓ Đã lưu lên Supabase"
+    );
 
   }
 
@@ -601,33 +1395,135 @@
      ADD ROW
      ===================================================== */
 
-  function addRow() {
+  async function addRow() {
 
-    const newRow = {
+    /*
+       Nếu chưa đăng nhập:
+       tạo local row.
+    */
 
-      id: crypto.randomUUID(),
+    if (!currentUser) {
 
-      collocation: "",
+      const newRow = {
 
-      topic: "",
+        id:
+          crypto.randomUUID(),
 
-      example: ""
+        collocation: "",
 
-    };
+        topic: "",
 
-    data.push(newRow);
+        example: ""
 
-    saveData();
+      };
+
+
+      data.push(newRow);
+
+      saveLocalData();
+
+      renderTable();
+
+      focusLastInput();
+
+      return;
+
+    }
+
+
+    /*
+       Nếu đã đăng nhập:
+       tạo trực tiếp trên Supabase.
+    */
+
+    const { data: insertedRows, error } =
+      await supabaseClient
+        .from("collocations")
+        .insert({
+
+          collocation: "",
+
+          topic: "",
+
+          example: "",
+
+          meaning_vi: "",
+
+          level: "",
+
+          notes: "",
+
+          user_id:
+            currentUser.id
+
+        })
+        .select()
+        .single();
+
+
+    if (error) {
+
+      console.error(error);
+
+      alert(
+        "Không thể thêm collocation:\n" +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    data.push(
+      insertedRows
+    );
+
+
+    saveLocalData();
 
     renderTable();
+
+    setStatus(
+      "✓ Đã thêm vào Supabase"
+    );
+
+
+    focusLastInput();
+
+  }
+
+
+  /* =====================================================
+     FOCUS LAST INPUT
+     ===================================================== */
+
+  function focusLastInput() {
 
     setTimeout(() => {
 
       const inputs =
-        document.querySelectorAll("tbody input");
+        document.querySelectorAll(
+          "tbody input"
+        );
+
 
       if (inputs.length) {
-        inputs[inputs.length - 2].focus();
+
+        /*
+           Mỗi row có 2 input:
+           collocation + topic.
+           Input cuối cùng là topic.
+           Input kế cuối là collocation.
+        */
+
+        const target =
+          inputs[inputs.length - 2];
+
+        if (target) {
+          target.focus();
+        }
+
       }
 
     }, 50);
@@ -639,23 +1535,74 @@
      DELETE ROW
      ===================================================== */
 
-  function deleteRow(id) {
+  async function deleteRow(id) {
 
-    const row = data.find(item => item.id === id);
+    const row =
+      data.find(
+        item => String(item.id) === String(id)
+      );
+
 
     if (!row) return;
 
-    const confirmed = confirm(
-      `Bạn có chắc muốn xóa "${row.collocation || "dòng này"}"?`
-    );
+
+    const confirmed =
+      confirm(
+        `Bạn có chắc muốn xóa "${row.collocation || "dòng này"}"?`
+      );
+
 
     if (!confirmed) return;
 
-    data = data.filter(item => item.id !== id);
 
-    saveData();
+    /*
+       Nếu đã đăng nhập:
+       xóa trên Supabase.
+    */
+
+    if (currentUser) {
+
+      const { error } =
+        await supabaseClient
+          .from("collocations")
+          .delete()
+          .eq("id", id)
+          .eq("user_id", currentUser.id);
+
+
+      if (error) {
+
+        console.error(error);
+
+        alert(
+          "Không thể xóa dữ liệu online:\n" +
+          error.message
+        );
+
+        return;
+
+      }
+
+    }
+
+
+    data =
+      data.filter(
+        item =>
+          String(item.id) !== String(id)
+      );
+
+
+    saveLocalData();
 
     renderTable();
+
+
+    setStatus(
+      currentUser
+        ? "✓ Đã xóa khỏi Supabase"
+        : "✓ Đã xóa"
+    );
 
   }
 
@@ -664,21 +1611,65 @@
      DELETE ALL
      ===================================================== */
 
-  function clearAll() {
+  async function clearAll() {
 
     if (data.length === 0) return;
 
-    const confirmed = confirm(
-      "Bạn có chắc muốn XÓA TOÀN BỘ dữ liệu?\n\nNên Backup trước khi xóa."
-    );
+
+    const confirmed =
+      confirm(
+        "Bạn có chắc muốn XÓA TOÀN BỘ dữ liệu?\n\nNên Backup trước khi xóa."
+      );
+
 
     if (!confirmed) return;
 
+
+    /*
+       Nếu đăng nhập:
+       xóa dữ liệu online.
+    */
+
+    if (currentUser) {
+
+      const { error } =
+        await supabaseClient
+          .from("collocations")
+          .delete()
+          .eq(
+            "user_id",
+            currentUser.id
+          );
+
+
+      if (error) {
+
+        console.error(error);
+
+        alert(
+          "Không thể xóa dữ liệu online:\n" +
+          error.message
+        );
+
+        return;
+
+      }
+
+    }
+
+
     data = [];
 
-    saveData();
+    saveLocalData();
 
     renderTable();
+
+
+    setStatus(
+      currentUser
+        ? "✓ Đã xóa toàn bộ dữ liệu online"
+        : "✓ Đã xóa toàn bộ dữ liệu"
+    );
 
   }
 
@@ -692,14 +1683,24 @@
     const select =
       document.getElementById("topicFilter");
 
-    const current = select.value;
+
+    const current =
+      select.value;
+
 
     const topics = [
+
       ...new Set(
+
         data
-          .map(row => row.topic.trim())
+          .map(
+            row =>
+              (row.topic || "").trim()
+          )
           .filter(Boolean)
+
       )
+
     ].sort();
 
 
@@ -712,8 +1713,14 @@
       const option =
         document.createElement("option");
 
-      option.value = topic;
-      option.textContent = topic;
+
+      option.value =
+        topic;
+
+
+      option.textContent =
+        topic;
+
 
       select.appendChild(option);
 
@@ -721,7 +1728,10 @@
 
 
     if (topics.includes(current)) {
-      select.value = current;
+
+      select.value =
+        current;
+
     }
 
   }
@@ -734,7 +1744,12 @@
   function exportJSON() {
 
     const json =
-      JSON.stringify(data, null, 2);
+      JSON.stringify(
+        data,
+        null,
+        2
+      );
+
 
     downloadFile(
       json,
@@ -749,63 +1764,177 @@
      RESTORE JSON
      ===================================================== */
 
-  function importJSON(event) {
+  async function importJSON(event) {
 
-    const file = event.target.files[0];
+    const file =
+      event.target.files[0];
+
 
     if (!file) return;
 
 
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-
-      try {
-
-        const imported =
-          JSON.parse(e.target.result);
+    const reader =
+      new FileReader();
 
 
-        if (!Array.isArray(imported)) {
-          throw new Error("Invalid format");
+    reader.onload =
+      async function(e) {
+
+        try {
+
+          const imported =
+            JSON.parse(
+              e.target.result
+            );
+
+
+          if (!Array.isArray(imported)) {
+
+            throw new Error(
+              "Invalid format"
+            );
+
+          }
+
+
+          const confirmed =
+            confirm(
+              `Restore ${imported.length} collocations?\n\nDữ liệu hiện tại sẽ được thay thế.`
+            );
+
+
+          if (!confirmed) return;
+
+
+          /*
+             Nếu đăng nhập:
+             xóa dữ liệu cloud trước.
+          */
+
+          if (currentUser) {
+
+            const { error: deleteError } =
+              await supabaseClient
+                .from("collocations")
+                .delete()
+                .eq(
+                  "user_id",
+                  currentUser.id
+                );
+
+
+            if (deleteError) {
+
+              throw deleteError;
+
+            }
+
+
+            const rows =
+              imported.map(row => ({
+
+                collocation:
+                  row.collocation || "",
+
+                topic:
+                  row.topic || "",
+
+                example:
+                  row.example || "",
+
+                meaning_vi:
+                  row.meaning_vi || "",
+
+                level:
+                  row.level || "",
+
+                notes:
+                  row.notes || "",
+
+                user_id:
+                  currentUser.id
+
+              }));
+
+
+            if (rows.length > 0) {
+
+              const { error: insertError } =
+                await supabaseClient
+                  .from("collocations")
+                  .insert(rows);
+
+
+              if (insertError) {
+
+                throw insertError;
+
+              }
+
+            }
+
+
+            await loadFromSupabase();
+
+
+          } else {
+
+            /*
+               Chưa đăng nhập:
+               chỉ lưu local.
+            */
+
+            data =
+              imported.map(row => ({
+
+                id:
+                  row.id ||
+                  crypto.randomUUID(),
+
+                collocation:
+                  row.collocation || "",
+
+                topic:
+                  row.topic || "",
+
+                example:
+                  row.example || "",
+
+                meaning_vi:
+                  row.meaning_vi || "",
+
+                level:
+                  row.level || "",
+
+                notes:
+                  row.notes || ""
+
+              }));
+
+
+            saveLocalData();
+
+            renderTable();
+
+          }
+
+
+          alert(
+            "✓ Restore thành công!"
+          );
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          alert(
+            "Không thể Restore dữ liệu."
+          );
+
         }
 
-
-        const confirmed = confirm(
-          `Restore ${imported.length} collocations?\n\nDữ liệu hiện tại sẽ được thay thế.`
-        );
-
-        if (!confirmed) return;
-
-
-        data = imported.map(row => ({
-
-          id: row.id || crypto.randomUUID(),
-
-          collocation: row.collocation || "",
-
-          topic: row.topic || "",
-
-          example: row.example || ""
-
-        }));
-
-
-        saveData();
-
-        renderTable();
-
-        alert("✓ Restore thành công!");
-
-      } catch (error) {
-
-        alert(
-          "File JSON không hợp lệ."
-        );
-
-      }
-
-    };
+      };
 
 
     reader.readAsText(file);
@@ -822,24 +1951,29 @@
   function exportCSV() {
 
     const headers = [
+
       "STT",
       "Collocation",
       "Chủ đề",
       "Câu giao tiếp ví dụ"
+
     ];
 
 
-    const rows = data.map((row, index) => [
+    const rows =
+      data.map(
+        (row, index) => [
 
-      index + 1,
+          index + 1,
 
-      row.collocation,
+          row.collocation || "",
 
-      row.topic,
+          row.topic || "",
 
-      row.example
+          row.example || ""
 
-    ]);
+        ]
+      );
 
 
     const csv = [
@@ -850,37 +1984,49 @@
 
     ]
       .map(row =>
+
         row
           .map(value =>
-            `"${String(value).replace(/"/g, '""')}"`
+            `"${String(value)
+              .replace(/"/g, '""')}"`
           )
           .join(",")
+
       )
       .join("\n");
 
 
-    // BOM để Excel đọc tiếng Việt đúng
     const blob =
       new Blob(
+
         ["\ufeff" + csv],
+
         {
-          type: "text/csv;charset=utf-8;"
+          type:
+            "text/csv;charset=utf-8;"
         }
+
       );
 
 
     const url =
       URL.createObjectURL(blob);
 
+
     const a =
       document.createElement("a");
 
-    a.href = url;
+
+    a.href =
+      url;
+
 
     a.download =
       "collocations.csv";
 
+
     a.click();
+
 
     URL.revokeObjectURL(url);
 
@@ -899,21 +2045,32 @@
 
     const blob =
       new Blob(
+
         [content],
+
         { type }
+
       );
+
 
     const url =
       URL.createObjectURL(blob);
 
+
     const a =
       document.createElement("a");
 
-    a.href = url;
 
-    a.download = filename;
+    a.href =
+      url;
+
+
+    a.download =
+      filename;
+
 
     a.click();
+
 
     URL.revokeObjectURL(url);
 
@@ -926,14 +2083,23 @@
 
   function toggleDarkMode() {
 
-    document.body.classList.toggle("dark");
+    document.body.classList.toggle(
+      "dark"
+    );
+
 
     const dark =
-      document.body.classList.contains("dark");
+      document.body.classList.contains(
+        "dark"
+      );
+
 
     localStorage.setItem(
+
       "collocation_dark_mode",
+
       dark ? "1" : "0"
+
     );
 
   }
@@ -946,8 +2112,13 @@
         "collocation_dark_mode"
       );
 
+
     if (dark === "1") {
-      document.body.classList.add("dark");
+
+      document.body.classList.add(
+        "dark"
+      );
+
     }
 
   }
@@ -960,25 +2131,109 @@
   function escapeHTML(value) {
 
     return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+
+      .replace(
+        /</g,
+        "&lt;"
+      )
+
+      .replace(
+        />/g,
+        "&gt;"
+      )
+
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+
+      .replace(
+        /'/g,
+        "&#039;"
+      );
 
   }
 
 
   /* =====================================================
-     INIT
+     INITIALIZE
      ===================================================== */
 
-  loadDarkMode();
+  async function initialize() {
 
-  renderTable();
+    loadDarkMode();
+
+    renderTable();
+
+
+    /*
+       Kiểm tra session hiện tại.
+    */
+
+    const { data: sessionData } =
+      await supabaseClient.auth.getSession();
+
+
+    currentUser =
+      sessionData.session
+        ? sessionData.session.user
+        : null;
+
+
+    updateAuthUI();
+
+
+    /*
+       Nếu đã đăng nhập:
+       đồng bộ dữ liệu.
+    */
+
+    if (currentUser) {
+
+      await syncLocalDataToSupabase();
+
+    }
+
+
+    /*
+       Theo dõi đăng nhập / đăng xuất.
+    */
+
+    supabaseClient.auth.onAuthStateChange(
+      async (event, session) => {
+
+        currentUser =
+          session
+            ? session.user
+            : null;
+
+
+        updateAuthUI();
+
+
+        if (
+          event === "SIGNED_IN" &&
+          currentUser
+        ) {
+
+          await syncLocalDataToSupabase();
+
+        }
+
+      }
+    );
+
+  }
+
+
+  initialize();
 
 </script>
 
 </body>
 </html>
-```
