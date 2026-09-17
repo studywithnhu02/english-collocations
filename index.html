@@ -2,16 +2,21 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
   <title>📚 Tạo bảng giúp tôi nhé</title>
 
   <!-- =========================================================
-       SUPABASE
+       SUPABASE JS
        QUAN TRỌNG:
-       @supabase phải viết thường
+       package scope phải là @supabase viết thường
        ========================================================= -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
 
   <style>
     :root {
@@ -61,7 +66,9 @@
         sans-serif;
       background: var(--bg);
       color: var(--text);
-      transition: background 0.2s ease, color 0.2s ease;
+      transition:
+        background 0.2s ease,
+        color 0.2s ease;
     }
 
     .container {
@@ -112,6 +119,7 @@
       height: 9px;
       border-radius: 50%;
       background: var(--warning);
+      flex-shrink: 0;
     }
 
     .status-dot.online {
@@ -175,7 +183,11 @@
 
     .auth-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr auto auto;
+      grid-template-columns:
+        minmax(180px, 1fr)
+        minmax(180px, 1fr)
+        auto
+        auto;
       gap: 10px;
       align-items: center;
     }
@@ -197,12 +209,23 @@
     select:focus,
     textarea:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.12);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
     }
 
     .toolbar {
       display: grid;
-      grid-template-columns: 1fr 220px auto auto;
+      grid-template-columns:
+        1fr
+        220px
+        auto
+        auto;
       gap: 10px;
       margin-bottom: 18px;
     }
@@ -253,7 +276,8 @@
       display: inline-block;
       padding: 4px 8px;
       border-radius: 999px;
-      background: rgba(37, 99, 235, 0.1);
+      background:
+        rgba(37, 99, 235, 0.1);
       color: var(--primary);
       font-size: 12px;
       font-weight: 600;
@@ -276,7 +300,7 @@
       line-height: 1.6;
       white-space: pre-wrap;
       word-break: break-word;
-      max-height: 260px;
+      max-height: 320px;
       overflow-y: auto;
     }
 
@@ -286,6 +310,12 @@
 
     .small {
       font-size: 12px;
+      color: var(--muted);
+    }
+
+    .message {
+      margin-top: 10px;
+      font-size: 13px;
       color: var(--muted);
     }
 
@@ -303,10 +333,14 @@
     .modal {
       width: 100%;
       max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
       background: var(--card);
       border-radius: 16px;
       padding: 22px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      box-shadow:
+        0 20px 60px
+        rgba(0, 0, 0, 0.25);
     }
 
     .modal h2 {
@@ -338,12 +372,6 @@
       margin-top: 18px;
     }
 
-    .message {
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
     @media (max-width: 800px) {
       .auth-grid {
         grid-template-columns: 1fr;
@@ -368,9 +396,10 @@
 
 <div class="container">
 
-  <!-- =========================================================
+  <!-- =======================================================
        HEADER
-       ========================================================= -->
+       ======================================================= -->
+
   <div>
     <h1>📚 Tạo bảng giúp tôi nhé</h1>
 
@@ -381,16 +410,23 @@
   </div>
 
 
-  <!-- =========================================================
+  <!-- =======================================================
        ACCOUNT / CLOUD STATUS
-       ========================================================= -->
+       ======================================================= -->
+
   <div class="card">
 
     <div class="top-bar">
 
       <div class="status">
-        <span id="statusDot" class="status-dot"></span>
-        <span id="statusText">Đang kiểm tra kết nối...</span>
+        <span
+          id="statusDot"
+          class="status-dot"
+        ></span>
+
+        <span id="statusText">
+          Đang kiểm tra kết nối...
+        </span>
       </div>
 
       <div class="button-group">
@@ -414,7 +450,11 @@
         <button
           class="secondary"
           type="button"
-          onclick="document.getElementById('restoreFile').click()"
+          onclick="
+            document
+              .getElementById('restoreFile')
+              .click()
+          "
         >
           ♻️ Restore
         </button>
@@ -441,6 +481,7 @@
 
 
     <!-- AUTH -->
+
     <div class="auth-box">
 
       <div class="auth-grid">
@@ -476,7 +517,11 @@
 
       </div>
 
-      <div class="button-group" style="margin-top:10px;">
+
+      <div
+        class="button-group"
+        style="margin-top: 10px;"
+      >
 
         <button
           type="button"
@@ -496,16 +541,21 @@
 
       </div>
 
-      <div id="authMessage" class="message"></div>
+
+      <div
+        id="authMessage"
+        class="message"
+      ></div>
 
     </div>
 
   </div>
 
 
-  <!-- =========================================================
+  <!-- =======================================================
        MAIN DATA
-       ========================================================= -->
+       ======================================================= -->
+
   <div class="card">
 
     <div class="toolbar">
@@ -521,7 +571,9 @@
         id="topicFilter"
         onchange="renderTable()"
       >
-        <option value="">Tất cả chủ đề</option>
+        <option value="">
+          Tất cả chủ đề
+        </option>
       </select>
 
       <button
@@ -542,12 +594,12 @@
     </div>
 
 
-    <!-- TABLE -->
     <div class="table-wrapper">
 
       <table>
 
         <thead>
+
           <tr>
             <th class="number">STT</th>
             <th>Collocation</th>
@@ -555,6 +607,7 @@
             <th>Câu giao tiếp ví dụ</th>
             <th class="action">Xóa</th>
           </tr>
+
         </thead>
 
         <tbody id="tableBody"></tbody>
@@ -566,11 +619,15 @@
   </div>
 
 
-  <!-- =========================================================
+  <!-- =======================================================
        DEBUG
-       ========================================================= -->
-  <div class="debug" id="debugLog">
-Đang khởi động...
+       ======================================================= -->
+
+  <div
+    class="debug"
+    id="debugLog"
+  >
+    Đang khởi động...
   </div>
 
 </div>
@@ -619,18 +676,24 @@
 
         </div>
 
+
         <div class="field">
 
           <label>Level</label>
 
           <select id="newLevel">
-            <option value="">Chưa xác định</option>
+
+            <option value="">
+              Chưa xác định
+            </option>
+
             <option value="A1">A1</option>
             <option value="A2">A2</option>
             <option value="B1">B1</option>
             <option value="B2">B2</option>
             <option value="C1">C1</option>
             <option value="C2">C2</option>
+
           </select>
 
         </div>
@@ -706,29 +769,26 @@
 <script>
 /* ============================================================
    CONFIGURATION
-   ============================================================
-
-   Supabase Project:
-   https://abvdosqnbwoscbvzsjde.supabase.co
-
-   QUAN TRỌNG:
-   Đây phải là PUBLISHABLE KEY của đúng project Supabase.
-
-   Không sử dụng:
-   - sb_secret_...
-   - service_role
-   - database password
-
-   Publishable key có thể nằm trong frontend.
    ============================================================ */
 
+/*
+   Supabase Project URL
+*/
 const SUPABASE_URL =
   "https://abvdosqnbwoscbvzsjde.supabase.co";
 
+
 /*
-   Nếu key dưới đây không còn là key hiện tại trong
-   Supabase Dashboard → Settings → API Keys,
-   hãy thay nó bằng Publishable key hiện tại.
+   Supabase Publishable Key.
+
+   QUAN TRỌNG:
+   Key này phải là Publishable key của ĐÚNG project
+   abvdosqnbwoscbvzsjde.
+
+   Không dùng:
+   - sb_secret_...
+   - service_role
+   - database password
 */
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_qyAV3nNQksO3RXxMyPS0g_whEtuG";
@@ -738,9 +798,11 @@ const SUPABASE_PUBLISHABLE_KEY =
    LOCAL STORAGE
    ============================================================ */
 
-const LOCAL_STORAGE_KEY = "english_collocations_data";
+const LOCAL_STORAGE_KEY =
+  "english_collocations_data";
 
-const DARK_MODE_KEY = "english_collocations_dark_mode";
+const DARK_MODE_KEY =
+  "english_collocations_dark_mode";
 
 
 /* ============================================================
@@ -767,15 +829,19 @@ let isSyncing = false;
 
 function debug(message, data = null) {
 
-  const log = document.getElementById("debugLog");
+  const log =
+    document.getElementById("debugLog");
 
   if (!log) return;
+
 
   const time =
     new Date().toLocaleTimeString("vi-VN");
 
+
   let text =
     `[${time}] ${message}`;
+
 
   if (data !== null) {
 
@@ -789,7 +855,7 @@ function debug(message, data = null) {
           2
         );
 
-    } catch (e) {
+    } catch (error) {
 
       text +=
         "\n" +
@@ -798,6 +864,7 @@ function debug(message, data = null) {
     }
 
   }
+
 
   log.textContent =
     text +
@@ -809,128 +876,13 @@ function debug(message, data = null) {
 
 function setAuthMessage(message) {
 
-  const el =
-    document.getElementById("authMessage");
-
-  if (el) {
-    el.textContent = message;
-  }
-
-}
-
-
-/* ============================================================
-   INITIALIZE SUPABASE
-   ============================================================ */
-
-function initializeSupabase() {
-
-  debug("Đang khởi tạo Supabase...");
-
-  /*
-    Nếu CDN không load:
-    window.supabase sẽ undefined.
-  */
-
-  if (!window.supabase) {
-
-    debug(
-      "❌ Không tìm thấy window.supabase. Kiểm tra CDN."
+  const element =
+    document.getElementById(
+      "authMessage"
     );
 
-    setStatus(
-      "offline",
-      "Không tải được Supabase JS"
-    );
-
-    return false;
-  }
-
-
-  /*
-    Kiểm tra URL.
-  */
-
-  if (
-    !SUPABASE_URL ||
-    !SUPABASE_URL.startsWith("https://")
-  ) {
-
-    debug(
-      "❌ SUPABASE_URL không hợp lệ."
-    );
-
-    return false;
-  }
-
-
-  /*
-    Kiểm tra Publishable Key.
-  */
-
-  if (
-    !SUPABASE_PUBLISHABLE_KEY ||
-    !SUPABASE_PUBLISHABLE_KEY.startsWith(
-      "sb_publishable_"
-    )
-  ) {
-
-    debug(
-      "❌ Publishable key không hợp lệ hoặc chưa được thay."
-    );
-
-    setStatus(
-      "offline",
-      "Supabase key không hợp lệ"
-    );
-
-    return false;
-  }
-
-
-  try {
-
-    supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY,
-        {
-          auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true
-          }
-        }
-      );
-
-
-    debug(
-      "✅ Supabase client đã khởi tạo.",
-      {
-        url: SUPABASE_URL,
-        keyPrefix:
-          SUPABASE_PUBLISHABLE_KEY.substring(
-            0,
-            20
-          ) + "..."
-      }
-    );
-
-    return true;
-
-  } catch (error) {
-
-    debug(
-      "❌ Không thể khởi tạo Supabase.",
-      error
-    );
-
-    setStatus(
-      "offline",
-      "Không thể khởi tạo Supabase"
-    );
-
-    return false;
+  if (element) {
+    element.textContent = message;
   }
 
 }
@@ -943,10 +895,14 @@ function initializeSupabase() {
 function setStatus(type, text) {
 
   const dot =
-    document.getElementById("statusDot");
+    document.getElementById(
+      "statusDot"
+    );
 
   const statusText =
-    document.getElementById("statusText");
+    document.getElementById(
+      "statusText"
+    );
 
 
   if (dot) {
@@ -965,7 +921,183 @@ function setStatus(type, text) {
 
 
   if (statusText) {
-    statusText.textContent = text;
+
+    statusText.textContent =
+      text;
+
+  }
+
+}
+
+
+/* ============================================================
+   SUPABASE INITIALIZATION
+   ============================================================ */
+
+function initializeSupabase() {
+
+  debug(
+    "🔧 Đang khởi tạo Supabase..."
+  );
+
+
+  /*
+    1. Kiểm tra thư viện Supabase
+  */
+
+  if (
+    typeof window.supabase ===
+    "undefined"
+  ) {
+
+    debug(
+      "❌ Supabase JS chưa được load."
+    );
+
+    debug(
+      "👉 Kiểm tra CDN: @supabase/supabase-js@2"
+    );
+
+    setStatus(
+      "offline",
+      "Không tải được Supabase JS"
+    );
+
+    return false;
+
+  }
+
+
+  debug(
+    "✅ Supabase JS đã được load."
+  );
+
+
+  /*
+    2. Kiểm tra URL
+  */
+
+  if (
+    !SUPABASE_URL ||
+    !SUPABASE_URL.startsWith(
+      "https://"
+    )
+  ) {
+
+    debug(
+      "❌ SUPABASE_URL không hợp lệ."
+    );
+
+    setStatus(
+      "offline",
+      "Supabase URL không hợp lệ"
+    );
+
+    return false;
+
+  }
+
+
+  /*
+    3. Kiểm tra Publishable key
+  */
+
+  if (
+    !SUPABASE_PUBLISHABLE_KEY ||
+    !SUPABASE_PUBLISHABLE_KEY.startsWith(
+      "sb_publishable_"
+    )
+  ) {
+
+    debug(
+      "❌ Publishable key không đúng format."
+    );
+
+    setStatus(
+      "offline",
+      "Supabase key không hợp lệ"
+    );
+
+    return false;
+
+  }
+
+
+  /*
+    4. Tạo Supabase client
+  */
+
+  try {
+
+    supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY,
+        {
+          auth: {
+
+            persistSession:
+              true,
+
+            autoRefreshToken:
+              true,
+
+            detectSessionInUrl:
+              true
+
+          }
+        }
+      );
+
+
+    debug(
+      "✅ Supabase client đã khởi tạo.",
+      {
+        projectUrl:
+          SUPABASE_URL,
+
+        keyPrefix:
+          SUPABASE_PUBLISHABLE_KEY.substring(
+            0,
+            20
+          ) + "..."
+      }
+    );
+
+
+    setStatus(
+      "online",
+      "Supabase đã kết nối"
+    );
+
+
+    return true;
+
+  } catch (error) {
+
+    debug(
+      "❌ Không thể khởi tạo Supabase.",
+      {
+        message:
+          error?.message,
+
+        name:
+          error?.name,
+
+        stack:
+          error?.stack
+      }
+    );
+
+
+    setStatus(
+      "offline",
+      "Không thể khởi tạo Supabase"
+    );
+
+
+    return false;
+
   }
 
 }
@@ -992,11 +1124,14 @@ function loadLocalData() {
 
       saveLocalData();
 
+
       debug(
-        "Local chưa có dữ liệu → tạo dữ liệu mẫu."
+        "📦 Local chưa có dữ liệu → tạo 3 dòng mẫu."
       );
 
+
       return;
+
     }
 
 
@@ -1004,7 +1139,9 @@ function loadLocalData() {
       JSON.parse(raw);
 
 
-    if (Array.isArray(parsed)) {
+    if (
+      Array.isArray(parsed)
+    ) {
 
       collocations =
         parsed;
@@ -1020,15 +1157,19 @@ function loadLocalData() {
 
 
     debug(
-      `Đã tải ${collocations.length} dòng từ localStorage.`
+      `📦 Đã tải ${collocations.length} dòng từ localStorage.`
     );
 
   } catch (error) {
 
     debug(
       "❌ Lỗi đọc localStorage.",
-      error
+      {
+        message:
+          error?.message
+      }
     );
+
 
     collocations =
       getDefaultData();
@@ -1044,14 +1185,19 @@ function saveLocalData() {
 
     localStorage.setItem(
       LOCAL_STORAGE_KEY,
-      JSON.stringify(collocations)
+      JSON.stringify(
+        collocations
+      )
     );
 
   } catch (error) {
 
     debug(
       "❌ Không thể lưu localStorage.",
-      error
+      {
+        message:
+          error?.message
+      }
     );
 
   }
@@ -1069,9 +1215,7 @@ function getDefaultData() {
 
     {
       id:
-        crypto.randomUUID
-          ? crypto.randomUUID()
-          : String(Date.now()) + "-1",
+        createLocalId(),
 
       collocation:
         "work on a project",
@@ -1095,9 +1239,7 @@ function getDefaultData() {
 
     {
       id:
-        crypto.randomUUID
-          ? crypto.randomUUID()
-          : String(Date.now()) + "-2",
+        createLocalId(),
 
       collocation:
         "improve user experience",
@@ -1121,9 +1263,7 @@ function getDefaultData() {
 
     {
       id:
-        crypto.randomUUID
-          ? crypto.randomUUID()
-          : String(Date.now()) + "-3",
+        createLocalId(),
 
       collocation:
         "meet a deadline",
@@ -1150,61 +1290,110 @@ function getDefaultData() {
 
 
 /* ============================================================
+   LOCAL ID
+   ============================================================ */
+
+function createLocalId() {
+
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID ===
+      "function"
+  ) {
+
+    return crypto.randomUUID();
+
+  }
+
+
+  return (
+    String(Date.now()) +
+    "-" +
+    String(
+      Math.random()
+    ).slice(2)
+  );
+
+}
+
+
+/* ============================================================
    RENDER TABLE
    ============================================================ */
 
 function renderTable() {
 
   const body =
-    document.getElementById("tableBody");
+    document.getElementById(
+      "tableBody"
+    );
+
+
+  if (!body) return;
+
+
+  const searchElement =
+    document.getElementById(
+      "searchInput"
+    );
+
+
+  const topicElement =
+    document.getElementById(
+      "topicFilter"
+    );
+
 
   const search =
     (
-      document.getElementById(
-        "searchInput"
-      ).value || ""
+      searchElement?.value ||
+      ""
     )
       .trim()
       .toLowerCase();
 
 
   const topic =
-    document.getElementById(
-      "topicFilter"
-    ).value;
+    topicElement?.value ||
+    "";
 
 
   const filtered =
-    collocations.filter(item => {
+    collocations.filter(
+      item => {
 
-      const text =
-        [
-          item.collocation,
-          item.topic,
-          item.example,
-          item.meaning_vi,
-          item.notes
-        ]
-          .join(" ")
-          .toLowerCase();
-
-
-      const matchesSearch =
-        !search ||
-        text.includes(search);
+        const text =
+          [
+            item.collocation,
+            item.topic,
+            item.example,
+            item.meaning_vi,
+            item.notes,
+            item.level
+          ]
+            .join(" ")
+            .toLowerCase();
 
 
-      const matchesTopic =
-        !topic ||
-        item.topic === topic;
+        const matchesSearch =
+          !search ||
+          text.includes(
+            search
+          );
 
 
-      return (
-        matchesSearch &&
-        matchesTopic
-      );
+        const matchesTopic =
+          !topic ||
+          item.topic === topic;
 
-    });
+
+        return (
+          matchesSearch &&
+          matchesTopic
+        );
+
+      }
+    );
 
 
   if (!filtered.length) {
@@ -1220,69 +1409,79 @@ function renderTable() {
     `;
 
     return;
+
   }
 
 
   body.innerHTML =
     filtered
-      .map((item, index) => {
+      .map(
+        (
+          item,
+          index
+        ) => {
 
-        const originalIndex =
-          collocations.indexOf(item);
+          const originalIndex =
+            collocations.indexOf(
+              item
+            );
 
 
-        return `
-          <tr>
+          return `
+            <tr>
 
-            <td class="number">
-              ${index + 1}
-            </td>
+              <td class="number">
+                ${index + 1}
+              </td>
 
-            <td>
-              <strong>
+              <td>
+                <strong>
+                  ${escapeHtml(
+                    item.collocation ||
+                    ""
+                  )}
+                </strong>
+              </td>
+
+              <td>
+                ${
+                  item.topic
+                    ? `
+                      <span class="topic-badge">
+                        ${escapeHtml(
+                          item.topic
+                        )}
+                      </span>
+                    `
+                    : ""
+                }
+              </td>
+
+              <td>
                 ${escapeHtml(
-                  item.collocation || ""
+                  item.example ||
+                  ""
                 )}
-              </strong>
-            </td>
+              </td>
 
-            <td>
-              ${
-                item.topic
-                  ? `
-                    <span class="topic-badge">
-                      ${escapeHtml(
-                        item.topic
-                      )}
-                    </span>
-                  `
-                  : ""
-              }
-            </td>
+              <td class="action">
 
-            <td>
-              ${escapeHtml(
-                item.example || ""
-              )}
-            </td>
+                <button
+                  type="button"
+                  class="danger"
+                  onclick="deleteCollocation(${originalIndex})"
+                  title="Xóa"
+                >
+                  🗑️
+                </button>
 
-            <td class="action">
+              </td>
 
-              <button
-                type="button"
-                class="danger"
-                onclick="deleteCollocation(${originalIndex})"
-                title="Xóa"
-              >
-                🗑️
-              </button>
+            </tr>
+          `;
 
-            </td>
-
-          </tr>
-        `;
-
-      })
+        }
+      )
       .join("");
 
 }
@@ -1294,16 +1493,37 @@ function renderTable() {
 
 function escapeHtml(value) {
 
-  if (value === null || value === undefined) {
+  if (
+    value === null ||
+    value === undefined
+  ) {
+
     return "";
+
   }
 
+
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 
 }
 
@@ -1320,6 +1540,9 @@ function updateTopicFilter() {
     );
 
 
+  if (!select) return;
+
+
   const currentValue =
     select.value;
 
@@ -1328,11 +1551,23 @@ function updateTopicFilter() {
     [
       ...new Set(
         collocations
-          .map(item => item.topic)
+          .map(
+            item =>
+              item.topic
+          )
           .filter(Boolean)
       )
     ]
-      .sort();
+      .sort(
+        (
+          a,
+          b
+        ) =>
+          a.localeCompare(
+            b,
+            "vi"
+          )
+      );
 
 
   select.innerHTML = `
@@ -1342,24 +1577,35 @@ function updateTopicFilter() {
   `;
 
 
-  topics.forEach(topic => {
+  topics.forEach(
+    topic => {
 
-    const option =
-      document.createElement("option");
+      const option =
+        document.createElement(
+          "option"
+        );
 
-    option.value =
-      topic;
 
-    option.textContent =
-      topic;
+      option.value =
+        topic;
 
-    select.appendChild(option);
 
-  });
+      option.textContent =
+        topic;
+
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
 
 
   if (
-    topics.includes(currentValue)
+    topics.includes(
+      currentValue
+    )
   ) {
 
     select.value =
@@ -1376,27 +1622,51 @@ function updateTopicFilter() {
 
 function openAddModal() {
 
-  document
-    .getElementById("addModal")
-    .classList.remove("hidden");
+  const modal =
+    document.getElementById(
+      "addModal"
+    );
 
 
-  setTimeout(() => {
+  if (!modal) return;
 
-    document
-      .getElementById("newCollocation")
-      .focus();
 
-  }, 100);
+  modal.classList.remove(
+    "hidden"
+  );
+
+
+  setTimeout(
+    () => {
+
+      document
+        .getElementById(
+          "newCollocation"
+        )
+        ?.focus();
+
+    },
+    100
+  );
 
 }
 
 
 function closeAddModal() {
 
-  document
-    .getElementById("addModal")
-    .classList.add("hidden");
+  const modal =
+    document.getElementById(
+      "addModal"
+    );
+
+
+  if (modal) {
+
+    modal.classList.add(
+      "hidden"
+    );
+
+  }
 
 
   document.getElementById(
@@ -1434,7 +1704,8 @@ function closeAddModal() {
 function closeModalOutside(event) {
 
   if (
-    event.target.id === "addModal"
+    event.target.id ===
+    "addModal"
   ) {
 
     closeAddModal();
@@ -1451,27 +1722,39 @@ function closeModalOutside(event) {
 async function addCollocation() {
 
   const collocation =
-    document.getElementById(
-      "newCollocation"
-    ).value.trim();
+    document
+      .getElementById(
+        "newCollocation"
+      )
+      .value
+      .trim();
 
 
   const topic =
-    document.getElementById(
-      "newTopic"
-    ).value.trim();
+    document
+      .getElementById(
+        "newTopic"
+      )
+      .value
+      .trim();
 
 
   const example =
-    document.getElementById(
-      "newExample"
-    ).value.trim();
+    document
+      .getElementById(
+        "newExample"
+      )
+      .value
+      .trim();
 
 
   const meaning_vi =
-    document.getElementById(
-      "newMeaning"
-    ).value.trim();
+    document
+      .getElementById(
+        "newMeaning"
+      )
+      .value
+      .trim();
 
 
   const level =
@@ -1481,9 +1764,12 @@ async function addCollocation() {
 
 
   const notes =
-    document.getElementById(
-      "newNotes"
-    ).value.trim();
+    document
+      .getElementById(
+        "newNotes"
+      )
+      .value
+      .trim();
 
 
   if (!collocation) {
@@ -1498,16 +1784,18 @@ async function addCollocation() {
 
 
   /*
-    Nếu đã đăng nhập:
-    Insert trực tiếp lên Supabase.
+    Đã login → lưu cloud
   */
 
-  if (currentUser && supabaseClient) {
+  if (
+    currentUser &&
+    supabaseClient
+  ) {
 
     try {
 
       debug(
-        "Đang thêm collocation lên Supabase..."
+        "☁️ Đang thêm collocation lên Supabase..."
       );
 
 
@@ -1516,7 +1804,9 @@ async function addCollocation() {
         error
       } =
         await supabaseClient
-          .from("collocations")
+          .from(
+            "collocations"
+          )
           .insert({
 
             collocation,
@@ -1537,20 +1827,38 @@ async function addCollocation() {
       if (error) {
 
         debug(
-          "❌ Lỗi insert Supabase.",
-          error
+          "❌ Insert Supabase lỗi.",
+          {
+            message:
+              error.message,
+
+            code:
+              error.code,
+
+            details:
+              error.details,
+
+            hint:
+              error.hint
+          }
         );
 
+
         alert(
-          "Không thể lưu lên Supabase:\n" +
+          "Không thể lưu lên Supabase:\n\n" +
           error.message
         );
 
+
         return;
+
       }
 
 
-      collocations.push(data);
+      collocations.push(
+        data
+      );
+
 
       saveLocalData();
 
@@ -1562,8 +1870,11 @@ async function addCollocation() {
 
 
       debug(
-        "✅ Đã thêm collocation lên Supabase.",
-        data
+        "✅ Đã thêm collocation lên cloud.",
+        {
+          id:
+            data.id
+        }
       );
 
 
@@ -1573,12 +1884,17 @@ async function addCollocation() {
 
       debug(
         "❌ Exception khi thêm.",
-        error
+        {
+          message:
+            error?.message
+        }
       );
+
 
       alert(
         "Có lỗi khi lưu dữ liệu."
       );
+
 
       return;
 
@@ -1588,16 +1904,13 @@ async function addCollocation() {
 
 
   /*
-    Nếu chưa login:
-    lưu local.
+    Chưa login → lưu local
   */
 
   const item = {
 
     id:
-      crypto.randomUUID
-        ? crypto.randomUUID()
-        : String(Date.now()),
+      createLocalId(),
 
     collocation,
 
@@ -1614,7 +1927,10 @@ async function addCollocation() {
   };
 
 
-  collocations.push(item);
+  collocations.push(
+    item
+  );
+
 
   saveLocalData();
 
@@ -1626,7 +1942,7 @@ async function addCollocation() {
 
 
   debug(
-    "Đã thêm collocation vào localStorage."
+    "💾 Đã thêm collocation vào localStorage."
   );
 
 }
@@ -1655,15 +1971,18 @@ async function deleteCollocation(index) {
 
 
   /*
-    Nếu logged in và ID là số:
-    xóa trên Supabase trước.
+    Nếu đang login và id là số:
+    xóa cloud trước
   */
 
   if (
     currentUser &&
     supabaseClient &&
     item.id !== undefined &&
-    !isNaN(Number(item.id))
+    item.id !== null &&
+    !isNaN(
+      Number(item.id)
+    )
   ) {
 
     try {
@@ -1672,9 +1991,14 @@ async function deleteCollocation(index) {
         error
       } =
         await supabaseClient
-          .from("collocations")
+          .from(
+            "collocations"
+          )
           .delete()
-          .eq("id", item.id)
+          .eq(
+            "id",
+            item.id
+          )
           .eq(
             "user_id",
             currentUser.id
@@ -1684,29 +2008,36 @@ async function deleteCollocation(index) {
       if (error) {
 
         debug(
-          "❌ Lỗi delete Supabase.",
+          "❌ Delete Supabase lỗi.",
           error
         );
 
+
         alert(
-          "Không thể xóa trên cloud:\n" +
+          "Không thể xóa trên cloud:\n\n" +
           error.message
         );
 
+
         return;
+
       }
 
 
       debug(
-        "✅ Đã xóa khỏi Supabase."
+        "☁️ Đã xóa khỏi Supabase."
       );
 
     } catch (error) {
 
       debug(
-        "❌ Exception khi delete.",
-        error
+        "❌ Exception delete.",
+        {
+          message:
+            error?.message
+        }
       );
+
 
       return;
 
@@ -1715,7 +2046,11 @@ async function deleteCollocation(index) {
   }
 
 
-  collocations.splice(index, 1);
+  collocations.splice(
+    index,
+    1
+  );
+
 
   saveLocalData();
 
@@ -1725,7 +2060,7 @@ async function deleteCollocation(index) {
 
 
   debug(
-    "Đã xóa collocation."
+    "🗑️ Đã xóa collocation."
   );
 
 }
@@ -1737,7 +2072,9 @@ async function deleteCollocation(index) {
 
 async function clearAll() {
 
-  if (!collocations.length) {
+  if (
+    !collocations.length
+  ) {
 
     alert(
       "Không có dữ liệu để xóa."
@@ -1758,7 +2095,7 @@ async function clearAll() {
 
 
   /*
-    Xóa cloud trước.
+    Nếu login → xóa cloud trước
   */
 
   if (
@@ -1768,11 +2105,18 @@ async function clearAll() {
 
     try {
 
+      debug(
+        "☁️ Đang xóa toàn bộ dữ liệu cloud..."
+      );
+
+
       const {
         error
       } =
         await supabaseClient
-          .from("collocations")
+          .from(
+            "collocations"
+          )
           .delete()
           .eq(
             "user_id",
@@ -1783,29 +2127,36 @@ async function clearAll() {
       if (error) {
 
         debug(
-          "❌ Lỗi clear Supabase.",
+          "❌ Clear Supabase lỗi.",
           error
         );
 
+
         alert(
-          "Không thể xóa dữ liệu cloud:\n" +
+          "Không thể xóa dữ liệu cloud:\n\n" +
           error.message
         );
 
+
         return;
+
       }
 
 
       debug(
-        "✅ Đã xóa dữ liệu trên Supabase."
+        "☁️ Đã xóa toàn bộ dữ liệu trên cloud."
       );
 
     } catch (error) {
 
       debug(
-        "❌ Exception khi clear.",
-        error
+        "❌ Exception clear.",
+        {
+          message:
+            error?.message
+        }
       );
+
 
       return;
 
@@ -1824,7 +2175,7 @@ async function clearAll() {
 
 
   debug(
-    "Đã xóa toàn bộ dữ liệu."
+    "🗑️ Đã xóa toàn bộ dữ liệu."
   );
 
 }
@@ -1858,7 +2209,9 @@ async function fetchCloudData() {
       error
     } =
       await supabaseClient
-        .from("collocations")
+        .from(
+          "collocations"
+        )
         .select("*")
         .eq(
           "user_id",
@@ -1876,8 +2229,21 @@ async function fetchCloudData() {
 
       debug(
         "❌ Fetch cloud lỗi.",
-        error
+        {
+          message:
+            error.message,
+
+          code:
+            error.code,
+
+          details:
+            error.details,
+
+          hint:
+            error.hint
+        }
       );
+
 
       return null;
 
@@ -1885,18 +2251,22 @@ async function fetchCloudData() {
 
 
     debug(
-      `☁️ Supabase có ${data.length} dòng.`
+      `☁️ Supabase có ${data?.length || 0} dòng.`
     );
 
 
-    return data;
+    return data || [];
 
   } catch (error) {
 
     debug(
       "❌ Exception fetch cloud.",
-      error
+      {
+        message:
+          error?.message
+      }
     );
+
 
     return null;
 
@@ -1906,7 +2276,7 @@ async function fetchCloudData() {
 
 
 /* ============================================================
-   MIGRATE LOCAL → CLOUD
+   UPLOAD LOCAL → CLOUD
    ============================================================ */
 
 async function uploadLocalToCloud() {
@@ -1921,7 +2291,9 @@ async function uploadLocalToCloud() {
   }
 
 
-  if (!collocations.length) {
+  if (
+    !collocations.length
+  ) {
 
     return true;
 
@@ -1936,30 +2308,38 @@ async function uploadLocalToCloud() {
   try {
 
     const rows =
-      collocations.map(item => ({
+      collocations.map(
+        item => ({
 
-        collocation:
-          item.collocation || "",
+          collocation:
+            item.collocation ||
+            "",
 
-        topic:
-          item.topic || "",
+          topic:
+            item.topic ||
+            "",
 
-        example:
-          item.example || "",
+          example:
+            item.example ||
+            "",
 
-        meaning_vi:
-          item.meaning_vi || "",
+          meaning_vi:
+            item.meaning_vi ||
+            "",
 
-        level:
-          item.level || "",
+          level:
+            item.level ||
+            "",
 
-        notes:
-          item.notes || "",
+          notes:
+            item.notes ||
+            "",
 
-        user_id:
-          currentUser.id
+          user_id:
+            currentUser.id
 
-      }));
+        })
+      );
 
 
     const {
@@ -1967,8 +2347,12 @@ async function uploadLocalToCloud() {
       error
     } =
       await supabaseClient
-        .from("collocations")
-        .insert(rows)
+        .from(
+          "collocations"
+        )
+        .insert(
+          rows
+        )
         .select();
 
 
@@ -1976,8 +2360,21 @@ async function uploadLocalToCloud() {
 
       debug(
         "❌ Upload local → cloud lỗi.",
-        error
+        {
+          message:
+            error.message,
+
+          code:
+            error.code,
+
+          details:
+            error.details,
+
+          hint:
+            error.hint
+        }
       );
+
 
       return false;
 
@@ -1985,7 +2382,7 @@ async function uploadLocalToCloud() {
 
 
     collocations =
-      data;
+      data || [];
 
 
     saveLocalData();
@@ -1996,7 +2393,7 @@ async function uploadLocalToCloud() {
 
 
     debug(
-      `✅ Đã upload ${data.length} dòng lên Supabase.`
+      `✅ Đã upload ${collocations.length} dòng lên Supabase.`
     );
 
 
@@ -2006,8 +2403,12 @@ async function uploadLocalToCloud() {
 
     debug(
       "❌ Exception upload local.",
-      error
+      {
+        message:
+          error?.message
+      }
     );
+
 
     return false;
 
@@ -2017,7 +2418,138 @@ async function uploadLocalToCloud() {
 
 
 /* ============================================================
-   HANDLE LOGIN SESSION
+   SYNC AFTER LOGIN
+   ============================================================ */
+
+async function syncAfterLogin() {
+
+  if (
+    !currentUser ||
+    !supabaseClient
+  ) {
+
+    return;
+
+  }
+
+
+  if (isSyncing) {
+
+    debug(
+      "ℹ️ Sync đang chạy → bỏ qua sync trùng."
+    );
+
+
+    return;
+
+  }
+
+
+  isSyncing = true;
+
+
+  try {
+
+    setStatus(
+      "online",
+      `Đã đăng nhập: ${currentUser.email}`
+    );
+
+
+    const cloudData =
+      await fetchCloudData();
+
+
+    /*
+      Không lấy được cloud.
+      Không được xóa local.
+    */
+
+    if (
+      cloudData === null
+    ) {
+
+      debug(
+        "⚠️ Không lấy được cloud data → giữ nguyên local."
+      );
+
+
+      return;
+
+    }
+
+
+    /*
+      CLOUD TRỐNG
+      + LOCAL CÓ DATA
+      → upload local
+    */
+
+    if (
+      cloudData.length === 0 &&
+      collocations.length > 0
+    ) {
+
+      debug(
+        "☁️ Cloud đang trống."
+      );
+
+
+      debug(
+        "📦 Local đang có dữ liệu → chuyển local lên cloud."
+      );
+
+
+      const success =
+        await uploadLocalToCloud();
+
+
+      if (!success) {
+
+        debug(
+          "⚠️ Upload local thất bại → vẫn giữ local."
+        );
+
+      }
+
+
+      return;
+
+    }
+
+
+    /*
+      CLOUD CÓ DATA
+      → cloud là nguồn chính
+    */
+
+    collocations =
+      cloudData;
+
+
+    saveLocalData();
+
+    updateTopicFilter();
+
+    renderTable();
+
+
+    debug(
+      `✅ Đồng bộ hoàn tất: ${cloudData.length} dòng.`
+    );
+
+  } finally {
+
+    isSyncing =
+      false;
+
+  }
+
+}
+
+
+/* ============================================================
+   HANDLE CURRENT SESSION
    ============================================================ */
 
 async function handleSession() {
@@ -2047,13 +2579,21 @@ async function handleSession() {
 
       debug(
         "❌ getSession lỗi.",
-        error
+        {
+          message:
+            error.message,
+
+          status:
+            error.status
+        }
       );
+
 
       setStatus(
         "offline",
         "Supabase Auth lỗi"
       );
+
 
       return;
 
@@ -2061,15 +2601,14 @@ async function handleSession() {
 
 
     currentUser =
-      data.session
-        ? data.session.user
-        : null;
+      data?.session?.user ||
+      null;
 
 
     if (currentUser) {
 
       debug(
-        "✅ Đã có session.",
+        "✅ Đã tìm thấy session.",
         {
           userId:
             currentUser.id,
@@ -2100,109 +2639,11 @@ async function handleSession() {
 
     debug(
       "❌ Exception handleSession.",
-      error
+      {
+        message:
+          error?.message
+      }
     );
-
-  }
-
-}
-
-
-/* ============================================================
-   SYNC AFTER LOGIN
-   ============================================================ */
-
-async function syncAfterLogin() {
-
-  if (
-    !currentUser ||
-    !supabaseClient
-  ) {
-
-    return;
-
-  }
-
-
-  if (isSyncing) {
-
-    return;
-
-  }
-
-
-  isSyncing = true;
-
-
-  try {
-
-    setStatus(
-      "online",
-      `Đã đăng nhập: ${currentUser.email}`
-    );
-
-
-    const cloudData =
-      await fetchCloudData();
-
-
-    if (cloudData === null) {
-
-      debug(
-        "⚠️ Không lấy được cloud data. Giữ local."
-      );
-
-      return;
-
-    }
-
-
-    /*
-      Trường hợp 1:
-      Cloud trống + local có dữ liệu
-      → upload local lên cloud.
-    */
-
-    if (
-      cloudData.length === 0 &&
-      collocations.length > 0
-    ) {
-
-      debug(
-        "☁️ Cloud đang trống → chuyển dữ liệu local lên cloud."
-      );
-
-
-      await uploadLocalToCloud();
-
-      return;
-
-    }
-
-
-    /*
-      Trường hợp 2:
-      Cloud có dữ liệu
-      → cloud là nguồn chính.
-    */
-
-    collocations =
-      cloudData;
-
-    saveLocalData();
-
-    updateTopicFilter();
-
-    renderTable();
-
-
-    debug(
-      `✅ Đồng bộ hoàn tất: ${cloudData.length} dòng.`
-    );
-
-  } finally {
-
-    isSyncing = false;
 
   }
 
@@ -2228,18 +2669,23 @@ async function login() {
 
   const email =
     document
-      .getElementById("email")
+      .getElementById(
+        "email"
+      )
       .value
       .trim();
 
 
   const password =
-    document
-      .getElementById("password")
-      .value;
+    document.getElementById(
+      "password"
+    ).value;
 
 
-  if (!email || !password) {
+  if (
+    !email ||
+    !password
+  ) {
 
     alert(
       "Vui lòng nhập email và mật khẩu."
@@ -2251,7 +2697,7 @@ async function login() {
 
 
   setAuthMessage(
-    "Đang đăng nhập..."
+    "🔐 Đang đăng nhập..."
   );
 
 
@@ -2259,6 +2705,10 @@ async function login() {
     "🔐 Đang login...",
     {
       email,
+
+      projectUrl:
+        SUPABASE_URL,
+
       keyPrefix:
         SUPABASE_PUBLISHABLE_KEY.substring(
           0,
@@ -2274,19 +2724,14 @@ async function login() {
       data,
       error
     } =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
+      await supabaseClient.auth
+        .signInWithPassword({
+          email,
+          password
+        });
 
 
     if (error) {
-
-      /*
-        Đây chính là nơi lỗi
-        "Invalid API key" xuất hiện nếu
-        Supabase không chấp nhận API key.
-      */
 
       debug(
         "❌ Login lỗi.",
@@ -2298,7 +2743,10 @@ async function login() {
             error.name,
 
           status:
-            error.status
+            error.status,
+
+          code:
+            error.code
         }
       );
 
@@ -2309,27 +2757,30 @@ async function login() {
       );
 
 
-      /*
-        Gợi ý riêng cho Invalid API key.
-      */
-
       if (
         error.message
           .toLowerCase()
-          .includes("invalid api key")
+          .includes(
+            "invalid api key"
+          )
       ) {
 
         alert(
-          "Supabase báo Invalid API key.\n\n" +
-          "Hãy kiểm tra:\n" +
-          "1. Supabase → Settings → API Keys\n" +
-          "2. Copy Publishable key hiện tại\n" +
-          "3. Thay giá trị SUPABASE_PUBLISHABLE_KEY trong index.html\n" +
-          "4. Không dùng sb_secret_...\n" +
-          "5. Save → GitHub → chờ Pages deploy → Cmd + Shift + R"
+          "Supabase đang từ chối API key.\n\n" +
+          "Hãy kiểm tra:\n\n" +
+          "1. Mở Supabase Dashboard\n" +
+          "2. Vào Settings → API Keys\n" +
+          "3. Copy Publishable key hiện tại\n" +
+          "4. Thay vào SUPABASE_PUBLISHABLE_KEY\n" +
+          "5. Không dùng sb_secret_...\n" +
+          "6. Save file\n" +
+          "7. Push lên GitHub\n" +
+          "8. Chờ GitHub Pages deploy\n" +
+          "9. Mac: Cmd + Shift + R"
         );
 
       }
+
 
       return;
 
@@ -2337,7 +2788,25 @@ async function login() {
 
 
     currentUser =
-      data.user;
+      data?.user ||
+      null;
+
+
+    if (!currentUser) {
+
+      debug(
+        "⚠️ Login không trả về user."
+      );
+
+
+      setAuthMessage(
+        "⚠️ Đăng nhập chưa hoàn tất."
+      );
+
+
+      return;
+
+    }
 
 
     setAuthMessage(
@@ -2349,10 +2818,10 @@ async function login() {
       "✅ Login thành công.",
       {
         userId:
-          currentUser?.id,
+          currentUser.id,
 
         email:
-          currentUser?.email
+          currentUser.email
       }
     );
 
@@ -2363,13 +2832,25 @@ async function login() {
 
     debug(
       "❌ Exception login.",
-      error
+      {
+        message:
+          error?.message,
+
+        name:
+          error?.name,
+
+        stack:
+          error?.stack
+      }
     );
 
 
     setAuthMessage(
       "❌ Login lỗi: " +
-      error.message
+      (
+        error?.message ||
+        "Unknown error"
+      )
     );
 
   }
@@ -2396,18 +2877,23 @@ async function register() {
 
   const email =
     document
-      .getElementById("email")
+      .getElementById(
+        "email"
+      )
       .value
       .trim();
 
 
   const password =
-    document
-      .getElementById("password")
-      .value;
+    document.getElementById(
+      "password"
+    ).value;
 
 
-  if (!email || !password) {
+  if (
+    !email ||
+    !password
+  ) {
 
     alert(
       "Vui lòng nhập email và mật khẩu."
@@ -2418,7 +2904,9 @@ async function register() {
   }
 
 
-  if (password.length < 6) {
+  if (
+    password.length < 6
+  ) {
 
     alert(
       "Mật khẩu nên có ít nhất 6 ký tự."
@@ -2430,7 +2918,7 @@ async function register() {
 
 
   setAuthMessage(
-    "Đang tạo tài khoản..."
+    "✨ Đang tạo tài khoản..."
   );
 
 
@@ -2448,17 +2936,27 @@ async function register() {
       data,
       error
     } =
-      await supabaseClient.auth.signUp({
-        email,
-        password
-      });
+      await supabaseClient.auth
+        .signUp({
+          email,
+          password
+        });
 
 
     if (error) {
 
       debug(
         "❌ Register lỗi.",
-        error
+        {
+          message:
+            error.message,
+
+          status:
+            error.status,
+
+          code:
+            error.code
+        }
       );
 
 
@@ -2466,6 +2964,7 @@ async function register() {
         "❌ " +
         error.message
       );
+
 
       return;
 
@@ -2476,20 +2975,26 @@ async function register() {
       "✅ Đăng ký thành công.",
       {
         userId:
-          data.user?.id,
+          data?.user?.id,
 
         hasSession:
-          Boolean(data.session)
+          Boolean(
+            data?.session
+          )
       }
     );
 
 
-    if (data.session) {
+    if (
+      data?.session
+    ) {
 
       currentUser =
         data.user;
 
+
       await syncAfterLogin();
+
 
       setAuthMessage(
         "✅ Tạo tài khoản và đăng nhập thành công."
@@ -2507,13 +3012,19 @@ async function register() {
 
     debug(
       "❌ Exception register.",
-      error
+      {
+        message:
+          error?.message
+      }
     );
 
 
     setAuthMessage(
       "❌ " +
-      error.message
+      (
+        error?.message ||
+        "Unknown error"
+      )
     );
 
   }
@@ -2539,7 +3050,8 @@ async function logout() {
     const {
       error
     } =
-      await supabaseClient.auth.signOut();
+      await supabaseClient.auth
+        .signOut();
 
 
     if (error) {
@@ -2549,12 +3061,14 @@ async function logout() {
         error
       );
 
+
       return;
 
     }
 
 
-    currentUser = null;
+    currentUser =
+      null;
 
 
     setStatus(
@@ -2576,7 +3090,10 @@ async function logout() {
 
     debug(
       "❌ Exception logout.",
-      error
+      {
+        message:
+          error?.message
+      }
     );
 
   }
@@ -2598,7 +3115,10 @@ function setupAuthListener() {
 
 
   supabaseClient.auth.onAuthStateChange(
-    async (event, session) => {
+    (
+      event,
+      session
+    ) => {
 
       debug(
         `🔄 Auth event: ${event}`
@@ -2606,23 +3126,40 @@ function setupAuthListener() {
 
 
       currentUser =
-        session
-          ? session.user
-          : null;
+        session?.user ||
+        null;
+
+
+      /*
+        INITIAL_SESSION đã được xử lý
+        bởi handleSession().
+      */
+
+      if (
+        event ===
+        "INITIAL_SESSION"
+      ) {
+
+        return;
+
+      }
 
 
       if (session) {
 
         /*
-          Tránh sync nếu handleSession()
-          đã xử lý rồi.
+          Không await trực tiếp trong callback
+          để tránh block auth callback.
         */
 
-        if (event !== "INITIAL_SESSION") {
+        setTimeout(
+          () => {
 
-          await syncAfterLogin();
+            syncAfterLogin();
 
-        }
+          },
+          0
+        );
 
       } else {
 
@@ -2651,6 +3188,7 @@ async function testSupabaseConnection() {
       "Supabase client chưa được khởi tạo."
     );
 
+
     return;
 
   }
@@ -2667,7 +3205,8 @@ async function testSupabaseConnection() {
       data,
       error
     } =
-      await supabaseClient.auth.getSession();
+      await supabaseClient.auth
+        .getSession();
 
 
     if (error) {
@@ -2679,7 +3218,10 @@ async function testSupabaseConnection() {
             error.message,
 
           status:
-            error.status
+            error.status,
+
+          code:
+            error.code
         }
       );
 
@@ -2699,26 +3241,37 @@ async function testSupabaseConnection() {
       "✅ Supabase Auth hoạt động.",
       {
         hasSession:
-          Boolean(data.session)
+          Boolean(
+            data?.session
+          ),
+
+        projectUrl:
+          SUPABASE_URL
       }
     );
 
 
     alert(
-      "✅ Supabase kết nối OK."
+      "✅ Supabase Auth kết nối OK."
     );
 
   } catch (error) {
 
     debug(
       "❌ Test exception.",
-      error
+      {
+        message:
+          error?.message
+      }
     );
 
 
     alert(
       "❌ Test lỗi:\n\n" +
-      error.message
+      (
+        error?.message ||
+        "Unknown error"
+      )
     );
 
   }
@@ -2760,11 +3313,15 @@ function backupData() {
 
 
   const url =
-    URL.createObjectURL(blob);
+    URL.createObjectURL(
+      blob
+    );
 
 
   const a =
-    document.createElement("a");
+    document.createElement(
+      "a"
+    );
 
 
   a.href =
@@ -2775,14 +3332,19 @@ function backupData() {
     "english-collocations-backup.json";
 
 
-  document.body.appendChild(a);
+  document.body.appendChild(
+    a
+  );
+
 
   a.click();
 
   a.remove();
 
 
-  URL.revokeObjectURL(url);
+  URL.revokeObjectURL(
+    url
+  );
 
 
   debug(
@@ -2799,7 +3361,7 @@ function backupData() {
 async function restoreData(event) {
 
   const file =
-    event.target.files[0];
+    event.target.files?.[0];
 
 
   if (!file) return;
@@ -2812,21 +3374,27 @@ async function restoreData(event) {
 
 
     const parsed =
-      JSON.parse(text);
+      JSON.parse(
+        text
+      );
 
 
     let restoredData;
 
 
     if (
-      Array.isArray(parsed)
+      Array.isArray(
+        parsed
+      )
     ) {
 
       restoredData =
         parsed;
 
     } else if (
-      Array.isArray(parsed.data)
+      Array.isArray(
+        parsed.data
+      )
     ) {
 
       restoredData =
@@ -2849,7 +3417,8 @@ async function restoreData(event) {
 
     if (!confirmed) {
 
-      event.target.value = "";
+      event.target.value =
+        "";
 
       return;
 
@@ -2857,8 +3426,7 @@ async function restoreData(event) {
 
 
     /*
-      Nếu đang login:
-      Xóa cloud rồi insert lại.
+      LOGIN → restore cloud
     */
 
     if (
@@ -2872,10 +3440,13 @@ async function restoreData(event) {
 
 
       const {
-        error: deleteError
+        error:
+          deleteError
       } =
         await supabaseClient
-          .from("collocations")
+          .from(
+            "collocations"
+          )
           .delete()
           .eq(
             "user_id",
@@ -2886,13 +3457,15 @@ async function restoreData(event) {
       if (deleteError) {
 
         debug(
-          "❌ Không thể xóa dữ liệu cloud trước restore.",
+          "❌ Không thể xóa cloud trước restore.",
           deleteError
         );
+
 
         alert(
           deleteError.message
         );
+
 
         return;
 
@@ -2900,41 +3473,55 @@ async function restoreData(event) {
 
 
       const rows =
-        restoredData.map(item => ({
+        restoredData.map(
+          item => ({
 
-          collocation:
-            item.collocation || "",
+            collocation:
+              item.collocation ||
+              "",
 
-          topic:
-            item.topic || "",
+            topic:
+              item.topic ||
+              "",
 
-          example:
-            item.example || "",
+            example:
+              item.example ||
+              "",
 
-          meaning_vi:
-            item.meaning_vi || "",
+            meaning_vi:
+              item.meaning_vi ||
+              "",
 
-          level:
-            item.level || "",
+            level:
+              item.level ||
+              "",
 
-          notes:
-            item.notes || "",
+            notes:
+              item.notes ||
+              "",
 
-          user_id:
-            currentUser.id
+            user_id:
+              currentUser.id
 
-        }));
+          })
+        );
 
 
-      if (rows.length) {
+      if (
+        rows.length
+      ) {
 
         const {
           data,
           error
         } =
           await supabaseClient
-            .from("collocations")
-            .insert(rows)
+            .from(
+              "collocations"
+            )
+            .insert(
+              rows
+            )
             .select();
 
 
@@ -2945,9 +3532,11 @@ async function restoreData(event) {
             error
           );
 
+
           alert(
             error.message
           );
+
 
           return;
 
@@ -2955,7 +3544,7 @@ async function restoreData(event) {
 
 
         collocations =
-          data;
+          data || [];
 
       } else {
 
@@ -2963,12 +3552,10 @@ async function restoreData(event) {
 
       }
 
-
     } else {
 
       /*
-        Chưa login:
-        chỉ restore local.
+        CHƯA LOGIN → restore local
       */
 
       collocations =
@@ -2997,19 +3584,26 @@ async function restoreData(event) {
 
     debug(
       "❌ Restore lỗi.",
-      error
+      {
+        message:
+          error?.message
+      }
     );
 
 
     alert(
       "Không thể restore file:\n" +
-      error.message
+      (
+        error?.message ||
+        "Unknown error"
+      )
     );
 
   }
 
 
-  event.target.value = "";
+  event.target.value =
+    "";
 
 }
 
@@ -3021,33 +3615,50 @@ async function restoreData(event) {
 function exportCSV() {
 
   const headers = [
+
     "STT",
+
     "Collocation",
+
     "Topic",
+
     "Example",
+
     "Meaning Vietnamese",
+
     "Level",
+
     "Notes"
+
   ];
 
 
   const rows =
     collocations.map(
-      (item, index) => [
+      (
+        item,
+        index
+      ) => [
 
         index + 1,
 
-        item.collocation || "",
+        item.collocation ||
+          "",
 
-        item.topic || "",
+        item.topic ||
+          "",
 
-        item.example || "",
+        item.example ||
+          "",
 
-        item.meaning_vi || "",
+        item.meaning_vi ||
+          "",
 
-        item.level || "",
+        item.level ||
+          "",
 
-        item.notes || ""
+        item.notes ||
+          ""
 
       ]
     );
@@ -3060,13 +3671,19 @@ function exportCSV() {
     ...rows
 
   ]
-    .map(row =>
-      row
-        .map(value =>
-          `"${String(value)
-            .replaceAll('"', '""')}"`
-        )
-        .join(",")
+    .map(
+      row =>
+        row
+          .map(
+            value =>
+              `"${String(
+                value
+              ).replaceAll(
+                '"',
+                '""'
+              )}"`
+          )
+          .join(",")
     )
     .join("\n");
 
@@ -3074,7 +3691,8 @@ function exportCSV() {
   const blob =
     new Blob(
       [
-        "\uFEFF" + csv
+        "\uFEFF" +
+        csv
       ],
       {
         type:
@@ -3084,11 +3702,15 @@ function exportCSV() {
 
 
   const url =
-    URL.createObjectURL(blob);
+    URL.createObjectURL(
+      blob
+    );
 
 
   const a =
-    document.createElement("a");
+    document.createElement(
+      "a"
+    );
 
 
   a.href =
@@ -3099,14 +3721,19 @@ function exportCSV() {
     "english-collocations.csv";
 
 
-  document.body.appendChild(a);
+  document.body.appendChild(
+    a
+  );
+
 
   a.click();
 
   a.remove();
 
 
-  URL.revokeObjectURL(url);
+  URL.revokeObjectURL(
+    url
+  );
 
 
   debug(
@@ -3170,6 +3797,7 @@ window.addEventListener(
       "🌐 Internet đã kết nối lại."
     );
 
+
     if (currentUser) {
 
       syncAfterLogin();
@@ -3229,6 +3857,39 @@ document.addEventListener(
 
     }
 
+
+    /*
+      Ctrl/Cmd + Enter trong modal
+      → thêm collocation
+    */
+
+    if (
+      (
+        event.metaKey ||
+        event.ctrlKey
+      ) &&
+      event.key === "Enter"
+    ) {
+
+      const modal =
+        document.getElementById(
+          "addModal"
+        );
+
+
+      if (
+        modal &&
+        !modal.classList.contains(
+          "hidden"
+        )
+      ) {
+
+        addCollocation();
+
+      }
+
+    }
+
   }
 );
 
@@ -3244,6 +3905,10 @@ async function init() {
   );
 
 
+  /*
+    1. UI/local trước
+  */
+
   loadDarkMode();
 
   loadLocalData();
@@ -3254,7 +3919,7 @@ async function init() {
 
 
   /*
-    Khởi tạo Supabase.
+    2. Supabase
   */
 
   const supabaseReady =
@@ -3268,20 +3933,26 @@ async function init() {
       "Supabase chưa sẵn sàng — đang dùng local"
     );
 
+
+    debug(
+      "⚠️ App tiếp tục chạy bằng localStorage."
+    );
+
+
     return;
 
   }
 
 
   /*
-    Đăng ký listener trước.
+    3. Auth listener trước
   */
 
   setupAuthListener();
 
 
   /*
-    Kiểm tra session hiện tại.
+    4. Session hiện tại
   */
 
   await handleSession();
@@ -3295,7 +3966,7 @@ async function init() {
 
 
 /* ============================================================
-   START
+   START APP
    ============================================================ */
 
 init();
