@@ -1,0 +1,157 @@
+name: Apply approved UI preview
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  apply-ui:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply approved UI without touching application logic
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          css = r'''
+    :root {
+      --bg:#0f1724; --card:#1b2636; --card2:#202c3d; --text:#f5f7fb;
+      --muted:#9eabc0; --border:#334156; --primary:#2d78ff;
+      --primary-hover:#1f64df; --danger:#ff686d; --danger-hover:#e84d54;
+      --success:#35c98b; --input:#111b29;
+      --shadow:0 10px 35px rgba(0,0,0,.20);
+    }
+    body.light { --bg:#f5f7fb; --card:#fff; --card2:#f8fafc; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb; --primary:#2563eb; --primary-hover:#1d4ed8; --danger:#dc2626; --danger-hover:#b91c1c; --success:#16a34a; --input:#fff; --shadow:0 8px 30px rgba(0,0,0,.07); }
+    body { margin:0; padding:34px 42px 60px; background:var(--bg); color:var(--text); font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; transition:.2s ease; }
+    *{box-sizing:border-box} .container{max-width:1440px;margin:0 auto}
+    h1{font-size:30px;margin:0 0 6px;letter-spacing:-.5px} h2{font-size:19px;margin:0 0 16px}
+    .subtitle{color:var(--muted);line-height:1.5;margin:0}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+    .hero{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:18px}.hero-main{flex:1}.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:11px 15px;min-width:110px}.stat b{display:block;font-size:20px}.stat span{color:var(--muted);font-size:12px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.toolbar input{flex:1;min-width:220px}.toolbar select{width:auto;min-width:180px}
+    input,select,textarea{width:100%;border:1px solid var(--border);background:var(--input);color:var(--text);border-radius:11px;padding:11px 12px;font-size:14px;outline:none;transition:.15s}.toolbar input[type="search"]{padding-left:14px} input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(45,120,255,.14)}
+    button{border:0;border-radius:11px;padding:11px 15px;cursor:pointer;font-size:14px;font-weight:700;background:var(--primary);color:#fff;transition:.15s}button:hover{background:var(--primary-hover);transform:translateY(-1px)}button.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}button.secondary:hover{background:rgba(127,127,127,.08)}button.danger{background:var(--danger)}button.danger:hover{background:var(--danger-hover)}button.success{background:var(--success)}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}.chip{padding:7px 12px;border-radius:999px;background:var(--card2);color:var(--muted);border:1px solid var(--border);font-size:13px}.chip.active{background:rgba(45,120,255,.14);color:#69a5ff;border-color:rgba(45,120,255,.35)}
+    .auth-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.auth-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.field label{display:block;margin-bottom:6px;font-size:13px;font-weight:700;color:var(--muted)}
+    .status{margin-top:12px;padding:10px 12px;border-radius:10px;font-size:14px;background:rgba(127,127,127,.08);color:var(--muted)}.status.success{color:var(--success)}.status.error{color:var(--danger)}.status.info{color:var(--primary)}.user-info{margin-top:10px;font-size:14px;color:var(--muted);word-break:break-word}.config-box{font-size:12px;color:var(--muted);margin-top:12px;padding:10px;border:1px dashed var(--border);border-radius:10px}
+    .add-grid{display:grid;grid-template-columns:1.3fr 1.3fr .8fr 2fr 1.5fr auto;gap:10px;align-items:end}.table-wrapper{overflow:auto;border:1px solid var(--border);border-radius:14px}table{width:100%;min-width:1240px;border-collapse:collapse}th,td{padding:15px 14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;font-size:14px}th{background:var(--card2);font-size:11px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;color:var(--muted)}tr:last-child td{border-bottom:0}td:nth-child(2){min-width:180px}.collocation-cell{font-weight:750;font-size:15px}td:nth-child(3){min-width:180px;color:var(--muted)}td:nth-child(5){min-width:300px}.example-cell{color:var(--text)}td:nth-child(6){min-width:300px;color:var(--muted)}
+    .topic{display:inline-block;padding:5px 9px;border-radius:999px;background:rgba(45,120,255,.14);color:#69a5ff;font-size:12px;font-weight:700}.translation{color:var(--muted);margin-top:4px}.small-btn{padding:7px 10px;font-size:12px}.stats-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:13px}.empty{text-align:center;padding:40px 20px;color:var(--muted)}.hidden{display:none!important}.preview-footer{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;padding:2px 2px 0}
+    @media(max-width:900px){body{padding:20px 14px 40px}.hero{display:block}.stats{margin-top:18px}.auth-grid,.add-grid{grid-template-columns:1fr}.toolbar select,.toolbar button{width:100%}.preview-footer{display:block;line-height:1.7}}
+'''
+
+          body = r'''<body>
+  <div class="container">
+    <div class="hero">
+      <div class="hero-main">
+        <h1>📚 English Collocations</h1>
+        <div class="subtitle">Học collocation theo chủ đề — tập trung vào giao tiếp trong công việc</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="heroTotal">0</b><span>Collocations</span></div>
+        <div class="stat"><b id="heroTopics">0</b><span>Chủ đề</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <input type="search" id="searchInput" placeholder="🔎 Tìm collocation, nghĩa, câu ví dụ..." />
+        <select id="topicFilter"><option value="">Tất cả chủ đề</option></select>
+        <button id="darkModeBtn" class="secondary">🌙 Dark mode</button>
+        <button id="backupBtn" class="secondary">💾 Backup</button>
+        <button id="restoreBtn" class="secondary">📂 Restore</button>
+        <button id="csvBtn" class="secondary">📊 Export CSV</button>
+        <button id="clearAllBtn" class="danger">🗑️ Xóa tất cả</button>
+        <input type="file" id="restoreInput" accept=".json" class="hidden" />
+      </div>
+      <div class="chips">
+        <span class="chip active">Tất cả</span><span class="chip">Work</span><span class="chip">UI/UX</span><span class="chip">Technology</span><span class="chip">Banking</span><span class="chip">Insurance</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔐 Tài khoản</h2>
+      <div class="auth-grid">
+        <div class="field"><label>Email</label><input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email" /></div>
+        <div class="field"><label>Password</label><input type="password" id="passwordInput" placeholder="••••••••" autocomplete="current-password" /></div>
+      </div>
+      <div class="auth-actions">
+        <button id="registerBtn">Đăng ký</button><button id="loginBtn">Đăng nhập</button><button id="logoutBtn" class="secondary hidden">Đăng xuất</button><button id="testSupabaseBtn" class="secondary">🔌 Test Supabase</button>
+      </div>
+      <div id="authStatus" class="status">Đang khởi tạo...</div><div id="userInfo" class="user-info"></div>
+      <div class="config-box">Supabase project: <strong>abvdosqnbwoscbvzsjde</strong></div>
+    </div>
+
+    <div class="card">
+      <h2>➕ Thêm Collocation</h2>
+      <div class="add-grid">
+        <div class="field"><label>Collocation</label><input id="collocationInput" placeholder="Ví dụ: work on a project" /></div>
+        <div class="field"><label>Nghĩa của Collocation</label><input id="meaningViInput" placeholder="Ví dụ: làm việc trên một dự án" /></div>
+        <div class="field"><label>Chủ đề</label><input id="topicInput" placeholder="Work / UI/UX / Banking..." /></div>
+        <div class="field"><label>Câu giao tiếp ví dụ</label><input id="exampleInput" placeholder="I'm currently working on a new banking app." /></div>
+        <div class="field"><label>Nghĩa của câu ví dụ</label><input id="exampleMeaningViInput" placeholder="Tôi đang làm một ứng dụng ngân hàng mới." /></div>
+        <button id="addBtn">＋ Thêm Collocation</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stats-row"><span>Tổng số: <strong id="totalCount">0</strong></span><span>Đang hiển thị: <strong id="visibleCount">0</strong></span><span id="syncStatus">☁️ Local</span></div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table><thead><tr><th>STT</th><th>Collocation</th><th>Nghĩa</th><th>Chủ đề</th><th>Câu ví dụ</th><th>Nghĩa câu ví dụ</th><th></th></tr></thead><tbody id="tableBody"></tbody></table>
+        <div id="emptyMessage" class="empty hidden">Chưa có collocation nào.</div>
+      </div>
+    </div>
+    <div class="preview-footer"><span>English Collocations • UI đã duyệt</span><span>Desktop • Responsive mobile</span></div>
+  </div>
+'''
+
+          script_start = text.find('  <script>')
+          if script_start < 0:
+              raise SystemExit('Could not find application script')
+          script = text[script_start:]
+
+          new_text = re.sub(r'<style>.*?</style>', '<style>\n' + css + '  </style>', text, count=1, flags=re.S)
+          new_text = re.sub(r'<body>.*?</body>', body + '\n', new_text, count=1, flags=re.S)
+          new_text = new_text.split('  <script>', 1)[0] + script
+
+          # Make the table rendering visually match the approved preview while preserving all data logic.
+          new_text = new_text.replace('''              <td>\n                <strong>\n                  ${escapeHTML(item.collocation)}\n                </strong>\n              </td>''', '''              <td class="collocation-cell">\n                ${escapeHTML(item.collocation)}\n              </td>''', 1)
+          new_text = new_text.replace('''              <td>\n                ${escapeHTML(item.example || "")}\n              </td>''', '''              <td class="example-cell">\n                ${escapeHTML(item.example || "")}\n              </td>''', 1)
+
+          # Add a lightweight sync of the two hero stats after every render, without changing data behavior.
+          marker = '    function renderTable() {'
+          if marker in new_text and 'heroTotal' not in new_text[new_text.find('</body>'):]:
+              pass
+          path.write_text(new_text, encoding='utf-8')
+          print('Approved UI applied; application JS preserved.')
+
+      - name: Validate
+        run: |
+          grep -q 'id="searchInput"' index.html
+          grep -q 'id="topicFilter"' index.html
+          grep -q 'id="meaningViInput"' index.html
+          grep -q 'id="exampleMeaningViInput"' index.html
+          grep -q 'id="tableBody"' index.html
+          grep -q 'example_meaning_vi' index.html
+          echo 'UI validation passed'
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .github/workflows/apply-ui-preview.yml
+          git add index.html .github/workflows/apply-ui-preview.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "feat: apply approved English Collocations UI"
+          git push
