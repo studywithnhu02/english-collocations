@@ -1,0 +1,137 @@
+name: Update collocation meaning fields
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update index.html
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = [
+              (
+                  'grid-template-columns: 1.3fr 0.8fr 2fr auto;',
+                  'grid-template-columns: 1.3fr 1.3fr 0.8fr 2fr 1.5fr auto;'
+              ),
+              (
+                  'min-width: 900px;',
+                  'min-width: 1400px;'
+              ),
+              (
+                  '''        <div class="field">\n          <label>Chủ đề</label>\n          <input\n            id="topicInput"\n            placeholder="Work / UI/UX / Banking..."\n          />\n        </div>''',
+                  '''        <div class="field">\n          <label>Nghĩa của Collocation</label>\n          <input\n            id="meaningViInput"\n            placeholder="Ví dụ: làm việc trên một dự án"\n          />\n        </div>\n\n        <div class="field">\n          <label>Chủ đề</label>\n          <input\n            id="topicInput"\n            placeholder="Work / UI/UX / Banking..."\n          />\n        </div>'''
+              ),
+              (
+                  '''        <div class="field">\n          <label>Câu giao tiếp ví dụ</label>\n          <input\n            id="exampleInput"\n            placeholder="I'm currently working on a new banking app."\n          />\n        </div>''',
+                  '''        <div class="field">\n          <label>Câu giao tiếp ví dụ</label>\n          <input\n            id="exampleInput"\n            placeholder="I'm currently working on a new banking app."\n          />\n        </div>\n\n        <div class="field">\n          <label>Nghĩa của câu ví dụ</label>\n          <input\n            id="exampleMeaningViInput"\n            placeholder="Tôi đang làm một ứng dụng ngân hàng mới."\n          />\n        </div>'''
+              ),
+              (
+                  '''              <th>Collocation</th>\n              <th>Chủ đề</th>\n              <th>Câu giao tiếp ví dụ</th>''',
+                  '''              <th>Collocation</th>\n              <th>Nghĩa Collocation</th>\n              <th>Chủ đề</th>\n              <th>Câu giao tiếp ví dụ</th>\n              <th>Nghĩa câu ví dụ</th>'''
+              ),
+              (
+                  '''            item.collocation,\n            item.topic,\n            item.example''',
+                  '''            item.collocation,\n            item.meaning_vi,\n            item.topic,\n            item.example,\n            item.example_meaning_vi'''
+              ),
+              (
+                  '''              <td>\n                <span class="topic">\n                  ${escapeHTML(item.topic || "Other")}\n                </span>\n              </td>\n\n              <td>\n                ${escapeHTML(item.example)}\n              </td>''',
+                  '''              <td>\n                ${escapeHTML(item.meaning_vi || "")}\n              </td>\n\n              <td>\n                <span class="topic">\n                  ${escapeHTML(item.topic || "Other")}\n                </span>\n              </td>\n\n              <td>\n                ${escapeHTML(item.example || "")}\n              </td>\n\n              <td>\n                ${escapeHTML(item.example_meaning_vi || "")}\n              </td>'''
+              ),
+              (
+                  '''      const example =\n        $("exampleInput")\n          .value\n          .trim();''',
+                  '''      const example =\n        $("exampleInput")\n          .value\n          .trim();\n\n      const meaning_vi =\n        $("meaningViInput")\n          .value\n          .trim();\n\n      const example_meaning_vi =\n        $("exampleMeaningViInput")\n          .value\n          .trim();'''
+              ),
+              (
+                  '''        collocation,\n\n        topic:''',
+                  '''        collocation,\n\n        meaning_vi,\n\n        topic:'''
+              ),
+              (
+                  '''        example:\n          example || ""\n      };''',
+                  '''        example:\n          example || "",\n\n        example_meaning_vi:\n          example_meaning_vi || ""\n      };'''
+              ),
+              (
+                  '''      $("collocationInput").value = "";\n      $("topicInput").value = "";\n      $("exampleInput").value = "";''',
+                  '''      $("collocationInput").value = "";\n      $("meaningViInput").value = "";\n      $("topicInput").value = "";\n      $("exampleInput").value = "";\n      $("exampleMeaningViInput").value = "";'''
+              ),
+              (
+                  '''              "id, collocation, topic, example, meaning_vi, level, notes, user_id"''',
+                  '''              "id, collocation, topic, example, meaning_vi, example_meaning_vi, level, notes, user_id"'''
+              ),
+              (
+                  '''        meaning_vi:\n          item.meaning_vi || "",\n\n        level:''',
+                  '''        meaning_vi:\n          item.meaning_vi || "",\n\n        example_meaning_vi:\n          item.example_meaning_vi || "",\n\n        level:'''
+              ),
+              (
+                  '''          meaning_vi:\n            item.meaning_vi || "",\n\n          level:''',
+                  '''          meaning_vi:\n            item.meaning_vi || "",\n\n          example_meaning_vi:\n            item.example_meaning_vi || "",\n\n          level:'''
+              ),
+              (
+                  '''            meaning_vi:\n              item.meaning_vi || "",\n\n            level:''',
+                  '''            meaning_vi:\n              item.meaning_vi || "",\n\n            example_meaning_vi:\n              item.example_meaning_vi || "",\n\n            level:'''
+              ),
+              (
+                  '''        meaning_vi:\n            item.meaning_vi || "",\n\n          level:''',
+                  '''        meaning_vi:\n            item.meaning_vi || "",\n\n          example_meaning_vi:\n            item.example_meaning_vi || "",\n\n          level:'''
+              ),
+              (
+                  '''            "Collocation",\n        "Topic",\n        "Example"''',
+                  '''            "Collocation",\n        "Nghĩa Collocation",\n        "Topic",\n        "Example",\n        "Nghĩa câu ví dụ"'''
+              ),
+              (
+                  '''            item.collocation,\n\n            item.topic,\n\n            item.example''',
+                  '''            item.collocation,\n\n            item.meaning_vi,\n\n            item.topic,\n\n            item.example,\n\n            item.example_meaning_vi'''
+              ),
+              (
+                  '''        "collocationInput",\n        "topicInput",\n        "exampleInput"''',
+                  '''        "collocationInput",\n        "meaningViInput",\n        "topicInput",\n        "exampleInput",\n        "exampleMeaningViInput"'''
+              )
+          ]
+
+          for old, new in replacements:
+              if old not in text:
+                  raise SystemExit(f'Expected pattern not found: {old[:120]!r}')
+              text = text.replace(old, new, 1)
+
+          # Add small readability rules for the two new Vietnamese columns.
+          marker = '''    .topic {\n'''
+          css = '''    td:nth-child(2) {\n      min-width: 180px;\n    }\n\n    td:nth-child(3) {\n      min-width: 180px;\n      color: var(--muted);\n    }\n\n    td:nth-child(5) {\n      min-width: 300px;\n    }\n\n    td:nth-child(6) {\n      min-width: 300px;\n      color: var(--muted);\n    }\n\n'''
+          if marker not in text:
+              raise SystemExit('CSS marker not found')
+          text = text.replace(marker, css + marker, 1)
+
+          path.write_text(text, encoding='utf-8')
+          print('index.html updated')
+
+      - name: Validate required fields
+        run: |
+          grep -q 'id="meaningViInput"' index.html
+          grep -q 'id="exampleMeaningViInput"' index.html
+          grep -q 'example_meaning_vi' index.html
+          grep -q 'Nghĩa Collocation' index.html
+          grep -q 'Nghĩa câu ví dụ' index.html
+          echo 'Validation passed'
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .github/workflows/update-collocations.yml
+          git add index.html .github/workflows/update-collocations.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "feat: add Vietnamese meanings for collocations and examples"
+          git push
