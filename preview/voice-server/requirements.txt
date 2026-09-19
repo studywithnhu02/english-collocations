@@ -1,5 +1,0 @@
-coqui-tts[server]
-fastapi
-uvicorn[standard]
-torch
-torchaudio
