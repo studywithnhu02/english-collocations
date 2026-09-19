@@ -1,0 +1,36 @@
+name: One-time light topic color fix
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: ${{ !startsWith(github.event.head_commit.message, 'fix: light topic color') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch preview CSS and remove this one-time workflow
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('preview/index.html')
+          s = p.read_text(encoding='utf-8')
+          old = 'body.light-theme .translation.auto-translated{background:#e8f7f2;color:#475467;box-shadow:inset 0 0 0 1px #c8eadf}'
+          new = old + 'body.light-theme .topic{background:#e8f1ff;color:#1d5fbf;border:1px solid #c7dcff}'
+          if 'body.light-theme .topic{' not in s:
+              if old not in s:
+                  raise SystemExit('Expected light-theme CSS anchor not found')
+              s = s.replace(old, new, 1)
+              p.write_text(s, encoding='utf-8')
+          PY
+          rm -f .github/workflows/fix-light-topic.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add preview/index.html .github/workflows/fix-light-topic.yml
+          git commit -m 'fix: light topic color'
+          git push
