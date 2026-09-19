@@ -1,0 +1,1 @@
+Restoring the Preview from the last working revision before the failed bridge edit.
