@@ -1,4 +1,4 @@
-name: Upgrade Preview Voice
+name: One-time light topic color fix
 
 on:
   push:
@@ -8,35 +8,31 @@ permissions:
   contents: write
 
 jobs:
-  upgrade:
-    if: ${{ !contains(github.event.head_commit.message, 'chore: apply preview voice upgrade') }}
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, 'fix: light topic color') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Upgrade preview voice
+      - name: Fix light-mode topic color
         run: |
           python3 <<'PY'
           from pathlib import Path
           p = Path('preview/index.html')
           s = p.read_text(encoding='utf-8')
-          marker = '/* FREE VOICE UPGRADE */'
-          if marker in s:
-              print('Voice upgrade already present')
-              raise SystemExit(0)
-          code = r'''\n<script>\n/* FREE VOICE UPGRADE */\n(function(){\n  if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;\n  const synth = window.speechSynthesis;\n  let voices = [];\n  let activeButton = null;\n  let activeUtterance = null;\n\n  function refreshVoices(){ voices = synth.getVoices(); }\n  refreshVoices();\n  if ('onvoiceschanged' in synth) synth.addEventListener('voiceschanged', refreshVoices);\n\n  function score(v){\n    const name=(v.name||'').toLowerCase();\n    const lang=(v.lang||'').toLowerCase();\n    let n=0;\n    if(lang==='en-us') n+=100;\n    else if(lang.startsWith('en-us')) n+=90;\n    else if(lang.startsWith('en')) n+=35;\n    const preferred=['samantha','ava','jenny','aria','zira','susan','karen','allison','victoria','siri','google us english','microsoft jenny','microsoft aria','microsoft zira'];\n    preferred.forEach((x,i)=>{ if(name.includes(x)) n += 60-i; });\n    if(name.includes('female')) n+=15;\n    if(name.includes('male')) n-=50;\n    if(v.localService) n+=3;\n    if(v.default) n+=1;\n    return n;\n  }\n\n  function bestVoice(){\n    refreshVoices();\n    const us=voices.filter(v=>(v.lang||'').toLowerCase().startsWith('en-us'));\n    return (us.length?us:voices.filter(v=>(v.lang||'').toLowerCase().startsWith('en'))).sort((a,b)=>score(b)-score(a))[0] || null;\n  }\n\n  function stop(){\n    synth.cancel();\n    if(activeButton){ activeButton.classList.remove('playing'); activeButton.textContent='▶'; }\n    activeButton=null; activeUtterance=null;\n  }\n\n  function play(button){\n    const cell=button.closest('.example-cell');\n    const textEl=cell && cell.querySelector('.example-text');\n    const text=(textEl ? textEl.innerText : '').trim();\n    if(!text) return;\n\n    if(activeButton===button){\n      if(synth.speaking && synth.paused){ synth.resume(); button.textContent='⏸'; }\n      else if(synth.speaking){ synth.pause(); button.textContent='▶'; }\n      else { stop(); speak(button,text); }\n      return;\n    }\n    stop();\n    speak(button,text);\n  }\n\n  function speak(button,text){\n    const utter=new SpeechSynthesisUtterance(text);\n    const voice=bestVoice();\n    if(voice) utter.voice=voice;\n    utter.lang='en-US';\n    utter.rate=0.92;\n    utter.pitch=1.02;\n    utter.volume=1;\n    activeButton=button; activeUtterance=utter;\n    button.classList.add('playing'); button.textContent='⏸';\n    utter.onend=utter.onerror=()=>{ if(activeUtterance===utter) stop(); };\n    synth.speak(utter);\n  }\n\n  document.addEventListener('click', function(e){\n    const button=e.target.closest('.voice-btn');\n    if(!button) return;\n    e.preventDefault();\n    e.stopImmediatePropagation();\n    play(button);\n  }, true);\n\n  window.addEventListener('beforeunload', stop);\n})();\n</script>\n'''
-          idx=s.rfind('</body>')
-          if idx<0: idx=s.rfind('</html>')
-          if idx<0: idx=len(s)
-          s=s[:idx]+code+s[idx:]
-          p.write_text(s,encoding='utf-8')
+          anchor = 'body.light-theme .translation.auto-translated{background:#e8f7f2;color:#475467;box-shadow:inset 0 0 0 1px #c8eadf}'
+          fix = 'body.light-theme .topic{background:#e8f1ff;color:#1d5fbf;border:1px solid #c7dcff}'
+          if 'body.light-theme .topic{' not in s:
+              if anchor not in s:
+                  raise SystemExit('Expected light-theme CSS anchor not found')
+              s = s.replace(anchor, anchor + fix, 1)
+              p.write_text(s, encoding='utf-8')
           PY
-      - name: Commit upgraded preview and remove one-time workflow
+      - name: Commit fix and remove one-time workflow files
         run: |
-          rm -f .github/workflows/upgrade-preview-voice.yml
+          rm -f .github/workflows/upgrade-preview-voice.yml .github/workflows/fix-light-topic.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add preview/index.html .github/workflows/upgrade-preview-voice.yml
-          git commit -m "chore: apply preview voice upgrade"
+          git add preview/index.html .github/workflows/upgrade-preview-voice.yml .github/workflows/fix-light-topic.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "fix: light topic color"
           git push
