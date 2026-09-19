@@ -1,0 +1,43 @@
+name: Enable inline editing
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-index:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add inline editor script
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          tag = '<script src="./inline-edit.js"></script>'
+          if tag not in s:
+              marker = '</body>'
+              if marker not in s:
+                  raise SystemExit('index.html has no </body> marker')
+              s = s.replace(marker, f'  {tag}\n{marker}', 1)
+              p.write_text(s, encoding='utf-8')
+          print('inline-edit.js is enabled')
+      - name: Validate
+        run: |
+          grep -q 'inline-edit.js' index.html
+          test -s inline-edit.js
+          echo 'Inline editor validation passed'
+      - name: Commit patched index
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .github/workflows/enable-inline-edit.yml
+          git add index.html inline-edit.js .github/workflows/enable-inline-edit.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "feat: enable Google Sheets style inline editing"
+          git push
