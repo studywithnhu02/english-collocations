@@ -213,7 +213,7 @@
 
     .add-grid {
       display: grid;
-      grid-template-columns: 1.3fr 0.8fr 2fr auto;
+      grid-template-columns: 1.3fr 1.3fr 0.8fr 2fr 1.5fr auto;
       gap: 10px;
       align-items: end;
     }
@@ -235,7 +235,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 900px;
+      min-width: 1400px;
     }
 
     th,
@@ -255,6 +255,24 @@
 
     tr:last-child td {
       border-bottom: 0;
+    }
+
+    td:nth-child(2) {
+      min-width: 180px;
+    }
+
+    td:nth-child(3) {
+      min-width: 180px;
+      color: var(--muted);
+    }
+
+    td:nth-child(5) {
+      min-width: 300px;
+    }
+
+    td:nth-child(6) {
+      min-width: 300px;
+      color: var(--muted);
     }
 
     .topic {
@@ -456,6 +474,14 @@
         </div>
 
         <div class="field">
+          <label>Nghĩa của Collocation</label>
+          <input
+            id="meaningViInput"
+            placeholder="Ví dụ: làm việc trên một dự án"
+          />
+        </div>
+
+        <div class="field">
           <label>Chủ đề</label>
           <input
             id="topicInput"
@@ -468,6 +494,14 @@
           <input
             id="exampleInput"
             placeholder="I'm currently working on a new banking app."
+          />
+        </div>
+
+        <div class="field">
+          <label>Nghĩa của câu ví dụ</label>
+          <input
+            id="exampleMeaningViInput"
+            placeholder="Tôi đang làm một ứng dụng ngân hàng mới."
           />
         </div>
 
@@ -528,8 +562,10 @@
             <tr>
               <th style="width: 60px;">STT</th>
               <th>Collocation</th>
+              <th>Nghĩa Collocation</th>
               <th>Chủ đề</th>
               <th>Câu giao tiếp ví dụ</th>
+              <th>Nghĩa câu ví dụ</th>
               <th style="width: 90px;">Xóa</th>
             </tr>
           </thead>
@@ -762,8 +798,10 @@
 
           const text = [
             item.collocation,
+            item.meaning_vi,
             item.topic,
-            item.example
+            item.example,
+            item.example_meaning_vi
           ]
             .join(" ")
             .toLowerCase();
@@ -815,13 +853,21 @@
               </td>
 
               <td>
+                ${escapeHTML(item.meaning_vi || "")}
+              </td>
+
+              <td>
                 <span class="topic">
                   ${escapeHTML(item.topic || "Other")}
                 </span>
               </td>
 
               <td>
-                ${escapeHTML(item.example)}
+                ${escapeHTML(item.example || "")}
+              </td>
+
+              <td>
+                ${escapeHTML(item.example_meaning_vi || "")}
               </td>
 
               <td>
@@ -921,6 +967,16 @@
           .value
           .trim();
 
+      const meaning_vi =
+        $("meaningViInput")
+          .value
+          .trim();
+
+      const example_meaning_vi =
+        $("exampleMeaningViInput")
+          .value
+          .trim();
+
 
       if (!collocation) {
         alert(
@@ -937,11 +993,16 @@
 
         collocation,
 
+        meaning_vi,
+
         topic:
           topic || "Other",
 
         example:
-          example || ""
+          example || "",
+
+        example_meaning_vi:
+          example_meaning_vi || ""
       };
 
 
@@ -953,8 +1014,10 @@
 
 
       $("collocationInput").value = "";
+      $("meaningViInput").value = "";
       $("topicInput").value = "";
       $("exampleInput").value = "";
+      $("exampleMeaningViInput").value = "";
 
 
       setSyncStatus(
@@ -1881,7 +1944,7 @@
           await supabaseClient
             .from("collocations")
             .select(
-              "id, collocation, topic, example, meaning_vi, level, notes, user_id"
+              "id, collocation, topic, example, meaning_vi, example_meaning_vi, level, notes, user_id"
             )
             .eq(
               "user_id",
@@ -1952,6 +2015,9 @@
         meaning_vi:
           item.meaning_vi || "",
 
+        example_meaning_vi:
+          item.example_meaning_vi || "",
+
         level:
           item.level || "",
 
@@ -1993,6 +2059,9 @@
 
           meaning_vi:
             item.meaning_vi || "",
+
+          example_meaning_vi:
+            item.example_meaning_vi || "",
 
           level:
             item.level || "",
@@ -2484,6 +2553,10 @@
                     item.meaning_vi ||
                     "",
 
+                  example_meaning_vi:
+                    item.example_meaning_vi ||
+                    "",
+
                   level:
                     item.level ||
                     "",
@@ -2553,8 +2626,10 @@
       const headers = [
         "STT",
         "Collocation",
+        "Nghĩa Collocation",
         "Topic",
-        "Example"
+        "Example",
+        "Nghĩa câu ví dụ"
       ];
 
 
@@ -2566,9 +2641,13 @@
 
             item.collocation,
 
+            item.meaning_vi,
+
             item.topic,
 
-            item.example
+            item.example,
+
+            item.example_meaning_vi
           ]
         );
 
@@ -2815,8 +2894,10 @@
 
       [
         "collocationInput",
+        "meaningViInput",
         "topicInput",
-        "exampleInput"
+        "exampleInput",
+        "exampleMeaningViInput"
       ].forEach(id => {
 
         $(id)
