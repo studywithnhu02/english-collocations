@@ -16,7 +16,7 @@ function fill(cell,value,cefr=''){if(!cell||!document.contains(cell))return;cell
 function buildItems(raw,{withMissingMeaning=false}={}){
  const table=readRows(),list=(Array.isArray(raw)?raw:[]).map((item,index)=>{
    const phrase=String(item?.c??item?.collocation??item?.phrase??item?.word??'').trim();
-   return {c:phrase,v:String(item?.v??item?.meaningVi??item?.meaning??'').trim(),cefr:String(item?.cefr??'').trim().toUpperCase(),score:Number(item?.score)||0,source:String(item?.source||'local'),sourceIndex:Number(item?.sourceIndex??index)};
+   return {c:phrase,v:String(item?.v??item?.meaningVi??'').trim(),meaningEn:String(item?.meaningEn??item?.meaning??'').trim(),cefr:String(item?.cefr??'').trim().toUpperCase(),score:Number(item?.score)||0,source:String(item?.source||'local'),sourceIndex:Number(item?.sourceIndex??index)};
  }).filter(x=>x.c);
  const merged=list.reduce((out,item)=>{
    const key=item.c.toLowerCase(),old=out.find(x=>x.c.toLowerCase()===key);
@@ -24,15 +24,16 @@ function buildItems(raw,{withMissingMeaning=false}={}){
    else{
      old.score=Math.max(Number(old.score)||0,Number(item.score)||0);
      if(!old.v&&item.v)old.v=item.v;
+     if(!old.meaningEn&&item.meaningEn)old.meaningEn=item.meaningEn;
      if(!old.cefr&&item.cefr)old.cefr=item.cefr;
      if(old.source==='ai'&&item.source!=='ai')old.source=item.source;
    }
    return out;
  },[]);
  return merged.filter(x=>withMissingMeaning||x.v).map(x=>({...x,exists:table.some(r=>String(r?.c||'').trim().toLowerCase()===x.c.toLowerCase())}))
-   .sort((a,b)=>(b.score-a.score)||(a.sourceIndex-b.sourceIndex)).slice(0,20);
+   .sort((a,b)=>(b.score-a.score)||(a.sourceIndex-b.sourceIndex)).slice(0,60);
 }
-function showSuggestions(cell,raw,label='📚 Gợi ý trong thư viện',loadingMore=false){const clean=buildItems(raw).filter(x=>x.v);if(!clean.length&&!loadingMore){closeSuggest();return}let pop=document.getElementById('suggestPopover');if(!pop){pop=document.createElement('div');pop.id='suggestPopover';pop.className='suggest-popover';pop.setAttribute('role','listbox');document.body.appendChild(pop)}suggestCell=cell;suggestValues=clean.filter(x=>!x.exists).map(x=>x.c);suggestIndex=Math.min(suggestIndex,Math.max(0,suggestValues.length-1));pop.innerHTML='';const head=document.createElement('div');head.className='suggest-head';head.textContent=label;pop.appendChild(head);const list=document.createElement('div');list.className='suggest-list';clean.forEach((item,index)=>{const b=document.createElement('button');b.type='button';b.className='suggestion-btn'+(item.exists?' is-existing':'');b.setAttribute('role','option');b.setAttribute('aria-selected',String(index===suggestIndex));if(item.exists)b.disabled=true;b.innerHTML='<span class="suggestion-copy"><span class="suggestion-phrase">'+esc(item.c)+'</span>'+(item.v?'<span class="suggestion-meaning">'+esc(item.v)+'</span>':'')+'<span class="suggestion-meta">'+(item.cefr?'<span class="suggestion-cefr">'+esc(item.cefr)+'</span>':'')+(item.exists?'<span class="suggestion-exists">✓ Đã có trong bảng</span>':'')+'</span></span><span class="suggestion-arrow">'+(item.exists?'✓':'→')+'</span>';b.addEventListener('mousedown',e=>e.preventDefault());if(!item.exists)b.addEventListener('click',()=>fill(cell,item.c,item.cefr));list.appendChild(b)});pop.appendChild(list);if(loadingMore){const load=document.createElement('div');load.className='suggest-loading';load.textContent='🧠 Đang tìm thêm từ Library / Datamuse / AI…';pop.appendChild(load)}const syn=synonymsFor(cell.textContent||'');if(syn.length&&!loadingMore){const sh=document.createElement('div');sh.className='suggest-head';sh.textContent='🔁 Từ gần nghĩa';pop.appendChild(sh);const sv=document.createElement('div');sv.className='suggest-note';sv.textContent=syn.join(' · ');pop.appendChild(sv)}const note=document.createElement('div');note.className='suggest-note';note.textContent='Nguồn: local library + Datamuse + AI · Mỗi gợi ý đều có nghĩa tiếng Việt · ↑ ↓ chọn · Enter điền · Esc đóng';pop.appendChild(note);repositionSuggest();setActiveSuggestion(suggestIndex)}
+function showSuggestions(cell,raw,label='📚 Gợi ý trong thư viện',loadingMore=false){const clean=buildItems(raw).filter(x=>x.v||x.meaningEn);if(!clean.length&&!loadingMore){closeSuggest();return}let pop=document.getElementById('suggestPopover');if(!pop){pop=document.createElement('div');pop.id='suggestPopover';pop.className='suggest-popover';pop.setAttribute('role','listbox');document.body.appendChild(pop)}suggestCell=cell;suggestValues=clean.filter(x=>!x.exists).map(x=>x.c);suggestIndex=Math.min(suggestIndex,Math.max(0,suggestValues.length-1));pop.innerHTML='';const head=document.createElement('div');head.className='suggest-head';head.textContent=label;pop.appendChild(head);const list=document.createElement('div');list.className='suggest-list';clean.forEach((item,index)=>{const b=document.createElement('button');b.type='button';b.className='suggestion-btn'+(item.exists?' is-existing':'');b.setAttribute('role','option');b.setAttribute('aria-selected',String(index===suggestIndex));if(item.exists)b.disabled=true;b.innerHTML='<span class="suggestion-copy"><span class="suggestion-phrase">'+esc(item.c)+'</span>'+(item.v?'<span class="suggestion-meaning">'+esc(item.v)+'</span>':item.meaningEn?'<span class="suggestion-meaning">'+esc(item.meaningEn)+'</span>':'')+'<span class="suggestion-meta">'+(item.cefr?'<span class="suggestion-cefr">'+esc(item.cefr)+'</span>':'')+(item.exists?'<span class="suggestion-exists">✓ Đã có trong bảng</span>':'')+'</span></span><span class="suggestion-arrow">'+(item.exists?'✓':'→')+'</span>';b.addEventListener('mousedown',e=>e.preventDefault());if(!item.exists)b.addEventListener('click',()=>fill(cell,item.c,item.cefr));list.appendChild(b)});pop.appendChild(list);if(loadingMore){const load=document.createElement('div');load.className='suggest-loading';load.textContent='🧠 Đang tìm thêm từ Library / Datamuse / AI…';pop.appendChild(load)}const syn=synonymsFor(cell.textContent||'');if(syn.length&&!loadingMore){const sh=document.createElement('div');sh.className='suggest-head';sh.textContent='🔁 Từ gần nghĩa';pop.appendChild(sh);const sv=document.createElement('div');sv.className='suggest-note';sv.textContent=syn.join(' · ');pop.appendChild(sv)}const note=document.createElement('div');note.className='suggest-note';note.textContent='Nguồn: local library + open MIT set + Datamuse + AI · Nghĩa tiếng Việt được ưu tiên';pop.appendChild(note);repositionSuggest();setActiveSuggestion(suggestIndex)}
 function parseAiSuggestions(text){try{const parsed=extractJson(text);if(Array.isArray(parsed))return parsed;if(Array.isArray(parsed?.items))return parsed.items;return parsed?[parsed]:[]}catch{return[]}}
 function sanitizeAiSuggestions(text,value){
  const q=normalizeSmartInput(value);
@@ -59,26 +60,26 @@ async function enrichSuggestions(cell,value,token,base){
     rawExternal=await getExternalSuggestions(value,{max:100});
     if(token!==activeRequest||document.activeElement!==cell||!document.contains(cell))return;
     merged=buildItems([...(base||[]),...rawExternal]);
-    showSuggestions(cell,merged,'📚 Gợi ý trong thư viện',merged.length<10);
+    showSuggestions(cell,merged,'📚 Gợi ý trong thư viện',merged.length<30);
   }catch{}
-  const missingMeanings=rawExternal.filter(x=>x?.c&&!String(x?.v||'').trim()).slice(0,30);
+  const missingMeanings=rawExternal.filter(x=>x?.c&&!String(x?.v||'').trim()).slice(0,45);
   if(missingMeanings.length){
     try{
       const raw=await aiJson([
-        {role:'system',content:'Return only a JSON array. For each supplied English collocation, provide the natural Vietnamese meaning and CEFR only when reasonably known. Preserve each collocation exactly. Do not add or remove collocations.'},
-        {role:'user',content:JSON.stringify(missingMeanings.map(x=>({collocation:x.c,meaningVi:x.v||'',cefr:x.cefr||''})))}
-      ],{batch:false,purpose:'suggestion-meanings',maxNewTokens:384,timeoutMs:20000});
+        {role:'system',content:'Return only a JSON array. For each supplied English collocation, provide a concise natural Vietnamese meaning and CEFR only when reasonably known. When an English gloss is supplied, translate or adapt it naturally into Vietnamese. Preserve each collocation exactly. Do not add or remove collocations.'},
+        {role:'user',content:JSON.stringify(missingMeanings.map(x=>({collocation:x.c,meaningEn:x.meaningEn||'',meaningVi:x.v||'',cefr:x.cefr||''})))}
+      ],{batch:false,purpose:'suggestion-meanings',maxNewTokens:1024,timeoutMs:20000});
       if(token!==activeRequest||document.activeElement!==cell||!document.contains(cell))return;
       merged=buildItems([...merged,...sanitizeAiMeaningItems(raw)]);
       showSuggestions(cell,merged,'📚 Gợi ý trong thư viện',merged.length<10);
     }catch{}
   }
-  if(merged.length>=10)return;
+  if(merged.length>=30)return;
   try{
     const raw=await aiJson([
-      {role:'system',content:'Return only JSON array with up to 20 common natural English collocations that begin exactly with the supplied input. Mix useful collocation patterns where compatible: verb+noun, adjective+noun, noun+noun, adverb+adjective, verb+preposition, adjective+preposition. Prefer workplace, UI/UX, technology, banking, insurance, business and everyday communication. Every item must include collocation, natural Vietnamese meaning, and CEFR only when reasonably known from A1/A2/B1/B2/C1/C2. Never invent awkward phrases. No explanations.'},
+      {role:'system',content:'Return only JSON array with up to 30 common natural English collocations that begin exactly with the supplied input. Mix useful collocation patterns where compatible: verb+noun, adjective+noun, noun+noun, adverb+adjective, verb+preposition, adjective+preposition. Prefer workplace, UI/UX, technology, banking, insurance, business and everyday communication. Every item must include collocation, natural Vietnamese meaning, and CEFR only when reasonably known from A1/A2/B1/B2/C1/C2. Never invent awkward phrases. No explanations.'},
       {role:'user',content:value}
-    ],{batch:false,purpose:'suggestions',maxNewTokens:384,timeoutMs:20000});
+    ],{batch:false,purpose:'suggestions',maxNewTokens:768,timeoutMs:20000});
     if(token!==activeRequest||document.activeElement!==cell||!document.contains(cell))return;
     merged=buildItems([...merged,...sanitizeAiSuggestions(raw,value)]);
     showSuggestions(cell,merged,'📚 Gợi ý trong thư viện',false);
