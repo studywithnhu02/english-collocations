@@ -1,6 +1,6 @@
 import {aiJson} from './ai-client.js';
 import {normalizeVocabularyRow} from './vocabulary-core.mjs';
-import {buildAutoFillChanges,parseAutoFillResponse} from './smart-ingestion-core.mjs';
+import {buildAutoFillChanges,parseAutoFillResponse,validateAutoFillResult} from './smart-ingestion-core.mjs';
 
 const KEY='english-collocations-preview-v2';
 const requestVersions=new Map();
@@ -32,12 +32,19 @@ export async function autoFill(id,value){
   busyIds.add(key);
   setBusy(key,true);
   try{
-    const raw=await ask(text);
+    let result={meaningVi:'',exampleEn:'',exampleVi:''};
+    let validation;
+    for(let attempt=0;attempt<2;attempt++){
+      const raw=await ask(text,attempt);
+      if(requestVersions.get(key)!==version)return;
+      result=parseAutoFillResponse(raw);
+      validation=validateAutoFillResult(text,result);
+      if(validation.ok)break;
+    }
     if(requestVersions.get(key)!==version)return;
     const now=read(),current=now.find(r=>String(r.id)===key);
     if(!current||String(current.c||'').trim()!==text)return;
-    const result=parseAutoFillResponse(raw);
-    const changes=buildAutoFillChanges(current,result);
+    const changes=buildAutoFillChanges(current,result,text);
     if(!Object.keys(changes).length)return;
     const next=now.map(r=>String(r.id)===key?normalizeVocabularyRow({...r,...changes,source:{...(r.source&&typeof r.source==='object'?r.source:{}),type:'ai'}}):r);
     if(window.PreviewTable?.setRows)window.PreviewTable.setRows(next);
@@ -47,8 +54,11 @@ export async function autoFill(id,value){
     }
     const filledExampleEn=String(changes.e||'').trim();
     const fresh=read().find(r=>String(r.id)===key);
-    if(requestVersions.get(key)===version&&filledExampleEn&&!String(fresh?.em||'').trim()&&typeof window.AutoTranslate?.run==='function'){
-      await window.AutoTranslate.run(key,'e',filledExampleEn);
+    if(requestVersions.get(key)===version&&filledExampleEn&&!String(current.em||'').trim()){
+      const translator=await waitForTranslator();
+      if(translator&&requestVersions.get(key)===version){
+        try{await translator(key,'e',filledExampleEn)}catch(error){console.warn('[PreviewIngestion] translation fallback failed',error)}
+      }
     }
   }catch(error){
     console.error('[PreviewIngestion]',error);
