@@ -36,5 +36,7 @@ jobs:
         run: node --check preview/status-core.mjs
       - name: Status core tests
         run: node --test preview/tests/status-core.test.mjs
+      - name: Status UI integration tests
+        run: node --test preview/tests/status-ui-static.test.mjs
 
 # CI regression gate: rerun after spellcheck core fix.
