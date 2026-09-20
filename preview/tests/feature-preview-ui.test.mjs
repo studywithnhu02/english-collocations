@@ -15,7 +15,7 @@ test('GitHub Preview status is inside Box 1',()=>{
 test('Goals, SRS and Smart Tools modules are loaded',()=>{
   assert.ok(app.includes('./goals-ui.js?v=1'));
   assert.ok(app.includes('./srs-ui.js?v=1'));
-  assert.ok(app.includes('./smart-tools.js?v=2'));
+  assert.ok(app.includes('./smart-tools.js?v=3'));
   assert.ok(app.includes('id="appUser"'));
   assert.ok(app.includes('id="appLogout"'));
 });
@@ -42,6 +42,10 @@ test('Smart suggestion and refinement are wired to the collocation cell',()=>{
   assert.ok(smart.includes('repositionSuggest'));
   assert.ok(smart.includes('activeRequest++'));
   assert.ok(smart.includes('sanitizeAiSuggestions'));
+  assert.ok(smart.includes('suggestion-meaning'));
+  assert.ok(smart.includes('meaningVi'));
+  assert.ok(smart.includes('fastSuggestionItems'));
+  assert.ok(smart.includes('📚 Gợi ý trong thư viện'));
   assert.ok(smart.includes('refineRun'));
   assert.ok(smart.includes('naturalnessScore'));
 });
