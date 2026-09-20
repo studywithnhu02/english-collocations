@@ -96,6 +96,7 @@ function handleWorkerMessage(e){
   const [key]=match;pending.delete(key);
   const parts=key.split('::'),field=parts[0],id=parts.slice(1).join('::');
   const cell=getCell(field,id);if(!cell||!enabled)return;
+  if(cell.contains(document.activeElement))return;
   if((cell.textContent||'')!==latestText.get(key))return;
   if(!d.ok){return;}
   const html=decorateHtml(cell.textContent||'',d.errors||'',document.getElementById('search')?.value||'');
