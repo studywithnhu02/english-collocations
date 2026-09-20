@@ -31,7 +31,7 @@ function loadCurrentRows(){
 function currentStatusCounts(rows=loadCurrentRows()){
   const counts={learned:0,inProgress:0,notLearned:0};
   for(const row of rows){
-    const status=String(row?.s??row?.status??'Chưa học').replace(/\\s+/g,' ').trim();
+    const status=String(row?.s??row?.status??'Chưa học').replace(/\s+/g,' ').trim();
     if(status==='Đã học')counts.learned+=1;
     else if(status==='Đang học')counts.inProgress+=1;
     else if(!status||status==='Chưa học')counts.notLearned+=1;
@@ -43,11 +43,11 @@ function save(value){localStorage.setItem(ANALYTICS_KEY,JSON.stringify(value));}
 
 function pruneToRows(rows){
   const value=load();
-  const result=removeLearningEventsByIds(value.learningEvents,[]);
-  const validIds=new Set((Array.isArray(rows)?rows:[]).map(row=>String(row?.id??'').trim()).filter(Boolean));
-  const next=value.learningEvents.filter(event=>validIds.has(String(event?.id??'').trim()));
-  if(next.length!==value.learningEvents.length)save({...value,learningEvents:next});
-  return next;
+    const validIds=new Set((Array.isArray(rows)?rows:[]).map(row=>String(row?.id??'').trim()).filter(Boolean));
+  const staleIds=[...new Set(value.learningEvents.map(event=>String(event?.id??'').trim()).filter(id=>id&&!validIds.has(id)))];
+  const result=removeLearningEventsByIds(value.learningEvents,staleIds);
+  if(result.removed)save({...value,learningEvents:result.events});
+  return result.events;
 }
 
 function monthShift(date,delta){
