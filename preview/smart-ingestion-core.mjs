@@ -15,7 +15,7 @@ export function buildAutoFillChanges(row,result,collocation=''){
   if(!String(current.m||'').trim()&&next.meaningVi)changes.m=next.meaningVi;
   const validation=validateAutoFillResult(collocation||current.c,next);
   if(!String(current.e||'').trim()&&validation.exampleContainsCollocation)changes.e=next.exampleEn;
-  if(!String(current.em||'').trim()&&validation.exampleContainsCollocation&&next.exampleVi)changes.em=next.exampleVi;
+  if(!String(current.em||'').trim()&&!String(current.e||'').trim()&&validation.exampleContainsCollocation&&next.exampleVi)changes.em=next.exampleVi;
   return changes;
 }
 
