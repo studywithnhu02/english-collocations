@@ -33,7 +33,7 @@ test('story length scales directly with selected collocation count',()=>{
 test('dialogue prompt is short and professional',()=>{
   const prompt=buildStoryPrompt(rows,STORY_MODES.dialogue);
   assert.ok(prompt.includes('EXACTLY 6 short workplace dialogue lines'));
-  assert.ok(prompt.includes('Speaker A and Speaker B'));
+  assert.ok(prompt.includes('Use only two speakers'));assert.ok(prompt.includes('A and B'));
 });
 
 test('coverage helper detects exactly which collocations are present',()=>{
