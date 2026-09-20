@@ -16,7 +16,7 @@ test('new Preview analytics and duplicate surface is wired',()=>{
     'id="analyticsToday"',
     'id="duplicateWarning"',
     "window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)",
-    "const expected='c4d8b21'"
+    "const expected='f7a91c2'"
   ])assert.ok(html.includes(token),token);
 });
 
@@ -45,7 +45,7 @@ test('Contextual Story generator enforces 3-5 selected rows and uses the existin
 });
 
 test('existing protected UI/features remain intact',()=>{
-  assert.ok(html.includes('./ai-agent.js?v=6'));
+  assert.ok(html.includes('./ai-agent.js?v=7'));
   assert.ok(html.includes('./spellcheck.js?v=1'));
   assert.ok(html.includes('./auto-translate.js?v=6'));
   assert.ok(html.includes('class="card agent-shell ai" hidden aria-hidden="true"'));
