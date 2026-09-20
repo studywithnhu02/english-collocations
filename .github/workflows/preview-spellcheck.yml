@@ -1,6 +1,10 @@
 name: Preview Spellcheck Tests
 
 on:
+  push:
+    paths:
+      - 'preview/**'
+      - '.github/workflows/preview-spellcheck.yml'
   pull_request:
     paths:
       - 'preview/**'
