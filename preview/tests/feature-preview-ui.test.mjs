@@ -31,7 +31,7 @@ test('Story output is highlighted and dialogue is split into lines',()=>{
 
 test('Smart suggestion and refinement are wired to the collocation cell',()=>{
   assert.ok(smart.includes('editable[data-field="c"]'));
-  assert.ok(smart.includes('Gợi ý nhanh'));
+  assert.ok(smart.includes('Gợi ý trong thư viện'));
   assert.ok(smart.includes('Gợi ý AI'));
   assert.ok(smart.includes('suggestPopover'));
   assert.ok(smart.includes('suggestion-btn'));
