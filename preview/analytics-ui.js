@@ -1,4 +1,6 @@
-import {ANALYTICS_KEY,localDateKey,addCheckin,removeCheckin,isCheckedIn,calculateStreak,addLearningEvent,removeLearningEvent,buildLearningSeries,buildMonthCalendar} from './analytics-core.mjs';
+import {ANALYTICS_KEY,localDateKey,addCheckin,removeCheckin,isCheckedIn,calculateStreak,addLearningEvent,removeLearningEvent,removeLearningEventsByIds,buildLearningSeries,buildMonthCalendar} from './analytics-core.mjs';
+
+const DATA_KEY='english-collocations-preview-v2';
 
 function vietnamNow(){return new Date(localDateKey()+'T12:00:00+07:00');}
 
@@ -17,7 +19,36 @@ function load(){
   }
 }
 
+function loadCurrentRows(){
+  try{
+    const value=JSON.parse(localStorage.getItem(DATA_KEY)||'[]');
+    return Array.isArray(value)?value:[];
+  }catch{
+    return [];
+  }
+}
+
+function currentStatusCounts(rows=loadCurrentRows()){
+  const counts={learned:0,inProgress:0,notLearned:0};
+  for(const row of rows){
+    const status=String(row?.s??row?.status??'Chưa học').replace(/\\s+/g,' ').trim();
+    if(status==='Đã học')counts.learned+=1;
+    else if(status==='Đang học')counts.inProgress+=1;
+    else if(!status||status==='Chưa học')counts.notLearned+=1;
+  }
+  return counts;
+}
+
 function save(value){localStorage.setItem(ANALYTICS_KEY,JSON.stringify(value));}
+
+function pruneToRows(rows){
+  const value=load();
+  const result=removeLearningEventsByIds(value.learningEvents,[]);
+  const validIds=new Set((Array.isArray(rows)?rows:[]).map(row=>String(row?.id??'').trim()).filter(Boolean));
+  const next=value.learningEvents.filter(event=>validIds.has(String(event?.id??'').trim()));
+  if(next.length!==value.learningEvents.length)save({...value,learningEvents:next});
+  return next;
+}
 
 function monthShift(date,delta){
   const next=new Date(date);
@@ -54,8 +85,10 @@ function renderStats(value){
   const today=localDateKey();
   const weekly=buildLearningSeries(value.learningEvents,'week',new Date());
   const monthly=buildLearningSeries(value.learningEvents,'month',new Date());
-  const learnedTotal=new Set(value.learningEvents.map(event=>event.id)).size;
-  document.getElementById('analyticsLearned').textContent=learnedTotal;
+  const counts=currentStatusCounts();
+  document.getElementById('analyticsLearned').textContent=counts.learned;
+  document.getElementById('analyticsNotLearned').textContent=counts.notLearned;
+  document.getElementById('analyticsInProgress').textContent=counts.inProgress;
   document.getElementById('analyticsWeek').textContent=weekly.total;
   document.getElementById('analyticsMonth').textContent=monthly.total;
   document.getElementById('analyticsStreak').textContent=calculateStreak(value.checkins,today);
@@ -110,6 +143,7 @@ function mount(){
     refresh,
     recordStudy,
     toggleCheckin,
+    pruneToRows,
     getSnapshot:load,
     restoreSnapshot(snapshot){
       const next=snapshot&&typeof snapshot==='object'?snapshot:{};
