@@ -51,7 +51,7 @@ function sanitizeAiSuggestions(text,value){
   const unique=[...new Map(values.map(v=>[v.c.toLowerCase(),v])).values()];
   return unique.filter(item=>{
     const low=item.c.toLowerCase();
-    return low!==q&&low.startsWith(head)&&low.length<=90&&item.v.length<=240;
+    return low!==q&&low.startsWith(q)&&low.length<=90&&item.v.length<=240;
   }).slice(0,5);
 }
 function handleInput(e){
@@ -59,9 +59,9 @@ function handleInput(e){
   clearTimeout(timer);activeRequest++;closeSuggest();
   const token=activeRequest,value=String(cell.textContent||'').trim();
   if(value.length<2)return;
-  const fast=fastSuggestions(value);
-  if(fast.length){showSuggestions(cell,fast,'⚡ Gợi ý nhanh');return}
-  if(value.split(/\s+/).length!==1||value.length<3)return;
+  const fast=fastSuggestionItems(value);
+  if(fast.length){showSuggestions(cell,fast,'📚 Gợi ý trong thư viện');return}
+  if(value.length<3)return;
   timer=setTimeout(async()=>{
     try{
       const raw=await aiJson([
