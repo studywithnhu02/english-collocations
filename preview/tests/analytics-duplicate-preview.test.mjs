@@ -52,3 +52,14 @@ test('existing protected UI/features remain intact',()=>{
 });
 
 console.log('Analytics + duplicate + story Preview contract tests: PASS');
+
+
+test('Contextual Story uses direct mode buttons and escaped highlighting',()=>{
+  assert.ok(agent.includes('data-story-mode="paragraph"'));
+  assert.ok(agent.includes('data-story-mode="dialogue"'));
+  assert.ok(agent.includes('runContextualStory(btn.dataset.storyMode)'));
+  assert.ok(agent.includes('resultEl.innerHTML=highlightStory(story,rows)'));
+  assert.ok(agent.includes('function escapeRegex'));
+  assert.ok(agent.includes('return esc(story)'));
+  assert.ok(!agent.includes('story-generate'));
+});
