@@ -1,7 +1,7 @@
 /* Standalone real-time EN→VI translator. Independent from AI Agent. */
 (() => {
   const DATA_KEY = 'english-collocations-preview-v2';
-  const CACHE_KEY = 'english-collocations-translation-cache-v4';
+  const CACHE_KEY = 'english-collocations-translation-cache-v5';
   const timers = new Map();
   const requestVersion = new Map();
   const inflight = new Map();
@@ -34,6 +34,7 @@
   };
 
   const normalize = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+  const hasTranslatableText = (value) => /[A-Za-zÀ-ž]/.test(normalize(value));
 
   const cell = (tr, field) =>
     tr?.querySelector(`.editable[data-field="${field}"]`) ||
@@ -123,7 +124,7 @@
     const version = (requestVersion.get(key) || 0) + 1;
     requestVersion.set(key, version);
     const cleanEnglish = normalize(english);
-    if (cleanEnglish.length < 3) return;
+    if (!cleanEnglish || !hasTranslatableText(cleanEnglish)) return;
 
     const tr = document.querySelector(`#body tr[data-id="${CSS.escape(key)}"]`);
     showState(tr, 'loading');
