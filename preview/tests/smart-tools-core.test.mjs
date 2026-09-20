@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {fastSuggestions,normalizeSmartInput,refinementPrompt,ruleRefinement} from '../smart-tools-core.mjs';
+import {fastSuggestions,normalizeSmartInput,refinementPrompt,ruleRefinement,synonymsFor} from '../smart-tools-core.mjs';
 
 test('smart input normalizes headwords',()=>{
   assert.equal(normalizeSmartInput('  Allow! '),'allow');
   assert.deepEqual(fastSuggestions('Allow').slice(0,3),['allow access','allow customers to','allow users to']);
+});
+
+test('synonyms are available without being treated as fill suggestions',()=>{
+  assert.deepEqual(synonymsFor('allow'),['permit','authorize']);
 });
 
 test('known confusing collocations get explicit corrections',()=>{
