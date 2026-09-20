@@ -17,12 +17,12 @@ export function uniqueStatuses(values){
 }
 
 export function ensureStatuses(values){
-  const custom=uniqueStatuses(values);
-  return uniqueStatuses([...DEFAULT_STATUSES,...custom]);
+  const statuses=uniqueStatuses(values);
+  return statuses.length?statuses:[...DEFAULT_STATUSES];
 }
 
 export function addStatus(values,status){
-  const next=ensureStatuses(values);
+  const next=uniqueStatuses(values);
   const normalized=normalizeStatus(status);
   if(!normalized || next.includes(normalized)) return {statuses:next,added:false,status:normalized};
   return {statuses:[...next,normalized],added:true,status:normalized};
