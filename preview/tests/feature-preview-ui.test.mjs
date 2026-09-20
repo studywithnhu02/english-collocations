@@ -15,7 +15,7 @@ test('GitHub Preview status is inside Box 1',()=>{
 test('Goals, SRS and Smart Tools modules are loaded',()=>{
   assert.ok(app.includes('./goals-ui.js?v=1'));
   assert.ok(app.includes('./srs-ui.js?v=1'));
-  assert.ok(app.includes('./smart-tools.js?v=1'));
+  assert.ok(app.includes('./smart-tools.js?v=2'));
   assert.ok(app.includes('id="appUser"'));
   assert.ok(app.includes('id="appLogout"'));
 });
@@ -30,6 +30,21 @@ test('Story output is highlighted and dialogue is split into lines',()=>{
 });
 
 test('Smart suggestion and refinement are wired to the collocation cell',()=>{
+  assert.ok(smart.includes('editable[data-field="c"]'));
+  assert.ok(smart.includes('Gợi ý nhanh'));
+  assert.ok(smart.includes('Gợi ý AI'));
+  assert.ok(smart.includes('suggestPopover'));
+  assert.ok(smart.includes('suggestion-btn'));
+  assert.ok(smart.includes('ArrowDown'));
+  assert.ok(smart.includes('ArrowUp'));
+  assert.ok(smart.includes("e.key==='Enter'"));
+  assert.ok(smart.includes("e.key==='Escape'"));
+  assert.ok(smart.includes('repositionSuggest'));
+  assert.ok(smart.includes('activeRequest++'));
+  assert.ok(smart.includes('sanitizeAiSuggestions'));
+  assert.ok(smart.includes('refineRun'));
+  assert.ok(smart.includes('naturalnessScore'));
+});
   assert.ok(smart.includes('editable[data-field="c"]'));
   assert.ok(smart.includes('Gợi ý AI'));
   assert.ok(smart.includes('refineRun'));
