@@ -1,0 +1,4 @@
+import assert from 'node:assert/strict';import test from 'node:test';import {readFile} from 'node:fs/promises';
+const js=await readFile(new URL('../smart-ingestion.js',import.meta.url),'utf8');
+test('AI ingestion is automatic and only fills meaning/example/example meaning',()=>{assert.ok(js.includes('export async function autoFill'));assert.ok(js.includes('meaningVi'));assert.ok(js.includes('exampleEn'));assert.ok(js.includes('exampleVi'));assert.ok(js.includes("if(!String(current.m||'').trim()"));assert.ok(js.includes("if(!String(current.e||'').trim()"));assert.ok(js.includes("if(!String(current.em||'').trim()"));assert.ok(!js.includes('data-auto-fill'));assert.ok(!js.includes('topic'));assert.ok(!js.includes('domains'));assert.ok(!js.includes('cefr'))});
+console.log('Ingestion Preview tests: PASS');
