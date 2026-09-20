@@ -36,8 +36,8 @@ test('Smart suggestion is wired to the collocation cell with CEFR, duplicate mar
   assert.ok(smart.includes('suggestion-exists'));
   assert.ok(smart.includes('✓ Đã có trong bảng'));
   assert.ok(smart.includes('.startsWith(q)'));
-  assert.ok(smart.includes('begin exactly with the supplied input'));
-  assert.ok(smart.includes('of 12 common natural English collocations'));
+  assert.ok(smart.includes('begin exactly with the supplied input'));assert.ok(smart.includes('getExternalSuggestions'));
+  assert.ok(smart.includes('up to 20 common natural English collocations'));
   assert.ok(smart.includes('local.length<10'));
   assert.ok(smart.includes('suggestCefr'));
   assert.ok(!smart.includes('Smart Refinement'));
