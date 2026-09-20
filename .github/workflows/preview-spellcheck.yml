@@ -67,6 +67,8 @@ jobs:
           node --check preview/coverage-core.mjs
           node --check preview/coach-core.mjs
           node --check preview/vocabulary-core.mjs
+          node --check preview/domains-core.mjs
+          node --check preview/domains-ui.js
       - name: Analytics core tests
         run: node --test preview/tests/analytics-core.test.mjs
       - name: Collocation core tests
@@ -103,8 +105,16 @@ jobs:
           node --test preview/tests/focus-core.test.mjs
           node --test preview/tests/coverage-core.test.mjs
           node --test preview/tests/coach-core.test.mjs
+          node --test preview/tests/domains-core.test.mjs
       - name: Vocabulary Intelligence UI and security tests
         run: |
           node --test preview/tests/vocabulary-preview-ui.test.mjs
           node --test preview/tests/security-preview.test.mjs
           node --test preview/tests/export-preview.test.mjs
+
+      - name: Requested behavior regression tests
+        run: |
+          node --test preview/tests/ingestion-preview.test.mjs
+          node --test preview/tests/family-preview.test.mjs
+          node --test preview/tests/goals-ui.test.mjs
+          node --test preview/tests/smart-tools-preview.test.mjs

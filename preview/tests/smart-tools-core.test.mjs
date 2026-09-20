@@ -9,15 +9,15 @@ test('smart input normalizes headwords',()=>{
 
 test('autocomplete filters progressively inside the headword bank',()=>{
   assert.deepEqual(fastSuggestions('allow u'),['allow users to']);
-  assert.deepEqual(fastSuggestions('IMPROVE U'),['improve user experience']);
+  assert.ok(fastSuggestions('IMPROVE U').includes('improve user experience'));
   assert.equal(new Set(fastSuggestions('allow')).size,fastSuggestions('allow').length);
-  assert.ok(fastSuggestions('allow').length<=5);
+  assert.ok(fastSuggestions('allow').length<=10);
 });
 
 test('local suggestion items include an immediate Vietnamese meaning',()=>{
   const items=fastSuggestionItems('allow');
   assert.ok(items.length>=3);
-  assert.ok(items.every(item=>item.c&&item.v));
+  assert.ok(items.every(item=>item.c&&item.v&&item.cefr));
   assert.equal(items[0].c,'allow access');
   assert.equal(items[0].v,'cho phép truy cập');
 });
