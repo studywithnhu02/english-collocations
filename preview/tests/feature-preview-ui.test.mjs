@@ -15,9 +15,9 @@ test('GitHub Preview status is inside Box 1',()=>{
 test('Goals, SRS and Smart Tools modules are loaded',()=>{
   assert.ok(app.includes('./goals-ui.js?v=1'));
   assert.ok(app.includes('./srs-ui.js?v=1'));
-  assert.ok(app.includes('./smart-tools.js?v=5'));
+  assert.ok(app.includes('./smart-tools.js?v=6'));
   assert.ok(app.includes('id="appUser"'));
-  assert.ok(app.includes('id="appLogout"'));assert.ok(app.includes('domains-ui.js?v=2'));assert.ok(app.includes('vocabulary-ui.js?v=3'));
+  assert.ok(app.includes('id="appLogout"'));assert.ok(app.includes('domains-ui.js?v=3'));assert.ok(app.includes('vocabulary-ui.js?v=4'));
 });
 
 test('Story output is highlighted and dialogue is split into lines',()=>{
