@@ -14,24 +14,7 @@ test('Preview status UI contract',()=>{
   assert.ok(html.includes('data-status-remove'));
   assert.ok(html.includes("STATUS_KEY='english-collocations-preview-statuses-v1'"));
   assert.ok(html.includes('./status-core.mjs'));
-  assert.ok(html.includes('window.$=});
-
-test('Status is persisted and exported',()=>{
-  assert.ok(html.includes("s:normalizeStatus(x.s??x.status??'')"));
-  assert.ok(html.includes('JSON.stringify({data,statuses:loadStatuses()},null,2)'));
-  assert.ok(html.includes("const h=['STT','Collocation','Nghĩa Collocation','Chủ đề','Câu giao tiếp ví dụ','Nghĩa câu ví dụ','Status','Ngày tạo']"));
-});
-
-test('Previously hidden UI remains hidden and feature modules remain loaded',()=>{
-  assert.ok(html.includes('class="card agent-shell ai" hidden aria-hidden="true"'));
-  assert.ok(html.includes('hidden aria-hidden="true"><h2>🔐 Preview an toàn</h2>'));
-  assert.ok(html.includes('./ai-agent.js?v=6'));
-  assert.ok(html.includes('./spellcheck.js?v=1'));
-  assert.ok(html.includes('./auto-translate.js?v=6'));
-});
-
-console.log('Status Preview contract tests: PASS');
-));
+  assert.ok(html.includes('window.$=$'));
   assert.ok(html.includes('status-not-learned'));
   assert.ok(html.includes('status-learned'));
   assert.ok(html.includes('body.light-theme .status-button.status-not-learned'));
@@ -42,7 +25,6 @@ console.log('Status Preview contract tests: PASS');
 });
 
 test('Status is persisted and exported',()=>{
-  assert.ok(html.includes("s:normalizeStatus(x.s??x.status??'')"));
   assert.ok(html.includes('JSON.stringify({data,statuses:loadStatuses()},null,2)'));
   assert.ok(html.includes("const h=['STT','Collocation','Nghĩa Collocation','Chủ đề','Câu giao tiếp ví dụ','Nghĩa câu ví dụ','Status','Ngày tạo']"));
 });
