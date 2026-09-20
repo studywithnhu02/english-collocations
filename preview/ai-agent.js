@@ -1,35 +1,98 @@
-// Browser-local AI Agent v3.3 — auto-translate example meaning on blur, fixed binding bug.
+/* AI Agent Preview v4 — reliable automatic example translation */
+const DATA_KEY='english-collocations-preview-v2';
 const MODEL_ID='onnx-community/Qwen2.5-0.5B-Instruct';
-const STORAGE_KEY='english-collocations-preview-v2';
-let worker=null,requestId=0,busy=false,pending=[];
-const esc=s=>String(s??'').replace(/[&<>\"']/g,a=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[a]));
-function readRows(){try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return []}}
-function writeRows(rows){localStorage.setItem(STORAGE_KEY,JSON.stringify(rows));window.dispatchEvent(new CustomEvent('preview-data-updated'));return rows}
-function selectedIds(){return [...document.querySelectorAll('#body tr')].filter(tr=>tr.querySelector('.row-check')?.checked).map(tr=>String(tr.dataset.id))}
-function selectedRows(){const ids=selectedIds(),rows=readRows();return ids.length?rows.filter(r=>ids.includes(String(r.id))):[]}
-function ensureWorker(){return worker||(worker=new Worker('./ai-agent-worker.js?v=3.3',{type:'module'}))}
-function callModel(messages,batch=false){return new Promise((resolve,reject)=>{const id=++requestId,w=ensureWorker();const fn=e=>{if(e.data?.id!==id)return;if(e.data?.type==='status'){status(e.data.message||'Đang xử lý…');return}w.removeEventListener('message',fn);e.data.ok?resolve(e.data.text):reject(new Error(e.data.error||'AI error'))};w.addEventListener('message',fn);w.postMessage({id,messages,batch})})}
-function styles(){if(document.getElementById('agentStyles'))return;const s=document.createElement('style');s.id='agentStyles';s.textContent=`.agent-card{padding:0!important;overflow:hidden}.agent-head{padding:14px 15px;border-bottom:1px solid var(--line)}.agent-title{font-weight:850;font-size:15px}.agent-sub,.agent-note,.agent-status{font-size:11px;color:var(--muted);margin-top:5px}.agent-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.agent-actions button{font-size:11px;padding:8px}.agent-input{margin-top:10px}.agent-input textarea{width:100%;min-height:70px;resize:vertical}.agent-result{margin-top:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;max-height:360px;overflow:auto}.agent-status.ok{color:var(--green)}.agent-status.err{color:var(--danger)}.agent-safe{font-size:10px;color:var(--green);margin-top:8px}.diff-item{border-top:1px solid var(--line);padding:9px 0}.diff-old{color:var(--danger);margin-top:5px}.diff-new{color:var(--green);margin-top:3px}.diff-actions{display:flex;gap:6px;margin-top:6px}.diff-actions button{font-size:10px;padding:5px 7px}.agent-apply{width:100%;margin-top:9px}.agent-empty{color:var(--muted)}.agent-badge{font-size:10px;color:var(--green);margin-left:6px}.agent-progress{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}.agent-progress>i{display:block;height:100%;width:0;background:var(--green);transition:width .2s}`;document.head.appendChild(s)}
-function status(t,k=''){const e=document.getElementById('agentStatus');if(e){e.className='agent-status '+k;e.textContent=t}}
-function progress(n=0){const e=document.querySelector('#agentProgress>i');if(e)e.style.width=Math.max(0,Math.min(100,n))+'%'}
-function result(html){const e=document.getElementById('agentResult');if(e)e.innerHTML=html}
-function renderAgent(){styles();const old=document.querySelector('.ai');if(!old)return;old.classList.add('agent-card');old.innerHTML=`<div class="agent-head"><div><div class="agent-title">🤖 AI Agent <span class="agent-badge">Browser local</span></div><div class="agent-sub">Tự dịch khi kết thúc nhập · Rule router → WebGPU → batch</div></div></div><div class="agent-body"><div class="agent-actions"><button class="secondary" data-task="grammar">✓ Kiểm tra grammar</button><button class="secondary" data-task="spelling">✎ Kiểm tra chính tả</button><button class="secondary" data-task="natural">✨ Tự nhiên hơn</button><button class="secondary" data-task="translate">🇻🇳 Dịch nghĩa</button><button class="secondary" data-task="cefr">📊 Phân tích CEFR</button><button class="secondary" data-task="examples">💡 Tạo ví dụ</button></div><div class="agent-input"><textarea id="agentPrompt" placeholder="Ví dụ: Kiểm tra grammar cho các dòng tôi đã chọn và đề xuất sửa..."></textarea><button id="agentAsk" style="width:100%;margin-top:7px">✨ Chạy Agent</button></div><div class="agent-status" id="agentStatus">Sẵn sàng · sửa câu tiếng Anh rồi click ra ngoài để tự dịch.</div><div class="agent-progress" id="agentProgress"><i></i></div><div class="agent-result" id="agentResult"><span class="agent-empty">🔒 Chưa có thay đổi nào. Agent không tự sửa dữ liệu.</span></div><div class="agent-safe">● Browser-local · WebGPU ưu tiên · không localhost · không API key · không Python</div><div class="agent-note">Dịch tự động chỉ chạy sau khi bạn kết thúc nhập câu tiếng Anh.</div></div>`;old.querySelectorAll('[data-task]').forEach(b=>b.addEventListener('click',()=>runTask(b.dataset.task)));old.querySelector('#agentAsk').addEventListener('click',runFreeform);attachAutoTranslate()}
-const taskPrompt={grammar:'Check grammar and spelling. If correction is needed, return correctedExample. Preserve meaning.',spelling:'Check spelling and obvious punctuation only. If correction is needed, return correctedExample. Preserve meaning.',natural:'Rewrite each example to sound natural and professional workplace English. Preserve meaning.',translate:'Translate each English example sentence into natural Vietnamese for a Vietnamese learner. Return translatedText. Do NOT rewrite the English sentence.',cefr:'Estimate CEFR level. Put the level in explanationVi and leave correctedExample empty.',examples:'Create a better workplace example sentence using the same collocation. Put it in correctedExample.'};
-function targetText(r){return r.e||r.example||r.exampleEnglish||r.sentence||''}
-function targetTranslation(r){return r.em||r.exampleMeaning||r.translation||r.meaningExample||''}
-function fieldElement(tr,field){return tr?.querySelector(`.editable[data-field="${field}"]`)||tr?.querySelector(`[data-field="${field}"]`)}
-function persistField(id,field,value){const rows=readRows(),next=rows.map(r=>String(r.id)===String(id)?{...r,[field]:value}:r);writeRows(next)}
-let translateTimer=null;
-function attachAutoTranslate(){document.querySelectorAll('#body tr').forEach(tr=>{const el=fieldElement(tr,'e');if(!el||el.dataset.autoTranslateBound==='1')return;el.dataset.autoTranslateBound='1';const run=()=>{const id=tr.dataset.id;if(!id)return;const english=String(el.textContent||el.value||'').trim();if(!english||english.length<3)return;const rows=readRows(),row=rows.find(r=>String(r.id)===String(id));if(!row)return;const oldEnglish=String(targetText(row)).trim();if(english===oldEnglish)return;persistField(id,'e',english);clearTimeout(translateTimer);translateTimer=setTimeout(()=>autoTranslateRow(id,english),180)};el.addEventListener('blur',run);el.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey)setTimeout(run,0)})})}
-async function autoTranslateRow(id,english){if(busy)return;busy=true;status('⏳ Đang tự dịch nghĩa câu ví dụ…');progress(15);try{const existing=targetTranslation(readRows().find(r=>String(r.id)===String(id))||{});const text=await callModel([{role:'system',content:'Translate English to natural Vietnamese for a Vietnamese learner. Return JSON only: {"translatedText":"..."}. Do not add explanations. Preserve exact meaning.'},{role:'user',content:`English sentence: ${english}\nExisting Vietnamese: ${existing}`}]);let translated='';try{const m=String(text).match(/\{[\s\S]*\}/);translated=m?JSON.parse(m[0]).translatedText:String(text)}catch{translated=String(text)}translated=String(translated||'').trim();if(!translated)throw Error('Không nhận được bản dịch');progress(90);persistField(id,'em',translated);const tr=document.querySelector(`#body tr[data-id="${CSS.escape(String(id))}"]`),meaning=fieldElement(tr,'em');if(meaning){if('value'in meaning)meaning.value=translated;else meaning.textContent=translated;meaning.dispatchEvent(new Event('input',{bubbles:true}))}progress(100);status('✓ Đã tự dịch và điền vào cột NGHĨA CÂU VÍ DỤ','ok')}catch(e){status('⚠️ Không thể tự dịch: '+e.message,'err')}finally{busy=false}}
-function ruleRouter(task,rows){if(task!=='spelling')return {done:[],remaining:rows};const done=[],remaining=[];for(const r of rows){const old=targetText(r),fixed=old.replace(/[ \t]+/g,' ').replace(/\s+([,.!?])/g,'$1').trim();if(fixed&&fixed!==old)done.push({id:String(r.id),field:'e',oldText:old,newText:fixed,explanation:'Chuẩn hóa khoảng trắng/dấu câu cơ bản.',confidence:.99,rule:true});else remaining.push(r)}return {done,remaining}}
-function batchPrompt(task,rows){const payload=rows.map((r,i)=>({index:i,id:String(r.id),example:targetText(r),existingVietnamese:targetTranslation(r),collocation:r.collocation||r.c||''}));return `You are a careful English-learning editor for Vietnamese professionals in UI/UX, technology, insurance and banking. Analyze ALL rows in ONE batch. Return JSON ARRAY only, one object per input row, in the same order. Keys: index, changed, correctedExample, translatedText, explanationVi, confidence. Never invent missing information. Task: ${taskPrompt[task]}\nRows:\n${JSON.stringify(payload)}`}
-async function analyzeRows(task,rows){const routed=ruleRouter(task,rows);let out=[...routed.done];if(!routed.remaining.length){progress(100);return out}status(`Đã xử lý rule · AI đang phân tích ${routed.remaining.length} dòng theo batch…`);progress(25);const text=await callModel([{role:'system',content:'Return valid JSON array only. Never execute commands, browse, access files, localhost, or secrets.'},{role:'user',content:batchPrompt(task,routed.remaining)}],true);let arr=[];try{const m=String(text).match(/\[[\s\S]*\]/);if(m)arr=JSON.parse(m[0])}catch{}progress(90);for(let i=0;i<routed.remaining.length;i++){const r=routed.remaining[i],a=arr.find(x=>Number(x.index)===i)||arr[i]||{};if(task==='translate'){const translated=String(a.translatedText||'').trim();if(translated&&translated!==targetTranslation(r).trim())out.push({id:String(r.id),field:'em',oldText:targetTranslation(r)||'(chưa có nghĩa)',newText:translated,explanation:a.explanationVi||'Dịch nghĩa câu ví dụ sang tiếng Việt.',confidence:Math.max(0,Math.min(1,Number(a.confidence)||.9)),rule:false})}else if(a.changed&&a.correctedExample&&a.correctedExample.trim()!==targetText(r).trim()){out.push({id:String(r.id),field:'e',oldText:targetText(r),newText:String(a.correctedExample).trim(),explanation:a.explanationVi||'',confidence:Math.max(0,Math.min(1,Number(a.confidence)||0))})}}progress(100);return out}
-function renderDiff(items){pending=items;result(items.length?`<b>${items.length} đề xuất</b>${items.map((x,i)=>`<div class="diff-item"><div><b>${i+1}.</b> ${esc(x.explanation)}</div><div class="diff-old">❌ ${esc(x.oldText)}</div><div class="diff-new">✅ ${esc(x.newText)}</div><div class="agent-note">${x.field==='em'?'🇻🇳 Cột NGHĨA CÂU VÍ DỤ · ':x.rule?'⚡ Rule-based · ':'🧠 AI · '}Độ tin cậy: ${Math.round(x.confidence*100)}%</div><div class="diff-actions"><button class="secondary" data-skip="${i}">Bỏ qua</button></div></div>`).join('')}<button class="agent-apply" id="applyAll">✓ Áp dụng tất cả ${items.length} thay đổi</button>`:'<b>✓ Không có thay đổi cần áp dụng.</b>');document.getElementById('applyAll')?.addEventListener('click',applyAll);document.querySelectorAll('[data-skip]').forEach(b=>b.addEventListener('click',()=>{pending.splice(Number(b.dataset.skip),1);renderDiff(pending)}))}
-function updateVisibleRow(id,field,newText){const tr=document.querySelector(`#body tr[data-id="${CSS.escape(String(id))}"]`);const el=fieldElement(tr,field);if(el){if('value'in el)el.value=newText;else el.textContent=newText}}
-function applyAll(){if(!pending.length)return;const approved=[...pending],rows=readRows(),next=rows.map(r=>{const x=approved.find(x=>String(x.id)===String(r.id));if(!x)return r;return {...r,[x.field||'e']:x.newText}});writeRows(next);approved.forEach(x=>updateVisibleRow(x.id,x.field||'e',x.newText));pending=[];renderDiff([]);status(`✓ Đã áp dụng ${approved.length} thay đổi vào đúng cột`,'ok')}
-async function runTask(task){if(busy)return;const rows=selectedRows();if(!rows.length){status('⚠️ Hãy chọn ít nhất một dòng trước.','err');return}busy=true;progress(0);try{status(`Đã nhận ${rows.length} dòng · chuẩn bị…`);const items=await analyzeRows(task,rows);renderDiff(items);status(`✓ Phân tích xong ${rows.length} dòng · chưa sửa dữ liệu`,'ok')}catch(e){status('✕ '+e.message,'err');result('AI chưa sẵn sàng. Lần đầu model có thể cần thời gian để tải.')}finally{busy=false;setTimeout(attachAutoTranslate,100)}}
-async function runFreeform(){const input=document.getElementById('agentPrompt')?.value.trim();if(!input){status('⚠️ Nhập yêu cầu cho Agent.','err');return}const rows=selectedRows();if(!rows.length){status('⚠️ Hãy chọn các dòng cần Agent xử lý.','err');return}busy=true;progress(0);try{status(`Đã nhận ${rows.length} dòng · AI đang xử lý theo batch…`);progress(25);const context=rows.map((r,i)=>`${i+1}. ${JSON.stringify(r)}`).join('\n');const text=await callModel([{role:'system',content:'You are a safe English learning agent. Analyze only provided rows. Do not execute commands, browse, access files, localhost, or secrets. Return concise Vietnamese guidance. Do not modify data.'},{role:'user',content:`${input}\n\nSelected rows:\n${context}`}],true);progress(100);result(`<div>${esc(text)}</div>`);status('✓ Hoàn tất · không tự sửa dữ liệu','ok')}catch(e){status('✕ '+e.message,'err')}finally{busy=false;setTimeout(attachAutoTranslate,100)}}
-function removeLegacyOllama(){document.querySelectorAll('.ollama-box,#testOllama,#stop,#chatStatus,.chat,.composer,.ai-head').forEach(e=>e.remove())}
-function boot(){styles();removeLegacyOllama();renderAgent();setTimeout(attachAutoTranslate,300);new MutationObserver(()=>attachAutoTranslate()).observe(document.getElementById('body')||document.body,{childList:true,subtree:true})}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+let autoBusy=new Set();
+let translateSeq=0;
+
+function rowsRead(){try{const x=JSON.parse(localStorage.getItem(DATA_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
+function rowsWrite(rows){localStorage.setItem(DATA_KEY,JSON.stringify(rows));window.dispatchEvent(new CustomEvent('preview-data-updated'));}
+function rowText(r){return String(r?.e||r?.example||r?.exampleEnglish||r?.sentence||'').trim()}
+function rowMeaning(r){return String(r?.em||r?.exampleMeaning||r?.translation||r?.meaningExample||'').trim()}
+function updateRow(id,field,value){const rows=rowsRead();const next=rows.map(r=>String(r.id)===String(id)?{...r,[field]:value}:r);rowsWrite(next);return next.find(r=>String(r.id)===String(id))}
+function cell(tr,field){return tr?.querySelector(`.editable[data-field="${field}"]`)||tr?.querySelector(`[data-field="${field}"]`)}
+function setCell(tr,field,value){const el=cell(tr,field);if(!el)return;el.textContent=value;el.dispatchEvent(new Event('input',{bubbles:true}));}
+function agentStatus(text,kind=''){const el=document.getElementById('agentStatus');if(el){el.textContent=text;el.className='agent-status '+kind}}
+function translationToast(text,kind=''){let el=document.getElementById('autoTranslateStatus');if(!el){el=document.createElement('div');el.id='autoTranslateStatus';el.style.cssText='position:fixed;right:18px;bottom:18px;z-index:100000;max-width:360px;padding:10px 13px;border-radius:10px;background:#1c2738;color:#f4f7fb;border:1px solid #344257;box-shadow:0 10px 30px #0005;font:12px/1.4 system-ui';document.body.appendChild(el)}el.textContent=text;el.style.borderColor=kind==='error'?'#ff686d':'#36c98b';clearTimeout(el._timer);el._timer=setTimeout(()=>el.remove(),3500)}
+
+async function remoteTranslate(sentence){
+  const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q='+encodeURIComponent(sentence);
+  const res=await fetch(url,{method:'GET',mode:'cors',cache:'no-store'});
+  if(!res.ok)throw new Error('Translation service HTTP '+res.status);
+  const data=await res.json();
+  const translated=Array.isArray(data?.[0])?data[0].map(x=>x?.[0]||'').join('').trim():'';
+  if(!translated)throw new Error('Translation service returned empty text');
+  return translated;
+}
+
+async function localTranslate(sentence){
+  return new Promise((resolve,reject)=>{
+    const worker=new Worker('./ai-agent-worker.js?v=4',{type:'module'});
+    const id=++translateSeq;
+    const timer=setTimeout(()=>{worker.terminate();reject(new Error('Local AI timeout'))},45000);
+    const done=(ok,value)=>{clearTimeout(timer);worker.terminate();ok?resolve(value):reject(new Error(value||'Local AI failed'))};
+    worker.onmessage=e=>{
+      const d=e.data||{};
+      if(d.id!==id)return;
+      if(d.type==='status')return;
+      if(d.ok){let text=String(d.text||'').trim();try{const m=text.match(/\{[\s\S]*\}/);if(m)text=JSON.parse(m[0]).translatedText||text}catch{}done(!!text,text)}else done(false,d.error);
+    };
+    worker.onerror=()=>done(false,'Local AI worker error');
+    worker.postMessage({id,messages:[
+      {role:'system',content:'Translate the English sentence into natural Vietnamese. Return only the Vietnamese translation. Preserve the exact meaning. No explanation.'},
+      {role:'user',content:sentence}
+    ],batch:false});
+  });
+}
+
+async function translateExample(id,english){
+  const key=String(id);if(autoBusy.has(key))return;autoBusy.add(key);
+  translationToast('⏳ Đang dịch câu ví dụ…');agentStatus('⏳ Đang tự động dịch nghĩa câu ví dụ…');
+  try{
+    const rows=rowsRead();const current=rows.find(r=>String(r.id)===key);if(!current)return;
+    if(rowText(current)!==english){updateRow(id,'e',english)}
+    let translated='';let source='Browser AI';
+    try{translated=await localTranslate(english)}catch(e){source='Free translation fallback';translated=await remoteTranslate(english)}
+    translated=String(translated||'').trim();if(!translated)throw new Error('Không nhận được bản dịch');
+    updateRow(id,'em',translated);
+    const tr=document.querySelector(`#body tr[data-id="${CSS.escape(key)}"]`);setCell(tr,'em',translated);
+    translationToast('✓ Đã dịch tự động → NGHĨA CÂU VÍ DỤ');agentStatus('✓ Đã tự dịch và điền vào NGHĨA CÂU VÍ DỤ','ok');
+  }catch(e){translationToast('⚠️ Dịch tự động lỗi: '+e.message,'error');agentStatus('⚠️ Không thể tự dịch: '+e.message,'err')}
+  finally{autoBusy.delete(key)}
+}
+
+function bindAutoTranslation(){
+  document.querySelectorAll('#body tr').forEach(tr=>{
+    const el=cell(tr,'e');if(!el||el.dataset.autoTranslationV4==='1')return;
+    el.dataset.autoTranslationV4='1';
+    let before='';
+    el.addEventListener('focus',()=>{before=String(el.textContent||el.value||'').trim()});
+    el.addEventListener('blur',()=>{
+      const id=tr.dataset.id;const english=String(el.textContent||el.value||'').replace(/\s+/g,' ').trim();
+      if(!id||english.length<3||english===before)return;
+      updateRow(id,'e',english);
+      setTimeout(()=>translateExample(id,english),120);
+    });
+    el.addEventListener('keydown',e=>{
+      if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();el.blur()}
+    });
+  });
+}
+
+function ensureAgentStatus(){
+  if(document.getElementById('agentStatus'))return;
+  const host=document.querySelector('.ai');if(!host)return;
+  const s=document.createElement('div');s.className='agent-status';s.id='agentStatus';s.style.cssText='font-size:11px;color:var(--muted);margin:10px 14px';s.textContent='Sẵn sàng · sửa câu tiếng Anh rồi click ra ngoài để tự dịch.';host.appendChild(s);
+}
+
+function bootAutoTranslation(){
+  ensureAgentStatus();bindAutoTranslation();
+  const body=document.getElementById('body');
+  if(body&&!body.dataset.autoTranslationObserver){
+    body.dataset.autoTranslationObserver='1';
+    new MutationObserver(()=>bindAutoTranslation()).observe(body,{childList:true,subtree:true});
+  }
+  window.addEventListener('preview-data-updated',()=>setTimeout(bindAutoTranslation,50));
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bootAutoTranslation,250));
+else setTimeout(bootAutoTranslation,250);
