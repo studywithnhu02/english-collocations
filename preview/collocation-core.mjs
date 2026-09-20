@@ -13,6 +13,17 @@ export function findDuplicateCollocation(rows,value,ignoreId=null){
   return null;
 }
 
+export function findDuplicateCollocations(rows){
+  const groups=new Map();
+  for(const row of Array.isArray(rows)?rows:[]){
+    const value=normalizeCollocation(row?.c);
+    if(!value)continue;
+    if(!groups.has(value))groups.set(value,[]);
+    groups.get(value).push(row);
+  }
+  return [...groups.entries()].filter(([,items])=>items.length>1).map(([value,items])=>({value,rows:items}));
+}
+
 export function hasDuplicateCollocation(rows,value,ignoreId=null){
   return Boolean(findDuplicateCollocation(rows,value,ignoreId));
 }
