@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {fastSuggestions,normalizeSmartInput,refinementPrompt,ruleRefinement,synonymsFor} from '../smart-tools-core.mjs';
+import {COLLOCATION_BANK,fastSuggestionItems,fastSuggestions,normalizeSmartInput,refinementPrompt,ruleRefinement,synonymsFor} from '../smart-tools-core.mjs';
 
 test('smart input normalizes headwords',()=>{
   assert.equal(normalizeSmartInput('  Allow! '),'allow');
@@ -12,6 +12,27 @@ test('autocomplete filters progressively inside the headword bank',()=>{
   assert.deepEqual(fastSuggestions('IMPROVE U'),['improve user experience']);
   assert.equal(new Set(fastSuggestions('allow')).size,fastSuggestions('allow').length);
   assert.ok(fastSuggestions('allow').length<=5);
+});
+
+test('local suggestion items include an immediate Vietnamese meaning',()=>{
+  const items=fastSuggestionItems('allow');
+  assert.ok(items.length>=3);
+  assert.ok(items.every(item=>item.c&&item.v));
+  assert.equal(items[0].c,'allow access');
+  assert.equal(items[0].v,'cho phép truy cập');
+});
+
+test('local knowledge base has broad workplace coverage',()=>{
+  assert.ok(Object.keys(COLLOCATION_BANK).length>=40);
+  for(const [head,items] of Object.entries(COLLOCATION_BANK)){
+    assert.ok(head.length>=2);
+    assert.ok(items.length>=5);
+  }
+});
+
+test('unknown or partial input can fall through to AI without breaking local matching',()=>{
+  assert.deepEqual(fastSuggestionItems('facilitate'),[]);
+  assert.deepEqual(fastSuggestionItems('allow u').map(item=>item.c),['allow users to']);
 });
 
 test('autocomplete ignores an already completed exact phrase',()=>{
