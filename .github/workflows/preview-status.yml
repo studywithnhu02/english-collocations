@@ -15,29 +15,58 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inject status widget into Preview
+      - name: Update Preview status widget
+        env:
+          BUILD_SHA: ${{ github.sha }}
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('preview/index.html')
-          s = p.read_text(encoding='utf-8')
-          marker = 'preview-update-status-v1'
-          if marker in s:
-              print('Widget already present; nothing to do.')
-              raise SystemExit(0)
-
-          css = '''\n/* preview-update-status-v1 */\n#previewUpdateStatus{position:fixed;right:18px;bottom:18px;z-index:99999;width:min(360px,calc(100vw - 36px));background:var(--card,#1c2738);color:var(--text,#f4f7fb);border:1px solid var(--line,#344257);border-radius:14px;padding:12px 14px;box-shadow:0 12px 35px #0005;font-size:12px;backdrop-filter:blur(10px)}#previewUpdateStatus .pus-row{display:flex;align-items:center;gap:8px}#previewUpdateStatus .pus-dot{width:9px;height:9px;border-radius:50%;background:var(--muted,#9aa8bd);flex:none}#previewUpdateStatus .pus-dot.ok{background:var(--green,#36c98b)}#previewUpdateStatus .pus-dot.busy{background:var(--yellow,#f5c451);box-shadow:0 0 0 4px #f5c45122}#previewUpdateStatus .pus-dot.err{background:var(--danger,#ff686d)}#previewUpdateStatus .pus-title{font-weight:800}#previewUpdateStatus .pus-sub{color:var(--muted,#9aa8bd);margin-top:4px;line-height:1.4}#previewUpdateStatus .pus-actions{display:flex;gap:7px;margin-top:9px}#previewUpdateStatus button{font-size:11px;padding:6px 9px}#previewUpdateStatus .pus-time{margin-left:auto;color:var(--muted,#9aa8bd);font-size:10px}\n'''
-          html = '''\n<div id="previewUpdateStatus" aria-live="polite">\n  <div class="pus-row"><span class="pus-dot busy" id="pusDot"></span><span class="pus-title" id="pusTitle">Đang kiểm tra Preview…</span><span class="pus-time" id="pusTime"></span></div>\n  <div class="pus-sub" id="pusSub">Đang kiểm tra trạng thái GitHub Pages.</div>\n  <div class="pus-actions"><button class="secondary" id="pusCheck">↻ Kiểm tra ngay</button><button class="secondary" id="pusReload">⟳ Reload Preview</button></div>\n</div>\n'''
-          js = '''\n<script id="preview-update-status-v1">\n(()=>{\n  const repo='studywithnhu02/english-collocations';\n  const dot=document.getElementById('pusDot'),title=document.getElementById('pusTitle'),sub=document.getElementById('pusSub'),time=document.getElementById('pusTime');\n  const set=(kind,t,s)=>{dot.className='pus-dot '+kind;title.textContent=t;sub.textContent=s;time.textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});};\n  async function check(){\n    set('busy','Đang kiểm tra…','Đang kiểm tra GitHub Pages deployment mới nhất.');\n    try{\n      const r=await fetch('https://api.github.com/repos/'+repo+'/pages/deployments?per_page=1',{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});\n      if(!r.ok) throw new Error('GitHub Pages API '+r.status);\n      const a=await r.json(),d=a[0];\n      if(!d){set('err','Không có deployment','Chưa đọc được deployment của GitHub Pages.');return;}\n      const st=String(d.status||d.state||'').toLowerCase();\n      const sha=(d.sha||'').slice(0,7);\n      if(['success','succeeded','built'].includes(st)){set('ok','🟢 Preview đã cập nhật','GitHub Pages đã deploy thành công'+(sha?' · commit '+sha:'')+'.');}\n      else if(['error','failure','failed'].includes(st)){set('err','🔴 Deploy lỗi','GitHub Pages báo trạng thái '+st+(sha?' · commit '+sha:'')+'.');}\n      else{set('busy','🟡 Đang cập nhật Preview','GitHub Pages đang deploy'+(sha?' · commit '+sha:'')+'…');}\n    }catch(e){set('err','⚠️ Không kiểm tra được','GitHub Pages API chưa phản hồi. Bạn vẫn có thể reload thủ công.');}\n  }\n  document.getElementById('pusCheck').onclick=check;\n  document.getElementById('pusReload').onclick=()=>location.reload();\n  check();setInterval(check,15000);\n})();\n</script>\n'''
-          if '</style>' not in s or '</body>' not in s:
-              raise SystemExit('Expected HTML markers not found')
-          s=s.replace('</style>',css+'</style>',1)
-          s=s.replace('<body>', '<body>'+html,1)
-          s=s.replace('</body>',js+'</body>',1)
+          import re, os
+          p=Path('preview/index.html')
+          s=p.read_text(encoding='utf-8')
+          build=os.environ['BUILD_SHA']
+          marker='preview-update-status-v2'
+          js='''<script id="preview-update-status-v2">
+          (()=>{
+            const expected="__BUILD_SHA__";
+            const raw=`https://raw.githubusercontent.com/studywithnhu02/english-collocations/main/preview/index.html`;
+            const dot=document.getElementById('pusDot'),title=document.getElementById('pusTitle'),sub=document.getElementById('pusSub'),time=document.getElementById('pusTime');
+            const set=(kind,t,s)=>{if(dot)dot.className='pus-dot '+kind;if(title)title.textContent=t;if(sub)sub.textContent=s;if(time)time.textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});};
+            async function check(){
+              set('busy','Đang kiểm tra…','Đang so sánh phiên bản Preview đang chạy với source GitHub.');
+              try{
+                const r=await fetch(raw+'?t='+Date.now(),{cache:'no-store'});
+                if(!r.ok) throw new Error('HTTP '+r.status);
+                const text=await r.text();
+                const m=text.match(/data-preview-build="([0-9a-f]{7,40})"/i);
+                const live=m?m[1]:'';
+                if(live && expected.startsWith(live.slice(0,7))){
+                  set('ok','🟢 Preview đã cập nhật','Bản Preview hiện tại khớp với source GitHub · '+live.slice(0,7)+'.');
+                }else{
+                  set('busy','🟡 Đang cập nhật Preview','GitHub đã có bản mới · '+expected.slice(0,7)+'; Pages có thể đang propagate.');
+                }
+              }catch(e){set('err','⚠️ Không kiểm tra được','Không đọc được source GitHub. Bạn vẫn có thể reload thủ công.');}
+            }
+            document.getElementById('pusCheck')?.addEventListener('click',check);
+            document.getElementById('pusReload')?.addEventListener('click',()=>location.reload());
+            check(); setInterval(check,15000);
+          })();
+          </script>'''.replace('__BUILD_SHA__', build)
+          # Keep the existing widget UI, but replace its old script and add a build marker.
+          if 'preview-update-status-v1' in s:
+              s=s.replace('preview-update-status-v1','preview-update-status-v2')
+          if 'id="preview-update-status-v2"' in s:
+              s=re.sub(r'<script id="preview-update-status-v2">.*?</script>',js,s,count=1,flags=re.S)
+          else:
+              s=s.replace('</body>',js+'\n</body>',1)
+          if 'id="previewUpdateStatus"' in s:
+              s=re.sub(r'(<div id="previewUpdateStatus"[^>]*)(>)',r'\1 data-preview-build="'+build+r'"\2',s,count=1)
+          else:
+              raise SystemExit('Preview status widget not found')
           p.write_text(s,encoding='utf-8')
           PY
 
-      - name: Commit Preview widget
+      - name: Commit Preview widget update
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -45,6 +74,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No changes.'
           else
-            git commit -m 'Add Preview update status widget'
+            git commit -m 'Fix Preview update status detection'
             git push
           fi
