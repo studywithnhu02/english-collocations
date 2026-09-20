@@ -4,7 +4,7 @@ export const GOAL_PERIODS=Object.freeze(['day','week','month','year']);
 export const DEFAULT_GOALS=Object.freeze({day:5,week:35,month:150,year:1825});
 export function normalizeTarget(value,fallback=0){const n=Math.floor(Number(value));return Number.isFinite(n)&&n>=0?Math.min(n,100000):fallback}
 function vnParts(dateLike=new Date()){const key=localDateKey(dateLike),[y,m,d]=key.split('-').map(Number);return{y,m,d}}
-function daysInYear(dateLike=new Date()){const p=vnParts(dateLike);return new Date(Date.UTC(p.y+1,0,1,12))-new Date(Date.UTC(p.y,0,1,12))>366*86400000?366:365}
+function daysInYear(dateLike=new Date()){const p=vnParts(dateLike);return ((p.y%4===0&&p.y%100!==0)||p.y%400===0)?366:365}
 function daysInMonth(dateLike=new Date()){const p=vnParts(dateLike);return new Date(Date.UTC(p.y,p.m,0)).getUTCDate()}
 export function deriveGoalTargets(dayTarget,dateLike=new Date()){const day=normalizeTarget(dayTarget,0);return{day,week:Math.min(100000,day*7),month:Math.min(100000,day*daysInMonth(dateLike)),year:Math.min(100000,day*daysInYear(dateLike))}}
 export function normalizeGoals(value,dateLike=new Date()){const source=value&&typeof value==='object'?value:{},day=normalizeTarget(source.day,5);return deriveGoalTargets(day,dateLike)}
