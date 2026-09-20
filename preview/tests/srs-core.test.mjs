@@ -22,6 +22,13 @@ test('Good review advances 1 -> 3 -> 7 -> 30 days',()=>{
   assert.equal(state.cards['1'].due,'2026-10-31');
 });
 
+test('Hard repeats the current canonical interval',()=>{
+  const state={version:1,cards:{'1':{...emptyCard('1','2026-09-20'),step:1,interval:3}}};
+  const reviewed=reviewCard(state,'1','hard','2026-09-20');
+  assert.equal(reviewed.cards['1'].interval,3);
+  assert.equal(reviewed.cards['1'].due,'2026-09-23');
+});
+
 test('Again resets to 1 day and sync removes deleted rows',()=>{
   let state={version:1,cards:{'1':{...emptyCard('1','2026-09-20'),step:2,interval:7}}};
   state=reviewCard(state,'1','again','2026-09-20');
