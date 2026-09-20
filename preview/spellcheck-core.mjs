@@ -79,7 +79,7 @@ export function decorateHtml(text,errors=[],query=''){
   const search=findSearchIntervals(value,query);
   const boundaries=new Set([0,value.length]);
   for(const e of safeErrors){boundaries.add(e.start);boundaries.add(e.end);}
-  for(const s of search){boundaries.add(s.start);boundaries.add(s.end);}
+  for(const s of search){if(!safeErrors.some(e=>e.start<s.end&&s.start<e.end)){boundaries.add(s.start);boundaries.add(s.end);}}
   const points=[...boundaries].filter(Number.isFinite).sort((a,b)=>a-b);
   const esc=s=>String(s).replace(/[&<>"']/g,a=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[a]));
   let html='';
