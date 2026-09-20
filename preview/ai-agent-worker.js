@@ -18,12 +18,16 @@ function cleanGenerated(text){
   return s;
 }
 self.onmessage=async({data})=>{
-  const{id,messages=[],batch=false}=data||{};
+  const{id,messages=[],batch=false,story=false,type}=data||{};
+  if(type==='warmup'){
+    try{await getPipe();self.postMessage({type:'warmup-ready'})}catch{}
+    return;
+  }
   try{
     const pipe=await getPipe();
     self.postMessage({id,type:'status',stage:'inference',message:batch?'Đang phân tích theo batch…':'Đang dịch…'});
     const prompt=messages.map(m=>`${m.role}: ${m.content}`).join('\n\n')+'\n\nassistant:';
-    const out=await pipe(prompt,{max_new_tokens:batch?512:96,temperature:0.05,do_sample:false,repetition_penalty:1.15,no_repeat_ngram_size:3});
+    const out=await pipe(prompt,{max_new_tokens:story?176:(batch?384:96),temperature:0.05,do_sample:false,repetition_penalty:1.15,no_repeat_ngram_size:3});
     const raw=out?.[0]?.generated_text||'';
     const answer=cleanGenerated(raw);
     self.postMessage({id,ok:true,text:answer});

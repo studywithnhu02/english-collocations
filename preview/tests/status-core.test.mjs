@@ -2,27 +2,28 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {DEFAULT_STATUSES,normalizeStatus,uniqueStatuses,ensureStatuses,addStatus,removeStatus,setRowStatus,clearStatusFromRows,filterByStatus} from '../status-core.mjs';
 
+test('built-in statuses are always available',()=>{
+  assert.deepEqual(DEFAULT_STATUSES,['Chưa học','Đang học','Đã học']);
+  assert.deepEqual(ensureStatuses([]),['Chưa học','Đang học','Đã học']);
+  assert.deepEqual(ensureStatuses(['Đã học','Đang học','Tự ôn']),['Chưa học','Đang học','Đã học','Tự ôn']);
+});
+
 test('normalizes and de-duplicates statuses',()=>{
   assert.equal(normalizeStatus('  Đã   học  '),'Đã học');
   assert.deepEqual(uniqueStatuses(['Chưa học',' Đã học ','Chưa học','','  ']),['Chưa học','Đã học']);
-  assert.deepEqual(ensureStatuses([]),[...DEFAULT_STATUSES]);
-  assert.deepEqual(ensureStatuses(['Đang học']),['Đang học']);
 });
 
-test('adds a new status once',()=>{
+test('adding a built-in status is idempotent while custom status is addable',()=>{
   const first=addStatus(DEFAULT_STATUSES,'Đang học');
-  assert.equal(first.added,true);
-  assert.equal(first.status,'Đang học');
-  assert.deepEqual(first.statuses,['Chưa học','Đã học','Đang học']);
-  const second=addStatus(first.statuses,' Đang   học ');
-  assert.equal(second.added,false);
-  assert.deepEqual(second.statuses,first.statuses);
+  assert.equal(first.added,false);
+  assert.deepEqual(first.statuses,[...DEFAULT_STATUSES]);
+  const second=addStatus(DEFAULT_STATUSES,'Đang ôn');
+  assert.equal(second.added,true);
+  assert.deepEqual(second.statuses,['Chưa học','Đang học','Đã học','Đang ôn']);
 });
 
-test('removes a status from catalog',()=>{
-  assert.deepEqual(removeStatus(['Chưa học','Đã học','Đang học'],'Đang học'),['Chưa học','Đã học']);
-  assert.deepEqual(removeStatus(['Chưa học','Đã học'],'Chưa học'),['Đã học']);
-  assert.deepEqual(removeStatus(['Chưa học','Đã học'],'Không có'),['Chưa học','Đã học']);
+test('removing a custom status works',()=>{
+  assert.deepEqual(removeStatus(['Chưa học','Đang học','Đã học','Đang ôn'],'Đang ôn'),['Chưa học','Đang học','Đã học']);
 });
 
 test('sets one row status',()=>{
@@ -33,7 +34,7 @@ test('sets one row status',()=>{
   assert.equal(result.rows[1].s,'Đã học');
 });
 
-test('clears removed status from all matching rows',()=>{
+test('clears matching status from rows',()=>{
   const rows=[{id:1,s:'Đã học'},{id:2,s:'Đang học'},{id:3,s:'Đã học'}];
   const result=clearStatusFromRows(rows,'Đã học');
   assert.equal(result.changed,true);

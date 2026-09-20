@@ -94,6 +94,14 @@ export function removeLearningEvent(events,id,date=localDateKey()){
   return {events:filtered,removed:filtered.length!==next.length,id:target,date:key};
 }
 
+export function removeLearningEventsByIds(events,ids){
+  const targets=new Set((Array.isArray(ids)?ids:[]).map(id=>String(id??'').trim()).filter(Boolean));
+  if(!targets.size)return {events:normalizeLearningEvents(events),removed:0};
+  const next=normalizeLearningEvents(events);
+  const filtered=next.filter(event=>!targets.has(event.id));
+  return {events:filtered,removed:next.length-filtered.length};
+}
+
 export function buildMonthCalendar(referenceDate=new Date(),events=[],checkins=[]){
   const firstKey=localDateKey(new Date(Date.UTC(
     Number(localDateKey(referenceDate).slice(0,4)),

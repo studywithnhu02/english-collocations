@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {VIETNAM_TIMEZONE,addCheckin,addLearningEvent,buildLearningSeries,buildMonthCalendar,calculateStreak,isCheckedIn,localDateKey,removeCheckin,removeLearningEvent} from '../analytics-core.mjs';
+import {VIETNAM_TIMEZONE,addCheckin,addLearningEvent,buildLearningSeries,buildMonthCalendar,calculateStreak,isCheckedIn,localDateKey,removeCheckin,removeLearningEvent,removeLearningEventsByIds} from '../analytics-core.mjs';
 
 const ref=new Date('2026-09-16T16:30:00Z');
 
@@ -51,6 +51,12 @@ test('monthly series groups unique collocations into week buckets',()=>{
   assert.equal(series.total,4);
 });
 
+test('learning events can be pruned by deleted row ids',()=>{
+  const events=[{id:'1',date:'2026-09-16'},{id:'2',date:'2026-09-16'},{id:'1',date:'2026-09-15'}];
+  const result=removeLearningEventsByIds(events,['1']);
+  assert.equal(result.removed,2);
+  assert.deepEqual(result.events,[{id:'2',date:'2026-09-16'}]);
+});
 test('calendar returns Monday-first cells and marks learning/check-in',()=>{
   const model=buildMonthCalendar(ref,[{id:'1',date:'2026-09-16'},{id:'2',date:'2026-09-16'}],['2026-09-16']);
   const day16=model.cells.find(cell=>cell?.date==='2026-09-16');

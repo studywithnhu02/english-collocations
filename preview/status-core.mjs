@@ -1,4 +1,4 @@
-export const DEFAULT_STATUSES = Object.freeze(['Chưa học','Đã học']);
+export const DEFAULT_STATUSES = Object.freeze(['Chưa học','Đang học','Đã học']);
 
 export function normalizeStatus(value){
   return String(value ?? '').replace(/\s+/g,' ').trim();
@@ -18,7 +18,8 @@ export function uniqueStatuses(values){
 
 export function ensureStatuses(values){
   const statuses=uniqueStatuses(values);
-  return statuses.length?statuses:[...DEFAULT_STATUSES];
+  const result=[...DEFAULT_STATUSES,...statuses.filter(status=>!DEFAULT_STATUSES.includes(status))];
+  return result.length?result:[...DEFAULT_STATUSES];
 }
 
 export function addStatus(values,status){
