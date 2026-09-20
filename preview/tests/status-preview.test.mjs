@@ -37,6 +37,7 @@ console.log('Status Preview contract tests: PASS');
   assert.ok(html.includes('body.light-theme .status-button.status-not-learned'));
   assert.ok(html.includes('body.light-theme .status-button.status-learned'));
   assert.ok(html.includes('statusRows=filterByStatus(data,status)'));
+  assert.ok(html.includes("s:normalizeStatus(x.s??x.status??'Chưa học')||'Chưa học'"));
   assert.ok(html.includes('.main>.brand,.main>.card:not(.brand):not(.table-card){padding:9px 14px 5px}'));
 });
 
