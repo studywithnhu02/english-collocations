@@ -21,7 +21,7 @@ function ask(collocation){
   return aiJson([
     {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn is one short natural workplace or conversational English sentence that uses the supplied collocation naturally. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
     {role:'user',content:JSON.stringify({collocation:String(collocation||'').trim()})}
-  ],{batch:false,purpose:'autofill',maxNewTokens:256});
+  ],{batch:false,purpose:'autofill',maxNewTokens:256,timeoutMs:20000});
 }
 
 export async function autoFill(id,value){
