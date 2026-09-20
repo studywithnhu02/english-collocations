@@ -499,7 +499,7 @@ export function fastSuggestionItems(value){
     const low=item.c.toLowerCase();
     return low.startsWith(q)&&low!==q;
   });
-  const matches=uniqueByPhrase(prefix).slice(0,20);
+  const matches=uniqueByPhrase(prefix).slice(0,60);
   return matches.map(item=>({...item,cefr:String(item.cefr||inferCefr(item.c)||'').trim().toUpperCase()}));
 }
 export function fastSuggestions(value){return fastSuggestionItems(value).map(item=>item.c)}
