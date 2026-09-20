@@ -17,7 +17,7 @@ test('story selection requires 3 to 5 valid collocations',()=>{
 test('paragraph prompt is short, simple and preserves exact collocations',()=>{
   const prompt=buildStoryPrompt(rows,STORY_MODES.paragraph);
   for(const row of rows)assert.ok(prompt.includes(JSON.stringify(row.c)));
-  assert.ok(prompt.includes('60-90 words'));
+  assert.ok(prompt.includes('54–72 words'));
   assert.ok(prompt.includes('simple A2-B1 vocabulary'));
   assert.ok(prompt.includes('Use EVERY supplied collocation exactly as written'));
 });
@@ -32,8 +32,8 @@ test('story length scales directly with selected collocation count',()=>{
 
 test('dialogue prompt is short and professional',()=>{
   const prompt=buildStoryPrompt(rows,STORY_MODES.dialogue);
-  assert.ok(prompt.includes('6-8 natural lines'));
-  assert.ok(prompt.includes('2 professionals'));
+  assert.ok(prompt.includes('EXACTLY 6 short workplace dialogue lines'));
+  assert.ok(prompt.includes('Speaker A and Speaker B'));
 });
 
 test('coverage helper detects exactly which collocations are present',()=>{
