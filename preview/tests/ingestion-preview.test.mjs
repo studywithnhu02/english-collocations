@@ -21,7 +21,7 @@ test('Auto-fill fills exampleEn and exampleVi together when both are empty',()=>
 });
 
 test('Auto-fill JS uses per-row request versions, AI options and translation fallback',()=>{
-  for(const token of ['requestVersions=new Map()',"purpose:'autofill'","maxNewTokens:256",'window.AutoTranslate?.run','buildAutoFillChanges'])assert.ok(js.includes(token),token);
+  for(const token of ['requestVersions=new Map()',"purpose:'autofill'","maxNewTokens:256",'timeoutMs:20000','window.AutoTranslate?.run','buildAutoFillChanges'])assert.ok(js.includes(token),token);
   assert.ok(!js.includes('let sequence=0'));
   assert.ok(js.includes('requestVersions.get(key)!==version'));
   assert.equal(js.includes('data-auto-fill'),false);
