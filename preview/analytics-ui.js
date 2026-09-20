@@ -52,7 +52,7 @@ function renderStats(value){
   const today=localDateKey();
   const weekly=buildLearningSeries(value.learningEvents,'week',new Date());
   const monthly=buildLearningSeries(value.learningEvents,'month',new Date());
-  const learnedToday=new Set(value.learningEvents.filter(event=>event.date===today).map(event=>event.id)).size;
+  const learnedToday=new Set(value.learningEvents.map(event=>event.id)).size;
   document.getElementById('analyticsLearned').textContent=learnedToday;
   document.getElementById('analyticsWeek').textContent=weekly.total;
   document.getElementById('analyticsMonth').textContent=monthly.total;
