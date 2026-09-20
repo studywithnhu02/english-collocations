@@ -299,7 +299,7 @@ export const COLLOCATION_BANK=Object.freeze({
     'increase efficiency|tăng hiệu quả','increase revenue|tăng doanh thu','increase productivity|tăng năng suất',
     'increase engagement|tăng mức độ tương tác','increase adoption|tăng mức độ sử dụng','increase capacity|tăng năng lực'
   ),
-  improve:entries(
+  improve_extra:entries(
     'improve user experience|cải thiện trải nghiệm người dùng','improve performance|cải thiện hiệu suất',
     'improve communication|cải thiện giao tiếp','improve efficiency|cải thiện hiệu quả','improve quality|cải thiện chất lượng',
     'improve accessibility|cải thiện khả năng tiếp cận'
@@ -308,7 +308,7 @@ export const COLLOCATION_BANK=Object.freeze({
     'optimize performance|tối ưu hiệu suất','optimize a process|tối ưu quy trình','optimize user experience|tối ưu trải nghiệm người dùng',
     'optimize conversion|tối ưu chuyển đổi','optimize costs|tối ưu chi phí','optimize workflow|tối ưu luồng công việc'
   ),
-  design:entries(
+  design_extra:entries(
     'design a solution|thiết kế giải pháp','design system|hệ thống thiết kế','design process|quy trình thiết kế',
     'user-centered design|thiết kế lấy người dùng làm trung tâm','responsive design|thiết kế đáp ứng','design a prototype|thiết kế nguyên mẫu'
   ),
@@ -385,7 +385,7 @@ export const COLLOCATION_BANK=Object.freeze({
     'deliver results|mang lại kết quả','deliver a project|bàn giao / hoàn thành dự án','deliver value|tạo ra giá trị',
     'deliver on time|bàn giao đúng hạn','deliver a solution|cung cấp giải pháp'
   ),
-  launch:entries(
+  launch_extra:entries(
     'launch a product|ra mắt sản phẩm','launch a feature|ra mắt tính năng','launch a campaign|khởi động chiến dịch',
     'product launch|đợt ra mắt sản phẩm','launch a new service|ra mắt dịch vụ mới'
   ),
@@ -405,7 +405,7 @@ export const COLLOCATION_BANK=Object.freeze({
     'solve a problem|giải quyết vấn đề','solve an issue|giải quyết vấn đề','solve a challenge|giải quyết thách thức',
     'solve a technical problem|giải quyết vấn đề kỹ thuật','solve a customer problem|giải quyết vấn đề của khách hàng'
   ),
-  build:entries(
+  build_extra:entries(
     'build a product|xây dựng sản phẩm','build a team|xây dựng đội ngũ','build trust|xây dựng niềm tin',
     'build a prototype|xây dựng nguyên mẫu','build a relationship|xây dựng mối quan hệ'
   ),
@@ -469,7 +469,7 @@ export const COLLOCATION_BANK=Object.freeze({
     'key stakeholder|bên liên quan chính','stakeholder needs|nhu cầu của bên liên quan','stakeholder feedback|phản hồi của bên liên quan',
     'engage stakeholders|thu hút / làm việc với các bên liên quan','stakeholder management|quản lý các bên liên quan'
   ),
-  requirement:entries(
+  requirement_extra:entries(
     'meet a requirement|đáp ứng yêu cầu','define a requirement|xác định yêu cầu','gather requirements|thu thập yêu cầu',
     'business requirement|yêu cầu nghiệp vụ','technical requirement|yêu cầu kỹ thuật','compliance requirement|yêu cầu tuân thủ'
   )
