@@ -7,9 +7,37 @@ function readRows(){try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[
 function writeRows(rows){localStorage.setItem(STORAGE_KEY,JSON.stringify(rows));window.dispatchEvent(new CustomEvent('preview-data-updated'));return rows}
 function selectedIds(){return [...document.querySelectorAll('#body tr')].filter(tr=>tr.querySelector('.row-check')?.checked).map(tr=>String(tr.dataset.id))}
 function selectedRows(){const ids=selectedIds(),rows=readRows();return ids.length?rows.filter(r=>ids.includes(String(r.id))):[]}
-function ensureWorker(){return worker||(worker=new Worker('./ai-agent-worker.js?v=3',{type:'module'}))}
+function ensureWorker(){return worker||(worker=new Worker('./ai-agent-worker.js?v=4',{type:'module'}))}
 function callModel(messages,batch=false){return new Promise((resolve,reject)=>{const id=++requestId,w=ensureWorker();const fn=e=>{if(e.data?.id!==id)return;if(e.data?.type==='status'){status(e.data.message||'Đang xử lý…');return}w.removeEventListener('message',fn);e.data.ok?resolve(e.data.text):reject(new Error(e.data.error||'AI error'))};w.addEventListener('message',fn);w.postMessage({id,messages,batch})})}
-function json(text){const m=String(text).match(/\[[\s\S]*\]|\{[\s\S]*\}/);if(!m)throw Error('AI không trả về JSON hợp lệ');return JSON.parse(m[0])}
+function json(text){
+  const raw=String(text??'').trim().replace(/^\`\`\`(?:json)?\s*/i,'').replace(/\s*\`\`\`$/,'').trim();
+  const starts=[];
+  for(let i=0;i<raw.length;i++){if(raw[i]==='['||raw[i]==='{')starts.push(i)}
+  const parseCandidate=(start)=>{
+    const open=raw[start],close=open==='['?']':'}';let depth=0,inString=false,escaped=false;
+    for(let i=start;i<raw.length;i++){
+      const ch=raw[i];
+      if(inString){
+        if(escaped){escaped=false;continue}
+        if(ch==='\\\\'){escaped=true;continue}
+        if(ch==='"')inString=false;
+        continue
+      }
+      if(ch==='"'){inString=true;continue}
+      if(ch===open)depth++;
+      else if(ch===close){
+        depth--;
+        if(depth===0){
+          const candidate=raw.slice(start,i+1);
+          try{return JSON.parse(candidate)}catch{return null}
+        }
+      }
+    }
+    return null
+  };
+  for(const start of starts){const value=parseCandidate(start);if(value!==null)return value}
+  throw Error('AI không trả về JSON hợp lệ');
+}
 function styles(){if(document.getElementById('agentStyles'))return;const s=document.createElement('style');s.id='agentStyles';s.textContent=`.agent-card{padding:0!important;overflow:hidden}.agent-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.agent-title{font-weight:850;font-size:15px}.agent-sub,.agent-note,.agent-status{font-size:11px;color:var(--muted);margin-top:5px}.agent-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.agent-actions button{font-size:11px;padding:8px}.agent-input{margin-top:10px}.agent-input textarea{width:100%;min-height:70px;resize:vertical}.agent-result{margin-top:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;max-height:360px;overflow:auto}.agent-status.ok{color:var(--green)}.agent-status.err{color:var(--danger)}.agent-safe{font-size:10px;color:var(--green);margin-top:8px}.diff-item{border-top:1px solid var(--line);padding:9px 0}.diff-old{color:var(--danger);margin-top:5px}.diff-new{color:var(--green);margin-top:3px}.diff-actions{display:flex;gap:6px;margin-top:6px}.diff-actions button{font-size:10px;padding:5px 7px}.agent-apply{width:100%;margin-top:9px}.agent-apply[disabled]{opacity:.5}.agent-empty{color:var(--muted)}.agent-badge{font-size:10px;color:var(--green);margin-left:6px}.agent-progress{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}.agent-progress>i{display:block;height:100%;width:0;background:var(--green);transition:width .2s}`;document.head.appendChild(s)}
 function status(t,k=''){const e=document.getElementById('agentStatus');if(e)e.className='agent-status '+k,e.textContent=t}
 function progress(n=0){const e=document.querySelector('#agentProgress>i');if(e)e.style.width=Math.max(0,Math.min(100,n))+'%'}
