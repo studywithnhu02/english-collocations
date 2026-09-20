@@ -25,7 +25,7 @@ test('Preview status UI contract',()=>{
 });
 
 test('Status is persisted and exported',()=>{
-  assert.ok(html.includes('JSON.stringify({data,statuses:loadStatuses(),analytics:loadAnalytics()},null,2)'));
+  assert.ok(html.includes('JSON.stringify({data,statuses:loadStatuses(),analytics:window.PreviewAnalytics?.getSnapshot?.()||{checkins:[],learningEvents:[]}},null,2)'));
   assert.ok(html.includes("const h=['STT','Collocation','Nghĩa Collocation','Chủ đề','Câu giao tiếp ví dụ','Nghĩa câu ví dụ','Status','Ngày tạo']"));
 });
 
