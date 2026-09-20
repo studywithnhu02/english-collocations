@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {STORY_MODES,buildStoryPrompt,cleanStoryText,validateStorySelection} from '../contextual-story-core.mjs';
+import {STORY_MODES,buildStoryPrompt,cleanStoryText,validateStorySelection,storyCoverage} from '../contextual-story-core.mjs';
 
 const rows=[
   {id:1,c:'meet a deadline',m:'hoàn thành đúng hạn',t:'Work'},
@@ -22,10 +22,22 @@ test('paragraph prompt is short, simple and preserves exact collocations',()=>{
   assert.ok(prompt.includes('Use EVERY supplied collocation exactly as written'));
 });
 
+test('story length scales directly with selected collocation count',()=>{
+  const four=[...rows,{id:4,c:'pay attention to'}];
+  const prompt3=buildStoryPrompt(rows,STORY_MODES.paragraph);
+  const prompt4=buildStoryPrompt(four,STORY_MODES.paragraph);
+  assert.ok(prompt3.includes('54–72 words'));
+  assert.ok(prompt4.includes('72–96 words'));
+});
+
 test('dialogue prompt is short and professional',()=>{
   const prompt=buildStoryPrompt(rows,STORY_MODES.dialogue);
   assert.ok(prompt.includes('6-8 natural lines'));
   assert.ok(prompt.includes('2 professionals'));
+});
+
+test('coverage helper detects exactly which collocations are present',()=>{
+  assert.deepEqual(storyCoverage('We will meet a deadline and take ownership.',rows),['meet a deadline','take ownership']);
 });
 
 test('cleans model wrappers without changing story text',()=>{
