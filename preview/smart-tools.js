@@ -30,7 +30,7 @@ async function enrichSuggestions(cell,value,token,base){
     const raw=await aiJson([
       {role:'system',content:'Return only JSON array with up to 20 common natural English collocations that begin exactly with the supplied input. Mix useful collocation patterns where compatible: verb+noun, adjective+noun, noun+noun, adverb+adjective, verb+preposition, adjective+preposition. Prefer workplace, UI/UX, technology, banking, insurance, business and everyday communication. Every item must include collocation, meaningVi, and CEFR from A1/A2/B1/B2/C1/C2. Never invent awkward phrases. No explanations.'},
       {role:'user',content:value}
-    ],{batch:false,purpose:'suggestions',maxNewTokens:384});
+    ],{batch:false,purpose:'suggestions',maxNewTokens:384,timeoutMs:20000});
     if(token!==activeRequest||document.activeElement!==cell||!document.contains(cell))return;
     merged=buildItems([...merged,...sanitizeAiSuggestions(raw,value)]);
     showSuggestions(cell,merged,'📚 Gợi ý trong thư viện',false);
