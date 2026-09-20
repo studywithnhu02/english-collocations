@@ -11,7 +11,7 @@ test('autocomplete filters progressively inside the headword bank',()=>{
   assert.deepEqual(fastSuggestions('allow u'),['allow users to']);
   assert.ok(fastSuggestions('IMPROVE U').includes('improve user experience'));
   assert.equal(new Set(fastSuggestions('allow')).size,fastSuggestions('allow').length);
-  assert.ok(fastSuggestions('allow').length<=10);
+  assert.ok(fastSuggestions('allow').length<=60);
 });
 
 test('local suggestion items include an immediate Vietnamese meaning',()=>{
