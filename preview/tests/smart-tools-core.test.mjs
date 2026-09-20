@@ -14,14 +14,15 @@ test('synonyms are available without being treated as fill suggestions',()=>{
 test('known confusing collocations get explicit corrections',()=>{
   const result=ruleRefinement('make a deadline');
   assert.equal(result.better,'meet a deadline / beat a deadline');
-  assert.match(result.message,/make a deadline/);
+  assert.match(result.warning||result.message,/make a deadline/);
 });
 
 test('refinement prompt only contains selected row ids and collocations',()=>{
   const prompt=refinementPrompt([{id:1,c:'make a decision',m:'x'},{id:2,c:'user experience',m:'y'}]);
-  assert.match(prompt,/make a decision/);
-  assert.doesNotMatch(prompt,/x/);
-  assert.doesNotMatch(prompt,/y/);
+  const rows=JSON.parse(prompt);
+  assert.deepEqual(rows,[{index:1,id:'1',collocation:'make a decision'},{index:2,id:'2',collocation:'user experience'}]);
+  assert.equal(Object.hasOwn(rows[0],'meaning'),false);
+  assert.equal(Object.hasOwn(rows[1],'meaning'),false);
 });
 
 console.log('Smart Tools core tests: PASS');
