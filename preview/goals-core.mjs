@@ -1,3 +1,4 @@
+import {localDateKey} from './analytics-core.mjs';
 export const GOALS_KEY='english-collocations-preview-goals-v1';
 export const GOAL_PERIODS=Object.freeze(['day','week','month','year']);
 
@@ -18,19 +19,26 @@ function keyDate(dateLike=new Date()){
   return Number.isNaN(d.getTime())?new Date():d;
 }
 
+function vnKeyDate(dateLike=new Date()){
+  const key=localDateKey(dateLike);
+  const [y,m,d]=key.split('-').map(Number);
+  return new Date(Date.UTC(y,m-1,d,12));
+}
+
 function startOfPeriod(period,dateLike=new Date()){
-  const d=keyDate(dateLike);
-  if(period==='day')return new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const d=vnKeyDate(dateLike);
+  if(period==='day')return d;
   if(period==='week'){
-    const mondayIndex=(d.getDay()+6)%7;
-    return new Date(d.getFullYear(),d.getMonth(),d.getDate()-mondayIndex);
+    const mondayIndex=(d.getUTCDay()+6)%7;
+    d.setUTCDate(d.getUTCDate()-mondayIndex);
+    return d;
   }
-  if(period==='month')return new Date(d.getFullYear(),d.getMonth(),1);
-  return new Date(d.getFullYear(),0,1);
+  if(period==='month')return new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1,12));
+  return new Date(Date.UTC(d.getUTCFullYear(),0,1,12));
 }
 
 export function periodStartKey(period,dateLike=new Date()){
-  return startOfPeriod(period,dateLike).toISOString().slice(0,10);
+  return localDateKey(startOfPeriod(period,dateLike));
 }
 
 export function periodLabel(period){
@@ -38,11 +46,12 @@ export function periodLabel(period){
 }
 
 export function countLearned(events,period,dateLike=new Date()){
-  const start=startOfPeriod(period,dateLike).getTime();
+  const startKey=periodStartKey(period,dateLike);
+  const endKey=localDateKey(dateLike);
   const ids=new Set();
   for(const event of Array.isArray(events)?events:[]){
-    const date=new Date(String(event?.date||'')+'T12:00:00');
-    if(Number.isNaN(date.getTime())||date.getTime()<start)continue;
+    const date=String(event?.date||'').trim();
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<startKey||date>endKey)continue;
     ids.add(String(event?.id??'').trim());
   }
   return ids.size;
