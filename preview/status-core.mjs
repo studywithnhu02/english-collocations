@@ -35,15 +35,18 @@ export function removeStatus(values,status){
   return uniqueStatuses(values).filter(value=>value!==normalized);
 }
 
-export function setRowStatus(rows,id,status){
+export function setRowStatus(rows,id,status,options={}){
   const normalized=normalizeStatus(status);
   const key=String(id);
+  const nowValue=options?.now instanceof Date?options.now:new Date();
+  const doneAt=normalized==='Đã học'?nowValue.toISOString():'';
   let changed=false;
   const next=(Array.isArray(rows)?rows:[]).map(row=>{
     if(String(row?.id)!==key) return row;
-    if(normalizeStatus(row?.s)===normalized) return row;
+    const current=normalizeStatus(row?.s);
+    if(current===normalized) return row;
     changed=true;
-    return {...row,s:normalized};
+    return {...row,s:normalized,doneAt:normalized==='Đã học'?doneAt:''};
   });
   return {rows:next,changed};
 }
