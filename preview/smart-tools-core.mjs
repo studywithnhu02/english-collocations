@@ -355,7 +355,7 @@ export const COLLOCATION_BANK=Object.freeze({
     'software development|phát triển phần mềm','software update|bản cập nhật phần mềm','software system|hệ thống phần mềm',
     'software tool|công cụ phần mềm','software testing|kiểm thử phần mềm','software release|bản phát hành phần mềm'
   ),
-  API:entries(
+  api:entries(
     'API access|quyền truy cập API','API request|yêu cầu API','API response|phản hồi API',
     'API endpoint|điểm cuối API','API integration|tích hợp API','API documentation|tài liệu API'
   ),
@@ -370,6 +370,106 @@ export const COLLOCATION_BANK=Object.freeze({
   insurance:entries(
     'insurance policy|hợp đồng bảo hiểm','insurance claim|yêu cầu bồi thường bảo hiểm','insurance coverage|phạm vi bảo hiểm',
     'insurance premium|phí bảo hiểm','insurance product|sản phẩm bảo hiểm','insurance company|công ty bảo hiểm'
+  ),
+  collaborate:entries(
+    'collaborate with a team|phối hợp với một đội nhóm','collaborate closely|phối hợp chặt chẽ','cross-functional collaboration|phối hợp liên phòng ban',
+    'collaborate on a project|phối hợp trong một dự án','collaborate with stakeholders|phối hợp với các bên liên quan'
+  ),
+  communicate:entries(
+    'communicate clearly|giao tiếp rõ ràng','communicate with customers|giao tiếp với khách hàng','communicate effectively|giao tiếp hiệu quả',
+    'communicate expectations|truyền đạt kỳ vọng','communicate a message|truyền đạt thông điệp'
+  ),
+  deliver:entries(
+    'deliver results|mang lại kết quả','deliver a project|bàn giao / hoàn thành dự án','deliver value|tạo ra giá trị',
+    'deliver on time|bàn giao đúng hạn','deliver a solution|cung cấp giải pháp'
+  ),
+  launch:entries(
+    'launch a product|ra mắt sản phẩm','launch a feature|ra mắt tính năng','launch a campaign|khởi động chiến dịch',
+    'product launch|đợt ra mắt sản phẩm','launch a new service|ra mắt dịch vụ mới'
+  ),
+  implement:entries(
+    'implement a solution|triển khai giải pháp','implement a strategy|triển khai chiến lược','implement a process|triển khai quy trình',
+    'implement changes|triển khai thay đổi','implement a feature|triển khai tính năng'
+  ),
+  evaluate:entries(
+    'evaluate a solution|đánh giá giải pháp','evaluate performance|đánh giá hiệu suất','evaluate results|đánh giá kết quả',
+    'evaluate options|đánh giá các lựa chọn','evaluate a proposal|đánh giá đề xuất'
+  ),
+  identify:entries(
+    'identify a problem|xác định vấn đề','identify a need|xác định nhu cầu','identify an opportunity|xác định cơ hội',
+    'identify a risk|xác định rủi ro','identify a trend|xác định xu hướng'
+  ),
+  solve:entries(
+    'solve a problem|giải quyết vấn đề','solve an issue|giải quyết vấn đề','solve a challenge|giải quyết thách thức',
+    'solve a technical problem|giải quyết vấn đề kỹ thuật','solve a customer problem|giải quyết vấn đề của khách hàng'
+  ),
+  build:entries(
+    'build a product|xây dựng sản phẩm','build a team|xây dựng đội ngũ','build trust|xây dựng niềm tin',
+    'build a prototype|xây dựng nguyên mẫu','build a relationship|xây dựng mối quan hệ'
+  ),
+  organize:entries(
+    'organize a meeting|tổ chức cuộc họp','organize an event|tổ chức sự kiện','organize information|sắp xếp thông tin',
+    'organize a workshop|tổ chức workshop','organize a project|tổ chức dự án'
+  ),
+  schedule:entries(
+    'schedule a meeting|lên lịch họp','schedule a call|lên lịch cuộc gọi','schedule an appointment|đặt lịch hẹn',
+    'schedule a task|lên lịch nhiệm vụ','schedule a review|lên lịch review'
+  ),
+  attend:entries(
+    'attend a meeting|tham dự cuộc họp','attend a workshop|tham dự workshop','attend a conference|tham dự hội nghị',
+    'attend a training session|tham dự buổi đào tạo','attend an event|tham dự sự kiện'
+  ),
+  discuss:entries(
+    'discuss an issue|thảo luận vấn đề','discuss a proposal|thảo luận đề xuất','discuss a solution|thảo luận giải pháp',
+    'discuss the results|thảo luận kết quả','discuss next steps|thảo luận bước tiếp theo'
+  ),
+  present:entries(
+    'present a proposal|trình bày đề xuất','present the results|trình bày kết quả','present an idea|trình bày ý tưởng',
+    'present a solution|trình bày giải pháp','present findings|trình bày phát hiện / kết quả'
+  ),
+  propose:entries(
+    'propose a solution|đề xuất giải pháp','propose a plan|đề xuất kế hoạch','propose changes|đề xuất thay đổi',
+    'propose an idea|đề xuất ý tưởng','propose a new approach|đề xuất cách tiếp cận mới'
+  ),
+  approve:entries(
+    'approve a request|phê duyệt yêu cầu','approve a claim|phê duyệt yêu cầu bồi thường','approve a payment|phê duyệt thanh toán',
+    'approve a proposal|phê duyệt đề xuất','approve a transaction|phê duyệt giao dịch'
+  ),
+  reject:entries(
+    'reject a request|từ chối yêu cầu','reject a claim|từ chối yêu cầu bồi thường','reject a proposal|từ chối đề xuất',
+    'reject an application|từ chối đơn đăng ký','reject a transaction|từ chối giao dịch'
+  ),
+  monitor:entries(
+    'monitor performance|theo dõi hiệu suất','monitor progress|theo dõi tiến độ','monitor activity|theo dõi hoạt động',
+    'monitor a system|theo dõi hệ thống','monitor results|theo dõi kết quả'
+  ),
+  measure:entries(
+    'measure performance|đo hiệu suất','measure impact|đo tác động','measure success|đo mức độ thành công',
+    'measure results|đo kết quả','measure customer satisfaction|đo mức độ hài lòng khách hàng'
+  ),
+  prioritize:entries(
+    'prioritize tasks|ưu tiên nhiệm vụ','prioritize work|ưu tiên công việc','prioritize user needs|ưu tiên nhu cầu người dùng',
+    'prioritize issues|ưu tiên vấn đề','prioritize features|ưu tiên tính năng'
+  ),
+  estimate:entries(
+    'estimate costs|ước tính chi phí','estimate effort|ước tính công sức','estimate time|ước tính thời gian',
+    'estimate a budget|ước tính ngân sách','estimate project duration|ước tính thời lượng dự án'
+  ),
+  allocate:entries(
+    'allocate resources|phân bổ nguồn lực','allocate a budget|phân bổ ngân sách','allocate time|phân bổ thời gian',
+    'allocate tasks|phân công nhiệm vụ','allocate funding|phân bổ nguồn vốn'
+  ),
+  resource:entries(
+    'allocate resources|phân bổ nguồn lực','human resources|nguồn nhân lực','financial resources|nguồn lực tài chính',
+    'limited resources|nguồn lực hạn chế','resource planning|lập kế hoạch nguồn lực'
+  ),
+  stakeholder:entries(
+    'key stakeholder|bên liên quan chính','stakeholder needs|nhu cầu của bên liên quan','stakeholder feedback|phản hồi của bên liên quan',
+    'engage stakeholders|thu hút / làm việc với các bên liên quan','stakeholder management|quản lý các bên liên quan'
+  ),
+  requirement:entries(
+    'meet a requirement|đáp ứng yêu cầu','define a requirement|xác định yêu cầu','gather requirements|thu thập yêu cầu',
+    'business requirement|yêu cầu nghiệp vụ','technical requirement|yêu cầu kỹ thuật','compliance requirement|yêu cầu tuân thủ'
   )
 });
 
