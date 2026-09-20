@@ -29,7 +29,7 @@ test('dialogue prompt is short and professional',()=>{
 });
 
 test('cleans model wrappers without changing story text',()=>{
-  assert.equal(cleanStoryText('```text\\nHello team.\\n```'),'Hello team.');
+  assert.equal(cleanStoryText('```text\nHello team.\n```'),'Hello team.');
   assert.equal(cleanStoryText('assistant: Hello team.'),'Hello team.');
 });
 
