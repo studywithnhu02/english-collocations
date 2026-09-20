@@ -15,7 +15,7 @@ const CEFR_RULES=[
   [/^(work|help|use|start|show|need|make|do|go|come|have|get|give|take)\b/i,'A1']
 ];
 export function normalizeCefr(value,fallback=''){const v=String(value??'').trim().toUpperCase();return CEFR_LEVELS.includes(v)?v:fallback}
-export function inferCefr(collocation){const value=String(collocation??'').trim(),override=CEFR_OVERRIDES[value.toLowerCase()];if(override)return override;for(const [re,level] of CEFR_RULES)if(re.test(value))return level;return value.split(/\s+/).length>=3?'B1':'A2'}
+export function inferCefr(collocation){const value=String(collocation??'').trim(),override=CEFR_OVERRIDES[value.toLowerCase()];if(override)return override;for(const [re,level] of CEFR_RULES)if(re.test(value))return level;return ''}
 export function normalizeList(value,allowed=null){const values=Array.isArray(value)?value:[value];const valid=Array.isArray(allowed)?new Set(allowed):null;return [...new Set(values.map(v=>String(v??'').trim().replace(/\s+/g,' ')).filter(v=>v.length>=2&&(!valid||valid.has(v))))].slice(0,8)}
 export function normalizeVocabularyRow(row={}){
  const source=row.source&&typeof row.source==='object'?row.source:{},quality=row.quality&&typeof row.quality==='object'?row.quality:{},learning=row.learning&&typeof row.learning==='object'?row.learning:{},c=String(row.c??'').trim();
