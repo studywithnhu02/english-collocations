@@ -14,6 +14,7 @@ test('Preview status UI contract',()=>{
   assert.ok(html.includes('data-status-remove'));
   assert.ok(html.includes("STATUS_KEY='english-collocations-preview-statuses-v1'"));
   assert.ok(html.includes('./status-core.mjs'));
+  assert.ok(html.includes('window.$=$'));
 });
 
 test('Status is persisted and exported',()=>{
