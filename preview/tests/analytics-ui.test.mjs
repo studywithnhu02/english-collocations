@@ -3,7 +3,7 @@ import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 
 const js=await readFile(new URL('../analytics-ui.js',import.meta.url),'utf8');
-const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+const html=await readFile(new URL('../app.html',import.meta.url),'utf8');
 
 test('analytics UI uses Vietnam timezone and daily reset semantics',()=>{
   assert.ok(js.includes('Asia/Ho_Chi_Minh'));
