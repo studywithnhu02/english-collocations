@@ -15,9 +15,9 @@ test('GitHub Preview status is inside Box 1',()=>{
 test('Goals, SRS and Smart Tools modules are loaded',()=>{
   assert.ok(app.includes('./goals-ui.js?v=1'));
   assert.ok(app.includes('./srs-ui.js?v=1'));
-  assert.ok(app.includes('./smart-tools.js?v=4'));
+  assert.ok(app.includes('./smart-tools.js?v=5'));
   assert.ok(app.includes('id="appUser"'));
-  assert.ok(app.includes('id="appLogout"'));
+  assert.ok(app.includes('id="appLogout"'));assert.ok(app.includes('domains-ui.js?v=2'));assert.ok(app.includes('vocabulary-ui.js?v=3'));
 });
 
 test('Story output is highlighted and dialogue is split into lines',()=>{
@@ -29,25 +29,19 @@ test('Story output is highlighted and dialogue is split into lines',()=>{
   assert.ok(ai.includes('story:true'));
 });
 
-test('Smart suggestion and refinement are wired to the collocation cell',()=>{
+test('Smart suggestion is wired to the collocation cell with CEFR, duplicate markers and 10-item AI top-up',()=>{
   assert.ok(smart.includes('editable[data-field="c"]'));
   assert.ok(smart.includes('Gợi ý trong thư viện'));
-  assert.ok(smart.includes('Gợi ý AI'));
-  assert.ok(smart.includes('suggestPopover'));
-  assert.ok(smart.includes('suggestion-btn'));
-  assert.ok(smart.includes('ArrowDown'));
-  assert.ok(smart.includes('ArrowUp'));
-  assert.ok(smart.includes("e.key==='Enter'"));
-  assert.ok(smart.includes("e.key==='Escape'"));
-  assert.ok(smart.includes('repositionSuggest'));
-  assert.ok(smart.includes('activeRequest++'));
-  assert.ok(smart.includes('sanitizeAiSuggestions'));
-  assert.ok(smart.includes('suggestion-meaning'));
-  assert.ok(smart.includes('meaningVi'));
-  assert.ok(smart.includes('fastSuggestionItems'));
-  assert.ok(smart.includes('📚 Gợi ý trong thư viện'));
-  assert.ok(smart.includes('refineRun'));
-  assert.ok(smart.includes('naturalnessScore'));
+  assert.ok(smart.includes('suggestion-cefr'));
+  assert.ok(smart.includes('suggestion-exists'));
+  assert.ok(smart.includes('✓ Đã có trong bảng'));
+  assert.ok(smart.includes('return x.c.toLowerCase().startsWith(q)'));
+  assert.ok(smart.includes('collocations beginning with the supplied input'));
+  assert.ok(smart.includes('of 12 common natural English collocations'));
+  assert.ok(smart.includes('local.length<10'));
+  assert.ok(smart.includes('suggestCefr'));
+  assert.ok(!smart.includes('Smart Refinement'));
+  assert.ok(!smart.includes('refineRun'));
 });
 
 console.log('Feature Preview UI contract tests: PASS');
