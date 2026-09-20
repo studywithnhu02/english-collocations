@@ -7,6 +7,17 @@ test('smart input normalizes headwords',()=>{
   assert.deepEqual(fastSuggestions('Allow').slice(0,3),['allow access','allow customers to','allow users to']);
 });
 
+test('autocomplete filters progressively inside the headword bank',()=>{
+  assert.deepEqual(fastSuggestions('allow u'),['allow users to']);
+  assert.deepEqual(fastSuggestions('IMPROVE U'),['improve user experience']);
+  assert.equal(new Set(fastSuggestions('allow')).size,fastSuggestions('allow').length);
+  assert.ok(fastSuggestions('allow').length<=5);
+});
+
+test('autocomplete ignores an already completed exact phrase',()=>{
+  assert.deepEqual(fastSuggestions('allow access'),[]);
+});
+
 test('synonyms are available without being treated as fill suggestions',()=>{
   assert.deepEqual(synonymsFor('allow'),['permit','authorize']);
 });
