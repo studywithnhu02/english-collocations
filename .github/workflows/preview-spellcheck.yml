@@ -28,3 +28,5 @@ jobs:
         run: node --test preview/tests/spellcheck-core.test.mjs
       - name: Runtime dictionary tests
         run: node preview/tests/spellcheck-runtime.test.mjs
+
+# CI regression gate: rerun after spellcheck core fix.
