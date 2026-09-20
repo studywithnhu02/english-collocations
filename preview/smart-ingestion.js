@@ -1,6 +1,6 @@
 import {aiJson} from './ai-client.js';
 import {normalizeVocabularyRow} from './vocabulary-core.mjs';
-import {buildAutoFillChanges,parseAutoFillResponse} from './smart-ingestion-core.mjs';
+import {buildAutoFillChanges,parseAutoFillResponse,validateAutoFillResult} from './smart-ingestion-core.mjs';
 
 const KEY='english-collocations-preview-v2';
 const requestVersions=new Map();
@@ -17,11 +17,22 @@ function setBusy(id,on){
   if(persist)persist.textContent=on?'🧠 AI đang điền…':'Local data';
 }
 
-function ask(collocation){
+function ask(collocation,attempt=0){
+  const strict=attempt>0
+    ?'CRITICAL REPAIR: The previous answer was invalid. exampleEn MUST contain the exact collocation string exactly as supplied, without paraphrasing, and exampleVi MUST translate that exact sentence.'
+    :'';
   return aiJson([
-    {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn is one short natural workplace or conversational English sentence that uses the supplied collocation naturally. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
-    {role:'user',content:JSON.stringify({collocation:String(collocation||'').trim()})}
+    {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn MUST contain the exact collocation text exactly as supplied and use it naturally in a short workplace or conversational sentence. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. '+strict+' Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
+    {role:'user',content:JSON.stringify({collocation:String(collocation||'').trim(),attempt})}
   ],{batch:false,purpose:'autofill',maxNewTokens:256,timeoutMs:20000});
+}
+async function waitForTranslator(limitMs=4000){
+  const started=Date.now();
+  while(Date.now()-started<limitMs){
+    if(typeof window.AutoTranslate?.run==='function')return window.AutoTranslate.run;
+    await new Promise(resolve=>setTimeout(resolve,120));
+  }
+  return null;
 }
 
 export async function autoFill(id,value){
@@ -32,12 +43,19 @@ export async function autoFill(id,value){
   busyIds.add(key);
   setBusy(key,true);
   try{
-    const raw=await ask(text);
+    let result={meaningVi:'',exampleEn:'',exampleVi:''};
+    let validation;
+    for(let attempt=0;attempt<2;attempt++){
+      const raw=await ask(text,attempt);
+      if(requestVersions.get(key)!==version)return;
+      result=parseAutoFillResponse(raw);
+      validation=validateAutoFillResult(text,result);
+      if(validation.ok)break;
+    }
     if(requestVersions.get(key)!==version)return;
     const now=read(),current=now.find(r=>String(r.id)===key);
     if(!current||String(current.c||'').trim()!==text)return;
-    const result=parseAutoFillResponse(raw);
-    const changes=buildAutoFillChanges(current,result);
+    const changes=buildAutoFillChanges(current,result,text);
     if(!Object.keys(changes).length)return;
     const next=now.map(r=>String(r.id)===key?normalizeVocabularyRow({...r,...changes,source:{...(r.source&&typeof r.source==='object'?r.source:{}),type:'ai'}}):r);
     if(window.PreviewTable?.setRows)window.PreviewTable.setRows(next);
@@ -45,10 +63,12 @@ export async function autoFill(id,value){
       localStorage.setItem(KEY,JSON.stringify(next));
       window.dispatchEvent(new CustomEvent('preview-data-updated',{detail:{source:'ai-auto-fill'}}));
     }
-    const filledExampleEn=String(changes.e||'').trim();
-    const fresh=read().find(r=>String(r.id)===key);
-    if(requestVersions.get(key)===version&&filledExampleEn&&!String(fresh?.em||'').trim()&&typeof window.AutoTranslate?.run==='function'){
-      await window.AutoTranslate.run(key,'e',filledExampleEn);
+    const filledExampleEn=String(changes.e||'').trim(),existingExample=String(current.e||'').trim(),exampleToTranslate=filledExampleEn||existingExample;
+    if(requestVersions.get(key)===version&&exampleToTranslate&&!String(current.em||'').trim()){
+      const translator=await waitForTranslator();
+      if(translator&&requestVersions.get(key)===version){
+        try{await translator(key,'e',exampleToTranslate)}catch(error){console.warn('[PreviewIngestion] translation fallback failed',error)}
+      }
     }
   }catch(error){
     console.error('[PreviewIngestion]',error);

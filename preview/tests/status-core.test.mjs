@@ -48,3 +48,15 @@ test('filters rows by status',()=>{
 });
 
 console.log('Status core tests: PASS');
+
+test('Done status stores a completion date and preserves it while Done',()=>{
+  const fixed=new Date('2026-09-20T10:30:00.000Z');
+  const first=setRowStatus([{id:1,s:'Chưa học'}],1,'Đã học',{now:fixed});
+  assert.equal(first.rows[0].s,'Đã học');
+  assert.equal(first.rows[0].doneAt,fixed.toISOString());
+  const same=setRowStatus(first.rows,1,'Đã học',{now:new Date('2026-09-21T10:30:00.000Z')});
+  assert.equal(same.changed,false);
+  assert.equal(same.rows[0].doneAt,fixed.toISOString());
+  const reset=setRowStatus(same.rows,1,'Chưa học',{now:new Date('2026-09-21T10:30:00.000Z')});
+  assert.equal(reset.rows[0].doneAt,'');
+});

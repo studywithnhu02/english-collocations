@@ -33,7 +33,7 @@ test('story length scales directly with selected collocation count',()=>{
 test('dialogue prompt is short and professional',()=>{
   const prompt=buildStoryPrompt(rows,STORY_MODES.dialogue);
   assert.ok(prompt.includes('EXACTLY 6 short workplace dialogue lines'));
-  assert.ok(prompt.includes('Speaker A and Speaker B'));
+  assert.ok(prompt.includes('Use only two speakers'));assert.ok(prompt.includes('A and B'));
 });
 
 test('coverage helper detects exactly which collocations are present',()=>{
@@ -46,3 +46,15 @@ test('cleans model wrappers without changing story text',()=>{
 });
 
 console.log('Contextual Story core tests: PASS');
+
+test('dialogue prompt always uses only A and B',()=>{
+  const prompt=buildStoryPrompt([{c:'make a decision'},{c:'design a user flow'},{c:'process a claim'}],STORY_MODES.dialogue);
+  assert.match(prompt,/A and B/);
+  assert.match(prompt,/Every line must start with exactly “A:” or “B:”/);
+  assert.match(prompt,/Never use names, roles/);
+});
+
+test('paragraph prompt allows bridging sentences for unrelated collocations',()=>{
+  const prompt=buildStoryPrompt([{c:'design a user flow',t:'UI/UX'},{c:'process a claim',t:'Insurance'},{c:'make a bank transfer',t:'Banking'}],STORY_MODES.paragraph);
+  assert.match(prompt,/2–3 short bridging sentences/);
+});

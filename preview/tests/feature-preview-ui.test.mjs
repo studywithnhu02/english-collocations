@@ -15,9 +15,9 @@ test('GitHub Preview status is inside Box 1',()=>{
 test('Goals, SRS and Smart Tools modules are loaded',()=>{
   assert.ok(app.includes('./goals-ui.js?v=1'));
   assert.ok(app.includes('./srs-ui.js?v=1'));
-  assert.ok(app.includes('./smart-tools.js?v=7'));
+  assert.ok(app.includes('./smart-tools.js?v=8'));
   assert.ok(app.includes('id="appUser"'));
-  assert.ok(app.includes('id="appLogout"'));assert.ok(app.includes('domains-ui.js?v=3'));assert.ok(app.includes('vocabulary-ui.js?v=4'));
+  assert.ok(app.includes('id="appLogout"'));assert.ok(app.includes('domains-ui.js?v=3'));assert.ok(app.includes('vocabulary-ui.js?v=4'));assert.ok(app.includes('<th>Ngày Done</th>'));assert.ok(app.includes('class="done-date"'));
 });
 
 test('Story output is highlighted and dialogue is split into lines',()=>{
@@ -37,9 +37,9 @@ test('Smart suggestion is wired to the collocation cell with CEFR, duplicate mar
   assert.ok(smart.includes('✓ Đã có trong bảng'));
   assert.ok(smart.includes('.startsWith(q)'));
   assert.ok(smart.includes('begin exactly with the supplied input'));assert.ok(smart.includes('getExternalSuggestions'));
-  assert.ok(smart.includes('up to 20 common natural English collocations'));
+  assert.ok(smart.includes('up to 20 common natural English collocations'));assert.ok(smart.includes('purpose:\'suggestion-meanings\''));
   assert.ok(smart.includes('local.length<10'));
-  assert.ok(smart.includes('suggestCefr'));
+  assert.ok(smart.includes('suggestCefr'));assert.ok(smart.includes('Mỗi gợi ý đều có nghĩa tiếng Việt'));
   assert.ok(!smart.includes('Smart Refinement'));
   assert.ok(!smart.includes('refineRun'));
 });
