@@ -28,5 +28,9 @@ jobs:
         run: node --test preview/tests/spellcheck-core.test.mjs
       - name: Runtime dictionary tests
         run: node preview/tests/spellcheck-runtime.test.mjs
+      - name: Auto Translate core tests
+        run: node --test preview/tests/auto-translate-core.test.mjs
+      - name: Auto Translate syntax check
+        run: node --check preview/auto-translate.js
 
 # CI regression gate: rerun after spellcheck core fix.
