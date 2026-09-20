@@ -43,7 +43,7 @@ test('clears removed status from all matching rows',()=>{
 test('filters rows by status',()=>{
   const rows=[{id:1,s:'Chưa học'},{id:2,s:'Đã học'},{id:3,s:'Đang học'}];
   assert.deepEqual(filterByStatus(rows,'Đã học').map(row=>row.id),[2]);
-  assert.equal(filterByStatus(rows,'').length,0);
+  assert.equal(filterByStatus(rows,'').length,3);
 });
 
 console.log('Status core tests: PASS');
