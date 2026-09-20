@@ -1,6 +1,8 @@
 import {ANALYTICS_KEY,localDateKey,addCheckin,removeCheckin,isCheckedIn,calculateStreak,addLearningEvent,removeLearningEvent,buildLearningSeries,buildMonthCalendar} from './analytics-core.mjs';
 
-let calendarCursor=new Date();
+function vietnamNow(){return new Date(localDateKey()+'T12:00:00+07:00');}
+
+let calendarCursor=vietnamNow();
 let mounted=false;
 
 function load(){
@@ -19,7 +21,7 @@ function save(value){localStorage.setItem(ANALYTICS_KEY,JSON.stringify(value));}
 
 function monthShift(date,delta){
   const next=new Date(date);
-  next.setMonth(next.getMonth()+delta);
+  next.setUTCMonth(next.getUTCMonth()+delta);
   return next;
 }
 
@@ -120,7 +122,7 @@ function mount(){
     setMode(mode){this.mode=mode==='month'?'month':'week';refresh();},
     prevMonth(){calendarCursor=monthShift(calendarCursor,-1);refresh();},
     nextMonth(){calendarCursor=monthShift(calendarCursor,1);refresh();},
-    today(){calendarCursor=new Date();refresh();}
+    today(){calendarCursor=vietnamNow();refresh();}
   };
   document.getElementById('analyticsCheckin')?.addEventListener('click',toggleCheckin);
   document.querySelectorAll('.analytics-tab').forEach(tab=>tab.addEventListener('click',()=>window.PreviewAnalytics.setMode(tab.dataset.analyticsMode)));
