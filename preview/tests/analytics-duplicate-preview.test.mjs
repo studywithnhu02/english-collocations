@@ -34,7 +34,7 @@ test('duplicate data is warned and duplicate creation is blocked',()=>{
 test('Contextual Story generator enforces 3-5 selected rows and uses the existing AI worker',()=>{
   for(const token of [
     './contextual-story-core.mjs',
-    'id="contextualStoryCard"',
+    "card.id='contextualStoryCard'",
     'data-story-mode="paragraph"',
     'data-story-mode="dialogue"',
     'validateStorySelection(rows)',
