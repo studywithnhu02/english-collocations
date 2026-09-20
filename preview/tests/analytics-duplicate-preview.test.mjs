@@ -16,13 +16,13 @@ test('new Preview analytics and duplicate surface is wired',()=>{
     'id="analyticsToday"',
     'id="duplicateWarning"',
     "window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)",
-    "const expected='e7c31a4'"
+    "const expected='d9c1f43'
   ])assert.ok(html.includes(token),token);
 });
 
 test('automatic learning analytics is independent from manual check-in',()=>{
   assert.ok(html.includes('window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)'));
-  assert.ok(html.includes('version:2,data,statuses:loadStatuses()'));
+  assert.ok(html.includes('version:3,data,statuses:loadStatuses()'));
   assert.ok(html.includes('goals:window.PreviewGoals?.getSnapshot?.()||{}'));
   assert.ok(html.includes('srs:window.PreviewSRS?.getSnapshot?.()||{}'));
 });
