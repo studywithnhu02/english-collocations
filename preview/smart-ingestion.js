@@ -63,11 +63,11 @@ export async function autoFill(id,value){
       localStorage.setItem(KEY,JSON.stringify(next));
       window.dispatchEvent(new CustomEvent('preview-data-updated',{detail:{source:'ai-auto-fill'}}));
     }
-    const filledExampleEn=String(changes.e||'').trim();
-    if(requestVersions.get(key)===version&&filledExampleEn&&!String(current.em||'').trim()){
+    const filledExampleEn=String(changes.e||'').trim(),existingExample=String(current.e||'').trim(),exampleToTranslate=filledExampleEn||existingExample;
+    if(requestVersions.get(key)===version&&exampleToTranslate&&!String(current.em||'').trim()){
       const translator=await waitForTranslator();
       if(translator&&requestVersions.get(key)===version){
-        try{await translator(key,'e',filledExampleEn)}catch(error){console.warn('[PreviewIngestion] translation fallback failed',error)}
+        try{await translator(key,'e',exampleToTranslate)}catch(error){console.warn('[PreviewIngestion] translation fallback failed',error)}
       }
     }
   }catch(error){
