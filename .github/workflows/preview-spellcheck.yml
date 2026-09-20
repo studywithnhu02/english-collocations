@@ -1,0 +1,30 @@
+name: Preview Spellcheck Tests
+
+on:
+  pull_request:
+    paths:
+      - 'preview/**'
+      - '.github/workflows/preview-spellcheck.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install spellcheck runtime
+        run: npm install --no-save nspell@2.1.5
+      - name: Syntax check
+        run: |
+          node --check preview/spellcheck.js
+          node --check preview/spellcheck-worker.js
+          node --check preview/spellcheck-core.mjs
+      - name: Core regression tests
+        run: node --test preview/tests/spellcheck-core.test.mjs
+      - name: Runtime dictionary tests
+        run: node preview/tests/spellcheck-runtime.test.mjs
