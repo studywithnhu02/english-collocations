@@ -1,7 +1,7 @@
 const SUPABASE_URL="https://abvdosqnbwoscbvzsjde.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_qyAVw3nNQksO3RXxMyPS0g_whEtuJiG";
 
-function redirectToAuth(){const next=encodeURIComponent(location.pathname.split('/preview/')[1]||'app.html');location.replace('./?next='+next)}
+function redirectToAuth(){location.replace('./')}
 async function boot(){
   document.body.classList.add('auth-checking');
   if(!window.supabase?.createClient){redirectToAuth();return}
