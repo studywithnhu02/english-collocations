@@ -13,7 +13,7 @@ test('Auto-fill accepts object/array JSON and maps all three fields',()=>{
 
 test('Auto-fill never overwrites user-entered values',()=>{
   const row={c:'meet a deadline',m:'nghĩa của tôi',e:'We need to meet a deadline.',em:''};
-  assert.deepEqual(buildAutoFillChanges(row,{meaningVi:'AI meaning',exampleEn:'AI example',exampleVi:'AI translation'}),{em:'AI translation'});
+  assert.deepEqual(buildAutoFillChanges(row,{meaningVi:'AI meaning',exampleEn:'AI example',exampleVi:'AI translation'}),{});
 });
 
 test('Auto-fill fills exampleEn and exampleVi together when both are empty',()=>{
