@@ -35,3 +35,10 @@ test('Auto-fill JS uses per-row request versions, AI options and translation fal
   assert.equal(js.includes('data-auto-fill'),false);
 });
 console.log('Ingestion Preview tests: PASS');
+
+
+test('Auto-fill does not use AI translation for a pre-existing example sentence',()=>{
+  const row={c:'meet a deadline',m:'',e:'We need to meet a deadline today.',em:''};
+  const ai={meaningVi:'hoàn thành đúng hạn',exampleEn:'We should meet a deadline for the project.',exampleVi:'Chúng ta nên hoàn thành một thời hạn cho dự án.'};
+  assert.deepEqual(buildAutoFillChanges(row,ai,'meet a deadline'),{m:'hoàn thành đúng hạn'});
+});
