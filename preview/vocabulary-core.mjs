@@ -8,6 +8,20 @@ export const CEFR_OVERRIDES=Object.freeze({
   'conduct research':'B2','conduct an analysis':'B2','regulatory compliance':'C1','mitigate risk':'C1',
   'implement a solution':'C1','facilitate a meeting':'C1','optimize performance':'C1','undertake a project':'C1'
 });
+const CEFR_HEAD_HINTS=Object.freeze({
+  allow:'B1',make:'A1',do:'A1',take:'A1',meet:'B1',pay:'A1',raise:'B1',gain:'B1',
+  improve:'B1',reach:'B1',provide:'B1',have:'A1',give:'A1',get:'A1',set:'A1',keep:'B1',use:'A1',
+  work:'A1',project:'B1',deadline:'B1',requirement:'B2',feedback:'B1',decision:'B1',issue:'B1',
+  risk:'B2',user:'A2',experience:'B1',customer:'A2',payment:'B1',account:'A2',claim:'B1',
+  policy:'B1',premium:'B2',transaction:'B2',security:'B2',compliance:'C1',performance:'B2',
+  feature:'A2',design:'A2',research:'B1',analysis:'B2',data:'A2',system:'A2',app:'A2',
+  website:'A2',meeting:'A2',report:'A2',update:'A2',support:'A2',solution:'B1',strategy:'B2',
+  goal:'A2',target:'A2',quality:'B1',cost:'A2',budget:'B1',process:'B1',approval:'B1',launch:'B1',
+  build:'A2',develop:'B1',create:'A1',manage:'B1',review:'B1',check:'A1',resolve:'B1',
+  evaluate:'B2',identify:'B1',solve:'A1',organize:'A2',schedule:'A2',attend:'A2',discuss:'B1',
+  present:'B1',propose:'B2',approve:'B1',reject:'B1',monitor:'B1',measure:'B1',prioritize:'B2',
+  estimate:'B2',allocate:'B2',resource:'B1',stakeholder:'B2'
+});
 const CEFR_RULES=[
   [/\b(undertake|mitigate|optimize|facilitate|implement|leverage|streamline|regulatory)\b/i,'C1'],
   [/\b(experience|performance|research|compliance|transaction|stakeholder|strategy|prototype|usability)\b/i,'B2'],
@@ -15,7 +29,7 @@ const CEFR_RULES=[
   [/^(work|help|use|start|show|need|make|do|go|come|have|get|give|take)\b/i,'A1']
 ];
 export function normalizeCefr(value,fallback=''){const v=String(value??'').trim().toUpperCase();return CEFR_LEVELS.includes(v)?v:fallback}
-export function inferCefr(collocation){const value=String(collocation??'').trim(),override=CEFR_OVERRIDES[value.toLowerCase()];if(override)return override;for(const [re,level] of CEFR_RULES)if(re.test(value))return level;return ''}
+export function inferCefr(collocation){const value=String(collocation??'').trim(),override=CEFR_OVERRIDES[value.toLowerCase()];if(override)return override;for(const [re,level] of CEFR_RULES)if(re.test(value))return level;const head=value.split(/\s+/)[0]?.toLowerCase()||'';return CEFR_HEAD_HINTS[head]||''}
 export function normalizeList(value,allowed=null){const values=Array.isArray(value)?value:[value];const valid=Array.isArray(allowed)?new Set(allowed):null;return [...new Set(values.map(v=>String(v??'').trim().replace(/\s+/g,' ')).filter(v=>v.length>=2&&(!valid||valid.has(v))))].slice(0,8)}
 export function normalizeVocabularyRow(row={}){
  const source=row.source&&typeof row.source==='object'?row.source:{},quality=row.quality&&typeof row.quality==='object'?row.quality:{},learning=row.learning&&typeof row.learning==='object'?row.learning:{},c=String(row.c??'').trim();
