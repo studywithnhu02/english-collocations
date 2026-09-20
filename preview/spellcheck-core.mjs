@@ -86,7 +86,7 @@ export function decorateHtml(text,errors=[],query=''){
   for(let i=0;i<points.length-1;i++){
     const start=points[i],end=points[i+1],segment=value.slice(start,end);
     const errorIndex=safeErrors.findIndex(e=>e.start<=start&&end<=e.end);
-    const isSearch=search.some(s=>s.start<=start&&end<=s.end);
+    const isSearch=errorIndex>=0 ? search.some(s=>s.start<end&&start<s.end) : search.some(s=>s.start<=start&&end<=s.end);
     if(errorIndex<0&&!isSearch){html+=esc(segment);continue;}
     const classes=[];
     if(errorIndex>=0) classes.push('spell-error');
