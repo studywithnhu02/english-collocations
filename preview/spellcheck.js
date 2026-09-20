@@ -36,7 +36,7 @@ function ensureToggle(){
   host.insertBefore(b,host.querySelector('#clear')||null);updateToggle();
 }
 function updateToggle(){const b=document.getElementById('spellcheckToggle');if(b)b.textContent=enabled?'🪄 Chính tả: ON':'🪄 Chính tả: OFF';}
-function clearAllHighlights(){closePopover();document.querySelectorAll('#body .spell-error,#body .spell-search-hit').forEach(el=>{const cell=el.closest('.editable');if(cell)cell.textContent=cell.textContent;});}
+function clearAllHighlights(){closePopover();document.querySelectorAll('#body .spell-error,#body .spell-search-hit').forEach(el=>{const cell=el.closest('.editable');if(cell&&!cell.contains(document.activeElement))cell.textContent=cell.textContent;});}
 function scheduleCell(cell,delay=550){
   if(!enabled||!cell)return;
   const tr=cell.closest('tr'),id=tr?.dataset.id,field=cell.dataset.field;if(id==null||!fields.includes(field))return;
