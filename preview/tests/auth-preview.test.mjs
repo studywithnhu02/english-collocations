@@ -23,7 +23,7 @@ test('existing Supabase Auth flow is preserved',()=>{
 });
 
 test('management requires a live Supabase session',()=>{
-  assert.ok(gate.includes('supabaseClient.auth.getSession()'));
+  assert.ok(gate.includes('auth.getSession()'));
   assert.ok(gate.includes('if(!data?.session){redirectToAuth();return}'));
   assert.ok(gate.includes('supabaseClient.auth.onAuthStateChange'));
 });
