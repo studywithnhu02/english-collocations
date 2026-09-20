@@ -45,7 +45,7 @@ test('Contextual Story generator enforces 3-5 selected rows and uses the existin
 });
 
 test('existing protected UI/features remain intact',()=>{
-  assert.ok(html.includes('./ai-agent.js?v=7'));
+  assert.ok(html.includes('./ai-agent.js?v=9'));
   assert.ok(html.includes('./spellcheck.js?v=1'));
   assert.ok(html.includes('./auto-translate.js?v=6'));
   assert.ok(html.includes('class="card agent-shell ai" hidden aria-hidden="true"'));
@@ -58,7 +58,7 @@ test('Contextual Story uses direct mode buttons and escaped highlighting',()=>{
   assert.ok(agent.includes('data-story-mode="paragraph"'));
   assert.ok(agent.includes('data-story-mode="dialogue"'));
   assert.ok(agent.includes('runContextualStory(btn.dataset.storyMode)'));
-  assert.ok(agent.includes('resultEl.innerHTML=highlightStory(story,rows)'));
+  assert.ok(agent.includes('renderStoryResult(resultEl,story,rows,mode)'));
   assert.ok(agent.includes('function escapeRegex'));
   assert.ok(agent.includes('return esc(story)'));
   assert.ok(!agent.includes('story-generate'));
