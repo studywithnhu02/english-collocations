@@ -71,7 +71,7 @@ async function enrichSuggestions(cell,value,token,base){
       ],{batch:false,purpose:'suggestion-meanings',maxNewTokens:1024,timeoutMs:20000});
       if(token!==activeRequest||document.activeElement!==cell||!document.contains(cell))return;
       merged=buildItems([...merged,...sanitizeAiMeaningItems(raw)]);
-      showSuggestions(cell,merged,'📚 Gợi ý trong thư viện',merged.length<10);
+      showSuggestions(cell,merged,'📚 Gợi ý trong thư viện',merged.length<30);
     }catch{}
   }
   if(merged.length>=30)return;
