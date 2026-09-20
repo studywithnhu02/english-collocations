@@ -17,11 +17,22 @@ function setBusy(id,on){
   if(persist)persist.textContent=on?'🧠 AI đang điền…':'Local data';
 }
 
-function ask(collocation){
+function ask(collocation,attempt=0){
+  const strict=attempt>0
+    ?'CRITICAL REPAIR: The previous answer was invalid. exampleEn MUST contain the exact collocation string exactly as supplied, without paraphrasing, and exampleVi MUST translate that exact sentence.'
+    :'';
   return aiJson([
-    {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn is one short natural workplace or conversational English sentence that uses the supplied collocation naturally. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
-    {role:'user',content:JSON.stringify({collocation:String(collocation||'').trim()})}
+    {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn MUST contain the exact collocation text exactly as supplied and use it naturally in a short workplace or conversational sentence. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. '+strict+' Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
+    {role:'user',content:JSON.stringify({collocation:String(collocation||'').trim(),attempt})}
   ],{batch:false,purpose:'autofill',maxNewTokens:256,timeoutMs:20000});
+}
+async function waitForTranslator(limitMs=4000){
+  const started=Date.now();
+  while(Date.now()-started<limitMs){
+    if(typeof window.AutoTranslate?.run==='function')return window.AutoTranslate.run;
+    await new Promise(resolve=>setTimeout(resolve,120));
+  }
+  return null;
 }
 
 export async function autoFill(id,value){
@@ -53,7 +64,6 @@ export async function autoFill(id,value){
       window.dispatchEvent(new CustomEvent('preview-data-updated',{detail:{source:'ai-auto-fill'}}));
     }
     const filledExampleEn=String(changes.e||'').trim();
-    const fresh=read().find(r=>String(r.id)===key);
     if(requestVersions.get(key)===version&&filledExampleEn&&!String(current.em||'').trim()){
       const translator=await waitForTranslator();
       if(translator&&requestVersions.get(key)===version){
