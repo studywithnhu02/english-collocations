@@ -1,0 +1,3 @@
+import assert from 'node:assert/strict';import test from 'node:test';import {buildCoverage} from '../coverage-core.mjs';
+test('coverage reports total, average level, domain and CEFR shares',()=>{const m=buildCoverage([{c:'a',cefr:'B1',domains:['Business']},{c:'b',cefr:'C1',domains:['Technology']}]);assert.equal(m.total,2);assert.ok(['B2','B1','C1'].includes(m.averageCefr));assert.equal(m.domains.Business.count,1);assert.equal(m.cefr.C1.count,1)});
+test('coverage empty dataset is safe',()=>{const m=buildCoverage([]);assert.equal(m.total,0);assert.equal(m.averageCefr,null)})
