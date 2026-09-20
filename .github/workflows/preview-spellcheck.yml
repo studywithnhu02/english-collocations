@@ -35,6 +35,8 @@ jobs:
           node --check preview/contextual-story-core.mjs
           node --check preview/ai-agent.js
           node --check preview/ai-client.js
+          node --check preview/collocation-sources.mjs
+          node --check preview/smart-ingestion-core.mjs
           node --check preview/smart-ingestion.js
           node --check preview/quiz-ui.js
           node --check preview/focus-ui.js
@@ -115,6 +117,7 @@ jobs:
       - name: Requested behavior regression tests
         run: |
           node --test preview/tests/ingestion-preview.test.mjs
+          node --test preview/tests/collocation-sources.test.mjs
           node --test preview/tests/family-preview.test.mjs
           node --test preview/tests/goals-ui.test.mjs
           node --test preview/tests/smart-tools-preview.test.mjs

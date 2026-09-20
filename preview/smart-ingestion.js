@@ -1,10 +1,61 @@
 import {aiJson} from './ai-client.js';
 import {normalizeVocabularyRow} from './vocabulary-core.mjs';
+import {buildAutoFillChanges,parseAutoFillResponse} from './smart-ingestion-core.mjs';
+
 const KEY='english-collocations-preview-v2';
-let sequence=0;const busyIds=new Set();
-function read(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch{return[]}}
-function setBusy(id,on){const tr=document.querySelector('#body tr[data-id="'+CSS.escape(String(id))+'"]');const cell=tr&&tr.querySelector('.editable[data-field="c"]');if(cell)cell.setAttribute('data-ai-status',on?'loading':'');const persist=document.getElementById('persist');if(persist)persist.textContent=on?'🧠 AI đang điền…':'Local data'}
-function parse(text){try{const clean=String(text||'').replace(/^```(?:json|text)?\s*/i,'').replace(/\s*```$/,'').trim();const match=clean.match(/\[[\s\S]*\]/);const value=JSON.parse(match?match[0]:clean);return Array.isArray(value)?value:[]}catch{return[]}}
-function ask(row){return aiJson([{role:'system',content:'Return only a JSON array with one object containing exactly meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. Give a concise natural Vietnamese meaning, one short practical workplace sentence using the exact collocation, and its Vietnamese translation. Prefer UI/UX, technology, banking, insurance, business or workplace contexts. Do not add CEFR, tags, topics or alternatives.'},{role:'user',content:JSON.stringify({collocation:String(row.c||'').trim()})}])}
-export async function autoFill(id,value){const key=String(id),text=String(value||'').trim();if(!text||busyIds.has(key))return;const token=++sequence;busyIds.add(key);setBusy(key,true);try{const raw=await ask({c:text});const parsed=parse(raw),a=parsed[0]||{};if(token!==sequence)return;const now=read(),current=now.find(r=>String(r.id)===key);if(!current||String(current.c||'').trim()!==text)return;const changes={};if(!String(current.m||'').trim()&&String(a.meaningVi||'').trim())changes.m=String(a.meaningVi).trim().slice(0,240);if(!String(current.e||'').trim()&&String(a.exampleEn||'').trim())changes.e=String(a.exampleEn).trim().slice(0,320);if(!String(current.em||'').trim()&&String(a.exampleVi||'').trim())changes.em=String(a.exampleVi).trim().slice(0,320);if(Object.keys(changes).length){const next=now.map(r=>String(r.id)===key?normalizeVocabularyRow(Object.assign({},r,changes,{source:{type:'ai'}})):r);if(window.PreviewTable&&window.PreviewTable.setRows)window.PreviewTable.setRows(next);else{localStorage.setItem(KEY,JSON.stringify(next));window.dispatchEvent(new CustomEvent('preview-data-updated',{detail:{source:'ai-auto-fill'}}))}}}catch{}finally{busyIds.delete(key);setBusy(key,false)}}
-window.PreviewIngestion={autoFill,maybeAutoFill:autoFill};
+const requestVersions=new Map();
+const busyIds=new Set();
+
+function read(){try{const value=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(value)?value:[]}catch{return[]}}
+
+function setBusy(id,on){
+  const key=String(id);
+  const tr=document.querySelector('#body tr[data-id="'+CSS.escape(key)+'"]');
+  const cell=tr?.querySelector('.editable[data-field="c"]');
+  if(cell)cell.setAttribute('data-ai-status',on?'loading':'');
+  const persist=document.getElementById('persist');
+  if(persist)persist.textContent=on?'🧠 AI đang điền…':'Local data';
+}
+
+function ask(collocation){
+  return aiJson([
+    {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn is one short natural workplace or conversational English sentence that uses the supplied collocation naturally. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
+    {role:'user',content:JSON.stringify({collocation:String(collocation||'').trim()})}
+  ],{batch:false,purpose:'autofill',maxNewTokens:256,timeoutMs:20000});
+}
+
+export async function autoFill(id,value){
+  const key=String(id),text=String(value||'').trim();
+  if(!text)return;
+  const version=(requestVersions.get(key)||0)+1;
+  requestVersions.set(key,version);
+  busyIds.add(key);
+  setBusy(key,true);
+  try{
+    const raw=await ask(text);
+    if(requestVersions.get(key)!==version)return;
+    const now=read(),current=now.find(r=>String(r.id)===key);
+    if(!current||String(current.c||'').trim()!==text)return;
+    const result=parseAutoFillResponse(raw);
+    const changes=buildAutoFillChanges(current,result);
+    if(!Object.keys(changes).length)return;
+    const next=now.map(r=>String(r.id)===key?normalizeVocabularyRow({...r,...changes,source:{...(r.source&&typeof r.source==='object'?r.source:{}),type:'ai'}}):r);
+    if(window.PreviewTable?.setRows)window.PreviewTable.setRows(next);
+    else{
+      localStorage.setItem(KEY,JSON.stringify(next));
+      window.dispatchEvent(new CustomEvent('preview-data-updated',{detail:{source:'ai-auto-fill'}}));
+    }
+    const filledExampleEn=String(changes.e||'').trim();
+    const fresh=read().find(r=>String(r.id)===key);
+    if(requestVersions.get(key)===version&&filledExampleEn&&!String(fresh?.em||'').trim()&&typeof window.AutoTranslate?.run==='function'){
+      await window.AutoTranslate.run(key,'e',filledExampleEn);
+    }
+  }catch(error){
+    console.error('[PreviewIngestion]',error);
+  }finally{
+    busyIds.delete(key);
+    if(requestVersions.get(key)===version)setBusy(key,false);
+  }
+}
+
+window.PreviewIngestion={autoFill,maybeAutoFill:autoFill,requestVersions};
