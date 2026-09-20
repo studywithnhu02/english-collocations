@@ -1,3 +1,4 @@
+import {EXPANDED_SUGGESTIONS} from './collocation-library.mjs';
 import {inferCefr} from './vocabulary-core.mjs';
 export const CONFUSIONS=Object.freeze({
   'make a deadline':{better:'meet a deadline / beat a deadline',message:'Không dùng “make a deadline” khi muốn nói hoàn thành đúng hạn.'},
@@ -493,13 +494,13 @@ export function fastSuggestionItems(value){
   const head=q.split(/\s+/)[0]||'';
   const local=COLLOCATION_BANK[head]||[];
   const global=Object.values(COLLOCATION_BANK).flat();
-  const source=[...local,...global];
+  const source=[...local,...global,...EXPANDED_SUGGESTIONS];
   const prefix=source.filter(item=>{
     const low=item.c.toLowerCase();
     return low.startsWith(q)&&low!==q;
   });
-  const matches=uniqueByPhrase(prefix).slice(0,10);
-  return matches.map(item=>({...item,cefr:inferCefr(item.c)}));
+  const matches=uniqueByPhrase(prefix).slice(0,20);
+  return matches.map(item=>({...item,cefr:String(item.cefr||inferCefr(item.c)||'').trim().toUpperCase()}));
 }
 export function fastSuggestions(value){return fastSuggestionItems(value).map(item=>item.c)}
 export function synonymsFor(value){
