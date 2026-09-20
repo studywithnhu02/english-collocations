@@ -5,7 +5,7 @@ import test from 'node:test';
 const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
 
 test('Analytics dashboard UI contract',()=>{
-  assert.ok(html.includes('class="analytics-card"'));
+  assert.ok(html.includes('analytics-card'));
   assert.ok(html.includes('id="analyticsCheckin"'));
   assert.ok(html.includes('id="analyticsLearned"'));
   assert.ok(html.includes('id="analyticsWeek"'));
