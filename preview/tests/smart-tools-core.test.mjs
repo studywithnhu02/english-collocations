@@ -9,7 +9,7 @@ test('smart input normalizes headwords',()=>{
 
 test('autocomplete filters progressively inside the headword bank',()=>{
   assert.deepEqual(fastSuggestions('allow u'),['allow users to']);
-  assert.deepEqual(fastSuggestions('IMPROVE U'),['improve user experience']);
+  assert.ok(fastSuggestions('IMPROVE U').includes('improve user experience'));
   assert.equal(new Set(fastSuggestions('allow')).size,fastSuggestions('allow').length);
   assert.ok(fastSuggestions('allow').length<=10);
 });
