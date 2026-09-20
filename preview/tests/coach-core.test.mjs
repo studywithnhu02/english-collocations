@@ -1,0 +1,4 @@
+import assert from 'node:assert/strict';import test from 'node:test';import {shouldRemind,coachModel} from '../coach-core.mjs';
+const events=[{id:'1',date:'2026-09-20'}];
+test('coach waits until 20:00 and reminds only when nothing learned today',()=>{assert.equal(shouldRemind(new Date('2026-09-20T19:59:00+07:00'),{learningEvents:[]}),false);assert.equal(shouldRemind(new Date('2026-09-20T20:01:00+07:00'),{learningEvents:[]}),true);assert.equal(shouldRemind(new Date('2026-09-20T20:01:00+07:00'),{learningEvents:events}),false)});
+test('coach model exposes streak and remaining goal',()=>{const m=coachModel(new Date('2026-09-20T20:01:00+07:00'),{checkins:['2026-09-20'],learningEvents:[]},10,3);assert.equal(m.remaining,3);assert.equal(m.goalTarget,10)})
