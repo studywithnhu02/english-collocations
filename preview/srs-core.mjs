@@ -56,7 +56,7 @@ export function reviewCard(state,id,rating,dateKey){
   const currentIndex=Math.max(0,Math.min(SRS_INTERVALS_DAYS.length-1,card.step));
   let step=currentIndex,ease=card.ease,lapses=card.lapses,interval=card.interval;
   if(rating==='again'){step=0;interval=1;lapses+=1;ease=Math.max(1.3,ease-0.2)}
-  else if(rating==='hard'){interval=Math.min(30,Math.max(1,Math.round(interval*1.5)));ease=Math.max(1.3,ease-0.15)}
+  else if(rating==='hard'){interval=SRS_INTERVALS_DAYS[currentIndex];ease=Math.max(1.3,ease-0.15)}
   else if(rating==='easy'){step=Math.min(SRS_INTERVALS_DAYS.length-1,currentIndex+2);interval=SRS_INTERVALS_DAYS[step];ease=Math.min(3.2,ease+0.15)}
   else {step=Math.min(SRS_INTERVALS_DAYS.length-1,currentIndex+1);interval=SRS_INTERVALS_DAYS[step];ease=Math.min(3.2,ease+0.05)}
   next.cards[key]={...card,step,interval,ease,lapses,reviews:card.reviews+1,lastReview:dateKey,due:addDaysToDateKey(dateKey,interval)};
