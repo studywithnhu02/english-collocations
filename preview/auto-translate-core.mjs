@@ -43,3 +43,5 @@ export function mergeTranslationRow(rows,id,sourceField,sourceText,targetText){
 export function shouldTranslate(sourceField,text){
   return !!targetFieldFor(sourceField) && hasTranslatableText(text);
 }
+
+// Regression gate retriggered after Preview dual-field implementation.
