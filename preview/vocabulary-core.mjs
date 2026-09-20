@@ -2,10 +2,10 @@ export const CEFR_LEVELS=Object.freeze(['A1','A2','B1','B2','C1','C2']);
 export const DOMAIN_TAGS=Object.freeze(['UI/UX Design','Banking/Fintech','Insurance','Technology','Email','Business','Meetings','Daily Chat','Research','Product','Project Management','Customer Service','Risk/Compliance']);
 export const CEFR_RANK=Object.freeze({A1:1,A2:2,B1:3,B2:4,C1:5,C2:6});
 const CEFR_RULES=[
-  [/^(work|help|use|start|show|need|make|do|go|come|have|get|give|take)\b/i,'A1'],
-  [/\b(deadline|requirement|feedback|project|meeting|support|customer|account|payment|claim)\b/i,'B1'],
+  [/\b(undertake|mitigate|optimize|facilitate|implement|leverage|streamline|regulatory)\b/i,'C1'],
   [/\b(experience|performance|research|compliance|transaction|stakeholder|strategy|prototype|usability)\b/i,'B2'],
-  [/\b(undertake|mitigate|optimize|facilitate|implement|leverage|streamline|regulatory)\b/i,'C1']
+  [/\b(deadline|requirement|feedback|project|meeting|support|customer|account|payment|claim)\b/i,'B1'],
+  [/^(work|help|use|start|show|need|make|do|go|come|have|get|give|take)\b/i,'A1']
 ];
 export function normalizeCefr(value,fallback='B1'){const v=String(value??'').trim().toUpperCase();return CEFR_LEVELS.includes(v)?v:fallback}
 export function inferCefr(collocation){const value=String(collocation??'').trim();for(const [re,level] of CEFR_RULES)if(re.test(value))return level;return value.split(/\s+/).length>=3?'B1':'A2'}
