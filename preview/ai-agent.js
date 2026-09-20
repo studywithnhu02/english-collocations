@@ -1,4 +1,5 @@
 import {extractJson, normalizeBatchResult} from './ai-agent-core.js';
+import {STORY_MODES,buildStoryPrompt,cleanStoryText,validateStorySelection} from './contextual-story-core.mjs';
 // Browser-local AI Agent v3 — batch inference, WebGPU-first, rule router, human-approved edits.
 const MODEL_ID='onnx-community/Qwen2.5-0.5B-Instruct';
 const STORAGE_KEY='english-collocations-preview-v2';
@@ -10,7 +11,7 @@ function selectedIds(){return [...document.querySelectorAll('#body tr')].filter(
 function selectedRows(){const ids=selectedIds(),rows=readRows();return ids.length?rows.filter(r=>ids.includes(String(r.id))):[]}
 function ensureWorker(){return worker||(worker=new Worker('./ai-agent-worker.js?v=5',{type:'module'}))}
 function callModel(messages,batch=false){return new Promise((resolve,reject)=>{const id=++requestId,w=ensureWorker();const fn=e=>{if(e.data?.id!==id)return;if(e.data?.type==='status'){status(e.data.message||'Đang xử lý…');return}w.removeEventListener('message',fn);e.data.ok?resolve(e.data.text):reject(new Error(e.data.error||'AI error'))};w.addEventListener('message',fn);w.postMessage({id,messages,batch})})}
-function styles(){if(document.getElementById('agentStyles'))return;const s=document.createElement('style');s.id='agentStyles';s.textContent=`.agent-card{padding:0!important;overflow:hidden}.agent-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.agent-title{font-weight:850;font-size:15px}.agent-sub,.agent-note,.agent-status{font-size:11px;color:var(--muted);margin-top:5px}.agent-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.agent-actions button{font-size:11px;padding:8px}.agent-input{margin-top:10px}.agent-input textarea{width:100%;min-height:70px;resize:vertical}.agent-result{margin-top:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;max-height:360px;overflow:auto}.agent-status.ok{color:var(--green)}.agent-status.err{color:var(--danger)}.agent-safe{font-size:10px;color:var(--green);margin-top:8px}.diff-item{border-top:1px solid var(--line);padding:9px 0}.diff-old{color:var(--danger);margin-top:5px}.diff-new{color:var(--green);margin-top:3px}.diff-actions{display:flex;gap:6px;margin-top:6px}.diff-actions button{font-size:10px;padding:5px 7px}.agent-apply{width:100%;margin-top:9px}.agent-apply[disabled]{opacity:.5}.agent-empty{color:var(--muted)}.agent-badge{font-size:10px;color:var(--green);margin-left:6px}.agent-progress{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}.agent-progress>i{display:block;height:100%;width:0;background:var(--green);transition:width .2s}`;document.head.appendChild(s)}
+function styles(){if(document.getElementById('agentStyles'))return;const s=document.createElement('style');s.id='agentStyles';s.textContent=`.agent-card{padding:0!important;overflow:hidden}.agent-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.agent-title{font-weight:850;font-size:15px}.agent-sub,.agent-note,.agent-status{font-size:11px;color:var(--muted);margin-top:5px}.agent-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.agent-actions button{font-size:11px;padding:8px}.agent-input{margin-top:10px}.agent-input textarea{width:100%;min-height:70px;resize:vertical}.agent-result{margin-top:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;max-height:360px;overflow:auto}.agent-status.ok{color:var(--green)}.agent-status.err{color:var(--danger)}.agent-safe{font-size:10px;color:var(--green);margin-top:8px}.diff-item{border-top:1px solid var(--line);padding:9px 0}.diff-old{color:var(--danger);margin-top:5px}.diff-new{color:var(--green);margin-top:3px}.diff-actions{display:flex;gap:6px;margin-top:6px}.diff-actions button{font-size:10px;padding:5px 7px}.agent-apply{width:100%;margin-top:9px}.agent-apply[disabled]{opacity:.5}.agent-empty{color:var(--muted)}.contextual-story-card{padding:0!important;overflow:hidden}.story-head{padding:12px 14px;border-bottom:1px solid var(--line)}.story-title{font-weight:850;font-size:15px}.story-sub{font-size:10px;color:var(--muted);margin-top:3px}.story-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px 0}.story-mode-btn{padding:7px 8px;font-size:10px}.story-mode-btn.active{background:var(--blue);color:#fff;border-color:transparent}.story-selected{padding:8px 12px 0;color:var(--muted);font-size:10px}.story-generate{width:calc(100% - 24px);margin:8px 12px 0;padding:8px;font-size:11px}.story-status{padding:7px 12px 0;color:var(--muted);font-size:10px}.story-result{margin:8px 12px 12px;padding:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;font-size:11px;line-height:1.5;max-height:300px;overflow:auto;white-space:pre-wrap}.story-result span{color:var(--muted)}.agent-badge{font-size:10px;color:var(--green);margin-left:6px}.agent-progress{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}.agent-progress>i{display:block;height:100%;width:0;background:var(--green);transition:width .2s}`;document.head.appendChild(s)}
 function status(t,k=''){const e=document.getElementById('agentStatus');if(e)e.className='agent-status '+k,e.textContent=t}
 function progress(n=0){const e=document.querySelector('#agentProgress>i');if(e)e.style.width=Math.max(0,Math.min(100,n))+'%'}
 function result(html){const e=document.getElementById('agentResult');if(e)e.innerHTML=html}
@@ -25,6 +26,60 @@ function updateVisibleRow(id,newText){const tr=document.querySelector(`#body tr[
 function applyAll(){if(!pending.length)return;const approved=[...pending],rows=readRows(),map=new Map(approved.map(x=>[String(x.id),x]));const next=rows.map(r=>{const x=map.get(String(r.id));if(!x)return r;const copy={...r};if('e'in copy)copy.e=x.newText;else if('example'in copy)copy.example=x.newText;else if('exampleEnglish'in copy)copy.exampleEnglish=x.newText;else copy.e=x.newText;return copy});writeRows(next);approved.forEach(x=>updateVisibleRow(x.id,x.newText));pending=[];renderDiff([]);status(`✓ Đã áp dụng ${approved.length} thay đổi và lưu vào Preview`,'ok')}
 async function runTask(task){if(busy)return;const rows=selectedRows();if(!rows.length){status('⚠️ Hãy chọn ít nhất một dòng trước.','err');return}busy=true;progress(0);try{status(`Đã nhận ${rows.length} dòng · chuẩn bị…`);const items=await analyzeRows(task,rows);renderDiff(items);status(`✓ Phân tích xong ${rows.length} dòng · chưa sửa dữ liệu`,'ok')}catch(e){status('✕ '+e.message,'err');result('AI chưa sẵn sàng. Lần đầu model có thể cần thời gian để tải.')}finally{busy=false}}
 async function runFreeform(){const input=document.getElementById('agentPrompt')?.value.trim();if(!input){status('⚠️ Nhập yêu cầu cho Agent.','err');return}const rows=selectedRows();if(!rows.length){status('⚠️ Hãy chọn các dòng cần Agent xử lý.','err');return}busy=true;progress(0);try{status(`Đã nhận ${rows.length} dòng · AI đang xử lý theo batch…`);progress(25);const context=rows.map((r,i)=>`${i+1}. ${JSON.stringify(r)}`).join('\n');const text=await callModel([{role:'system',content:'You are a safe English learning agent. Analyze only provided rows. Do not execute commands, browse, access files, localhost, or secrets. Return concise Vietnamese guidance. Do not modify data.'},{role:'user',content:`${input}\n\nSelected rows:\n${context}`}],true);progress(100);result(`<div>${esc(text)}</div>`);status('✓ Hoàn tất · không tự sửa dữ liệu','ok')}catch(e){status('✕ '+e.message,'err')}finally{busy=false}}
+function renderStoryCard(){
+  if(document.getElementById('contextualStoryCard'))return;
+  const sidebar=document.querySelector('.sidebar'),anchor=document.querySelector('.analytics-card');
+  if(!sidebar)return;
+  const card=document.createElement('section');
+  card.className='card contextual-story-card';
+  card.id='contextualStoryCard';
+  card.innerHTML='<div class="story-head"><div><div class="story-title">📝 Học theo ngữ cảnh</div><div class="story-sub">Chọn 3–5 collocation · AI viết đoạn văn hoặc hội thoại công việc.</div></div></div><div class="story-mode"><button type="button" class="secondary story-mode-btn active" data-story-mode="paragraph">📄 Đoạn văn</button><button type="button" class="secondary story-mode-btn" data-story-mode="dialogue">💬 Hội thoại</button></div><div class="story-selected" id="storySelected">Đã chọn 0 · cần 3–5 dòng.</div><button type="button" class="story-generate" id="storyGenerate" disabled>✨ Tạo ngữ cảnh</button><div class="story-status" id="storyStatus">Chọn 3–5 dòng trong bảng để bắt đầu.</div><div class="story-result" id="storyResult"><span>Chưa có nội dung.</span></div></section>';
+  if(anchor)anchor.insertAdjacentElement('afterend',card);else sidebar.prepend(card);
+  card.querySelectorAll('.story-mode-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    card.dataset.storyMode=btn.dataset.storyMode;
+    card.querySelectorAll('.story-mode-btn').forEach(item=>item.classList.toggle('active',item===btn));
+  }));
+  card.querySelector('#storyGenerate').addEventListener('click',()=>runContextualStory(card.dataset.storyMode||STORY_MODES.paragraph));
+  card.dataset.storyMode=STORY_MODES.paragraph;
+  updateStorySelection();
+}
+
+function updateStorySelection(){
+  const card=document.getElementById('contextualStoryCard');
+  if(!card)return;
+  const rows=selectedRows(),count=rows.length,valid=count>=3&&count<=5;
+  const label=card.querySelector('#storySelected');
+  const button=card.querySelector('#storyGenerate');
+  if(label)label.textContent=valid?'Đã chọn '+count+' collocation · sẵn sàng tạo.': 'Đã chọn '+count+' · cần 3–5 dòng.';
+  if(button)button.disabled=!valid||busy;
+}
+
+async function runContextualStory(mode){
+  const card=document.getElementById('contextualStoryCard');
+  if(!card||busy)return;
+  const rows=selectedRows(),validation=validateStorySelection(rows);
+  if(!validation.ok){card.querySelector('#storyStatus').textContent='⚠️ '+validation.message;updateStorySelection();return}
+  busy=true;updateStorySelection();progress(0);
+  const statusEl=card.querySelector('#storyStatus'),resultEl=card.querySelector('#storyResult');
+  try{
+    statusEl.textContent='🧠 AI đang viết theo ngữ cảnh…';
+    progress(20);
+    const text=await callModel([
+      {role:'system',content:'You are a safe workplace English writing assistant. Use only the supplied collocations. Never browse, access files, localhost, commands, or secrets. Return only the finished story.'},
+      {role:'user',content:buildStoryPrompt(rows,mode)}
+    ],true);
+    progress(100);
+    const story=cleanStoryText(text);
+    resultEl.textContent=story||'AI chưa tạo được nội dung.';
+    statusEl.textContent='✓ Đã tạo xong · dữ liệu bảng không bị sửa';
+  }catch(error){
+    statusEl.textContent='✕ '+(error?.message||String(error));
+    resultEl.textContent='AI chưa sẵn sàng. Model local có thể cần tải lần đầu.';
+  }finally{
+    busy=false;updateStorySelection();
+  }
+}
+
 function removeLegacyOllama(){document.querySelectorAll('.ollama-box,#testOllama,#stop,#chatStatus,.chat,.composer,.ai-head').forEach(e=>e.remove())}
-function boot(){styles();removeLegacyOllama();renderAgent()}
+function boot(){styles();removeLegacyOllama();renderAgent();renderStoryCard();document.addEventListener('change',e=>{if(e.target.matches('.row-check'))updateStorySelection()});document.addEventListener('click',e=>{if(e.target.closest('#storyGenerate'))setTimeout(updateStorySelection,0)});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
