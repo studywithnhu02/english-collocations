@@ -25,7 +25,34 @@ export const SUGGESTION_BANK=Object.freeze({
 });
 
 export function normalizeSmartInput(value){return String(value??'').trim().toLowerCase().replace(/[.,!?;:]+$/,'')}
-export function fastSuggestions(value){const q=normalizeSmartInput(value),head=q.split(/\s+/).pop()||'';const list=SUGGESTION_BANK[head]||[];return list.filter(item=>item.toLowerCase().includes(q)||item.toLowerCase().startsWith(head)).slice(0,5)}
+function unique(values){
+  const seen=new Set();
+  return values.filter(value=>{
+    const key=String(value||'').trim().toLowerCase();
+    if(!key||seen.has(key))return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+export function fastSuggestions(value){
+  const q=normalizeSmartInput(value);
+  if(q.length<2)return [];
+  const words=q.split(/\s+/).filter(Boolean);
+  const head=words[0]||'';
+  const bank=SUGGESTION_BANK[head]||[];
+  const fromHead=bank.filter(item=>{
+    const low=item.toLowerCase();
+    return low.startsWith(q)&&low!==q;
+  });
+  if(fromHead.length)return unique(fromHead).slice(0,5);
+  if(head.length<3)return [];
+  const global=Object.values(SUGGESTION_BANK).flat().filter(item=>{
+    const low=item.toLowerCase();
+    return low.includes(q)&&low!==q;
+  });
+  return unique(global).slice(0,5);
+}
 export function synonymsFor(value){const head=normalizeSmartInput(value).split(/\s+/).pop()||'';return (SYNONYMS[head]||[]).slice(0,3)}
 export function ruleRefinement(value){const key=normalizeSmartInput(value),hit=CONFUSIONS[key];return hit?{better:hit.better,warning:hit.message}:null}
 export function refinementPrompt(rows){return JSON.stringify((Array.isArray(rows)?rows:[]).map((row,index)=>({index:index+1,id:String(row?.id??''),collocation:String(row?.c??'').trim()})))}
