@@ -1,3 +1,4 @@
+import {inferCefr} from './vocabulary-core.mjs';
 export const CONFUSIONS=Object.freeze({
   'make a deadline':{better:'meet a deadline / beat a deadline',message:'Không dùng “make a deadline” khi muốn nói hoàn thành đúng hạn.'},
   'do a decision':{better:'make a decision',message:'Collocation chuẩn là “make a decision”, không phải “do a decision”.'},
@@ -480,34 +481,27 @@ export const SUGGESTION_BANK=Object.freeze(Object.fromEntries(
 function uniqueByPhrase(items){
   const seen=new Set();
   return (Array.isArray(items)?items:[]).filter(item=>{
-    const key=String(item?.c??item??'').trim().toLowerCase();
+    const phrase=String(item?.c??item??'').trim(),key=phrase.toLowerCase();
     if(!key||seen.has(key))return false;
     seen.add(key);return true;
   });
 }
-
-export function normalizeSmartInput(value){
-  return String(value??'').trim().toLowerCase().replace(/[.,!?;:]+$/,'');
-}
-
+export function normalizeSmartInput(value){return String(value??'').trim().toLowerCase().replace(/[.,!?;:]+$/,'')}
 export function fastSuggestionItems(value){
   const q=normalizeSmartInput(value);
   if(q.length<2)return [];
-  const words=q.split(/\s+/).filter(Boolean);
-  const head=words[0]||'';
-  const bank=COLLOCATION_BANK[head]||[];
-  let matches=bank.filter(item=>item.c.toLowerCase().startsWith(q)&&item.c.toLowerCase()!==q);
-  if(matches.length)return uniqueByPhrase(matches).slice(0,5);
-  if(head.length<3)return [];
-  const all=Object.values(COLLOCATION_BANK).flat();
-  matches=all.filter(item=>item.c.toLowerCase().includes(q)&&item.c.toLowerCase()!==q);
-  return uniqueByPhrase(matches).slice(0,5);
+  const head=q.split(/\s+/)[0]||'';
+  const local=COLLOCATION_BANK[head]||[];
+  const global=Object.values(COLLOCATION_BANK).flat();
+  const source=[...local,...global];
+  const prefix=source.filter(item=>{
+    const low=item.c.toLowerCase();
+    return low.startsWith(q)&&low!==q;
+  });
+  const matches=uniqueByPhrase(prefix).slice(0,10);
+  return matches.map(item=>({...item,cefr:inferCefr(item.c)}));
 }
-
-export function fastSuggestions(value){
-  return fastSuggestionItems(value).map(item=>item.c);
-}
-
+export function fastSuggestions(value){return fastSuggestionItems(value).map(item=>item.c)}
 export function synonymsFor(value){
   const head=normalizeSmartInput(value).split(/\s+/).pop()||'';
   return (SYNONYMS[head]||[]).slice(0,3);
