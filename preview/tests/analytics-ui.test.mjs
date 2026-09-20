@@ -16,4 +16,5 @@ test('analytics UI uses Vietnam timezone and daily reset semantics',()=>{
   assert.ok(js.includes('nextMonth'));
 });
 
+// Regression gate: Vietnam midnight reset and check-in toggle.
 console.log('Analytics UI contract tests: PASS');
