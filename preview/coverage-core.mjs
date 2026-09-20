@@ -1,2 +1,10 @@
 import {CEFR_LEVELS,averageCefr,domainCounts,cefrCounts} from './vocabulary-core.mjs';
-export function buildCoverage(rows){const list=Array.isArray(rows)?rows:[],domains=domainCounts(list),cefr=cefrCounts(list),denominator=Math.max(1,list.length);return{total:list.length,averageCefr:averageCefr(list),domains:Object.fromEntries(Object.entries(domains).map(([k,v])=>[k,{count:v,percent:Math.round(v/denominator*100)}])),cefr:Object.fromEntries(CEFR_LEVELS.map(level=>[level,{count:cefr[level]||0,percent:Math.round((cefr[level]||0)/denominator*100)]))}}
+export function buildCoverage(rows){
+  const list=Array.isArray(rows)?rows:[],domains=domainCounts(list),cefr=cefrCounts(list),denominator=Math.max(1,list.length);
+  return {
+    total:list.length,
+    averageCefr:averageCefr(list),
+    domains:Object.fromEntries(Object.entries(domains).map(([k,v])=>[k,{count:v,percent:Math.round(v/denominator*100)}])),
+    cefr:Object.fromEntries(CEFR_LEVELS.map(level=>[level,{count:cefr[level]||0,percent:Math.round((cefr[level]||0)/denominator*100)}]))
+  };
+}
