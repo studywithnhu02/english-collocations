@@ -34,6 +34,15 @@ jobs:
           node --check preview/analytics-ui.js
           node --check preview/contextual-story-core.mjs
           node --check preview/ai-agent.js
+          node --check preview/ai-client.js
+          node --check preview/smart-ingestion.js
+          node --check preview/quiz-ui.js
+          node --check preview/focus-ui.js
+          node --check preview/family-ui.js
+          node --check preview/coverage-ui.js
+          node --check preview/coach-ui.js
+          node --check preview/anki-export.js
+          node --check preview/print-export.js
       - name: Core regression tests
         run: node --test preview/tests/spellcheck-core.test.mjs
       - name: Runtime dictionary tests
@@ -52,6 +61,12 @@ jobs:
           node --check preview/goals-core.mjs
           node --check preview/srs-core.mjs
           node --check preview/smart-tools-core.mjs
+          node --check preview/quiz-core.mjs
+          node --check preview/focus-core.mjs
+          node --check preview/family-core.mjs
+          node --check preview/coverage-core.mjs
+          node --check preview/coach-core.mjs
+          node --check preview/vocabulary-core.mjs
       - name: Analytics core tests
         run: node --test preview/tests/analytics-core.test.mjs
       - name: Collocation core tests
@@ -80,3 +95,16 @@ jobs:
         run: node --test preview/tests/analytics-duplicate-preview.test.mjs
 
 # CI regression gate: rerun after spellcheck core fix.
+
+      - name: Vocabulary Intelligence core tests
+        run: |
+          node --test preview/tests/vocabulary-core.test.mjs
+          node --test preview/tests/quiz-core.test.mjs
+          node --test preview/tests/focus-core.test.mjs
+          node --test preview/tests/coverage-core.test.mjs
+          node --test preview/tests/coach-core.test.mjs
+      - name: Vocabulary Intelligence UI and security tests
+        run: |
+          node --test preview/tests/vocabulary-preview-ui.test.mjs
+          node --test preview/tests/security-preview.test.mjs
+          node --test preview/tests/export-preview.test.mjs
