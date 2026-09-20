@@ -46,3 +46,15 @@ test('cleans model wrappers without changing story text',()=>{
 });
 
 console.log('Contextual Story core tests: PASS');
+
+test('dialogue prompt always uses only A and B',()=>{
+  const prompt=buildStoryPrompt([{c:'make a decision'},{c:'design a user flow'},{c:'process a claim'}],STORY_MODES.dialogue);
+  assert.match(prompt,/A and B/);
+  assert.match(prompt,/Every line must start with exactly “A:” or “B:”/);
+  assert.match(prompt,/Never use names, roles/);
+});
+
+test('paragraph prompt allows bridging sentences for unrelated collocations',()=>{
+  const prompt=buildStoryPrompt([{c:'design a user flow',t:'UI/UX'},{c:'process a claim',t:'Insurance'},{c:'make a bank transfer',t:'Banking'}],STORY_MODES.paragraph);
+  assert.match(prompt,/2–3 short bridging sentences/);
+});
