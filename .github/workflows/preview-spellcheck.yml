@@ -27,6 +27,9 @@ jobs:
           node --check preview/status-core.mjs
           node --check preview/analytics-core.mjs
           node --check preview/collocation-core.mjs
+          node --check preview/analytics-ui.js
+          node --check preview/contextual-story-core.mjs
+          node --check preview/ai-agent.js
       - name: Core regression tests
         run: node --test preview/tests/spellcheck-core.test.mjs
       - name: Runtime dictionary tests
