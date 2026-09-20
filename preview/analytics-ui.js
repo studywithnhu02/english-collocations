@@ -108,6 +108,15 @@ function mount(){
     refresh,
     recordStudy,
     toggleCheckin,
+    getSnapshot:load,
+    restoreSnapshot(snapshot){
+      const next=snapshot&&typeof snapshot==='object'?snapshot:{};
+      save({
+        checkins:Array.isArray(next.checkins)?next.checkins:[],
+        learningEvents:Array.isArray(next.learningEvents)?next.learningEvents:[]
+      });
+      refresh();
+    },
     setMode(mode){this.mode=mode==='month'?'month':'week';refresh();},
     prevMonth(){calendarCursor=monthShift(calendarCursor,-1);refresh();},
     nextMonth(){calendarCursor=monthShift(calendarCursor,1);refresh();},
