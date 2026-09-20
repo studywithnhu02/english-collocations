@@ -16,7 +16,7 @@ test('new Preview analytics and duplicate surface is wired',()=>{
     'id="analyticsToday"',
     'id="duplicateWarning"',
     "window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)",
-    "const expected='a72e9d5'"
+    "const expected='b7f6a12'"
   ])assert.ok(html.includes(token),token);
 });
 
