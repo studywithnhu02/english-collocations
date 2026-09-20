@@ -1,6 +1,6 @@
 const DATAMUSE_BASE='https://api.datamuse.com';
 const OPEN_COLLLOCATION_DATASET_URL='https://raw.githubusercontent.com/ironking63/Collocation-Vocab-Practice-Claude-SKILL/main/assets/collocations.json';
-const CACHE_KEY='english-collocations-preview-source-cache-v1';
+const CACHE_KEY='english-collocations-preview-source-cache-v2';
 const CACHE_TTL=12*60*60*1000;
 const OPEN_CACHE_KEY='english-collocations-preview-open-mit-v1';
 const OPEN_CACHE_TTL=7*24*60*60*1000;
