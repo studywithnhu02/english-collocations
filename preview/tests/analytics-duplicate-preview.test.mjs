@@ -3,29 +3,26 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
 const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+const agent=await readFile(new URL('../ai-agent.js',import.meta.url),'utf8');
 
-test('new Preview feature surface is wired',()=>{
+test('new Preview analytics and duplicate surface is wired',()=>{
   for(const token of [
     './analytics-ui.js',
     './collocation-core.mjs',
-    './contextual-story-core.mjs',
     'class="analytics-calendar"',
     'id="analyticsCheckin"',
     'id="analyticsPrev"',
     'id="analyticsNext"',
     'id="analyticsToday"',
     'id="duplicateWarning"',
-    'data-story-mode="paragraph"',
-    'data-story-mode="dialogue"',
-    'buildStoryPrompt',
-    'validateStorySelection',
-    'window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)',
+    "window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)",
     "const expected='b93e1a7'"
   ])assert.ok(html.includes(token),token);
 });
 
-test('learning is automatically recorded from the status action',()=>{
+test('automatic learning analytics is independent from manual check-in',()=>{
   assert.ok(html.includes('window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)'));
+  assert.ok(html.includes('JSON.stringify({data,statuses:loadStatuses(),analytics:window.PreviewAnalytics?.getSnapshot?.()||{checkins:[],learningEvents:[]}},null,2)'));
 });
 
 test('duplicate data is warned and duplicate creation is blocked',()=>{
@@ -34,8 +31,20 @@ test('duplicate data is warned and duplicate creation is blocked',()=>{
   assert.ok(html.includes('Không thể tạo bản trùng.'));
 });
 
-test('backup and protected modules remain intact',()=>{
-  assert.ok(html.includes('JSON.stringify({data,statuses:loadStatuses(),analytics:loadAnalytics()},null,2)'));
+test('Contextual Story generator enforces 3-5 selected rows and uses the existing AI worker',()=>{
+  for(const token of [
+    './contextual-story-core.mjs',
+    'id="contextualStoryCard"',
+    'data-story-mode="paragraph"',
+    'data-story-mode="dialogue"',
+    'validateStorySelection(rows)',
+    'buildStoryPrompt(rows,mode)',
+    'callModel([',
+    'Return only the finished story.'
+  ])assert.ok(agent.includes(token),token);
+});
+
+test('existing protected UI/features remain intact',()=>{
   assert.ok(html.includes('./ai-agent.js?v=6'));
   assert.ok(html.includes('./spellcheck.js?v=1'));
   assert.ok(html.includes('./auto-translate.js?v=6'));
