@@ -15,10 +15,16 @@ test('Preview status UI contract',()=>{
   assert.ok(html.includes("STATUS_KEY='english-collocations-preview-statuses-v1'"));
   assert.ok(html.includes('./status-core.mjs'));
   assert.ok(html.includes('window.$=$'));
+  assert.ok(html.includes('status-not-learned'));
+  assert.ok(html.includes('status-learned'));
+  assert.ok(html.includes('body.light-theme .status-button.status-not-learned'));
+  assert.ok(html.includes('body.light-theme .status-button.status-learned'));
+  assert.ok(html.includes('statusRows=filterByStatus(data,status)'));
+  assert.ok(html.includes("s:normalizeStatus(x.s??x.status??'Chưa học')||'Chưa học'"));
+  assert.ok(html.includes('.main>.brand,.main>.card:not(.brand):not(.table-card){padding:9px 14px 5px}'));
 });
 
 test('Status is persisted and exported',()=>{
-  assert.ok(html.includes("s:normalizeStatus(x.s??x.status??'')"));
   assert.ok(html.includes('JSON.stringify({data,statuses:loadStatuses()},null,2)'));
   assert.ok(html.includes("const h=['STT','Collocation','Nghĩa Collocation','Chủ đề','Câu giao tiếp ví dụ','Nghĩa câu ví dụ','Status','Ngày tạo']"));
 });
