@@ -45,10 +45,5 @@ test('Smart suggestion and refinement are wired to the collocation cell',()=>{
   assert.ok(smart.includes('refineRun'));
   assert.ok(smart.includes('naturalnessScore'));
 });
-  assert.ok(smart.includes('editable[data-field="c"]'));
-  assert.ok(smart.includes('Gợi ý AI'));
-  assert.ok(smart.includes('refineRun'));
-  assert.ok(smart.includes('naturalnessScore'));
-});
 
 console.log('Feature Preview UI contract tests: PASS');
