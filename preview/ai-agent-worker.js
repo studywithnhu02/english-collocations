@@ -10,15 +10,22 @@ async function getPipe(){
   }
   return pipePromise;
 }
+function cleanGenerated(text){
+  let s=String(text||'').trim();
+  if(s.includes('assistant:'))s=s.split('assistant:').pop().trim();
+  try{const m=s.match(/\{[\s\S]*\}/);if(m){const j=JSON.parse(m[0]);if(j.translatedText)s=String(j.translatedText).trim()}}catch{}
+  s=s.replace(/^```(?:json|text)?\s*/i,'').replace(/\s*```$/,'').trim();
+  return s;
+}
 self.onmessage=async({data})=>{
   const{id,messages=[],batch=false}=data||{};
   try{
     const pipe=await getPipe();
-    self.postMessage({id,type:'status',stage:'inference',message:batch?'Đang phân tích theo batch…':'Đang phân tích…'});
+    self.postMessage({id,type:'status',stage:'inference',message:batch?'Đang phân tích theo batch…':'Đang dịch…'});
     const prompt=messages.map(m=>`${m.role}: ${m.content}`).join('\n\n')+'\n\nassistant:';
-    const out=await pipe(prompt,{max_new_tokens:batch?768:384,temperature:0.15,do_sample:false});
-    const text=out?.[0]?.generated_text||'';
-    const answer=text.includes('assistant:')?text.split('assistant:').pop().trim():String(text).trim();
+    const out=await pipe(prompt,{max_new_tokens:batch?512:96,temperature:0.05,do_sample:false,repetition_penalty:1.15,no_repeat_ngram_size:3});
+    const raw=out?.[0]?.generated_text||'';
+    const answer=cleanGenerated(raw);
     self.postMessage({id,ok:true,text:answer});
   }catch(e){self.postMessage({id,ok:false,error:e?.message||String(e)})}
 };
