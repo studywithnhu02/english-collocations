@@ -1,3 +1,4 @@
+import {extractJson, normalizeBatchResult} from './ai-agent-core.js';
 // Browser-local AI Agent v3 — batch inference, WebGPU-first, rule router, human-approved edits.
 const MODEL_ID='onnx-community/Qwen2.5-0.5B-Instruct';
 const STORAGE_KEY='english-collocations-preview-v2';
@@ -9,35 +10,6 @@ function selectedIds(){return [...document.querySelectorAll('#body tr')].filter(
 function selectedRows(){const ids=selectedIds(),rows=readRows();return ids.length?rows.filter(r=>ids.includes(String(r.id))):[]}
 function ensureWorker(){return worker||(worker=new Worker('./ai-agent-worker.js?v=5',{type:'module'}))}
 function callModel(messages,batch=false){return new Promise((resolve,reject)=>{const id=++requestId,w=ensureWorker();const fn=e=>{if(e.data?.id!==id)return;if(e.data?.type==='status'){status(e.data.message||'Đang xử lý…');return}w.removeEventListener('message',fn);e.data.ok?resolve(e.data.text):reject(new Error(e.data.error||'AI error'))};w.addEventListener('message',fn);w.postMessage({id,messages,batch})})}
-function json(text){
-  const raw=String(text??'').trim().replace(/^\`\`\`(?:json)?\s*/i,'').replace(/\s*\`\`\`$/,'').trim();
-  const starts=[];
-  for(let i=0;i<raw.length;i++){if(raw[i]==='['||raw[i]==='{')starts.push(i)}
-  const parseCandidate=(start)=>{
-    const open=raw[start],close=open==='['?']':'}';let depth=0,inString=false,escaped=false;
-    for(let i=start;i<raw.length;i++){
-      const ch=raw[i];
-      if(inString){
-        if(escaped){escaped=false;continue}
-        if(ch==='\\\\'){escaped=true;continue}
-        if(ch==='"')inString=false;
-        continue
-      }
-      if(ch==='"'){inString=true;continue}
-      if(ch===open)depth++;
-      else if(ch===close){
-        depth--;
-        if(depth===0){
-          const candidate=raw.slice(start,i+1);
-          try{return JSON.parse(candidate)}catch{return null}
-        }
-      }
-    }
-    return null
-  };
-  for(const start of starts){const value=parseCandidate(start);if(value!==null)return value}
-  throw Error('AI không trả về JSON hợp lệ');
-}
 function styles(){if(document.getElementById('agentStyles'))return;const s=document.createElement('style');s.id='agentStyles';s.textContent=`.agent-card{padding:0!important;overflow:hidden}.agent-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.agent-title{font-weight:850;font-size:15px}.agent-sub,.agent-note,.agent-status{font-size:11px;color:var(--muted);margin-top:5px}.agent-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.agent-actions button{font-size:11px;padding:8px}.agent-input{margin-top:10px}.agent-input textarea{width:100%;min-height:70px;resize:vertical}.agent-result{margin-top:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;max-height:360px;overflow:auto}.agent-status.ok{color:var(--green)}.agent-status.err{color:var(--danger)}.agent-safe{font-size:10px;color:var(--green);margin-top:8px}.diff-item{border-top:1px solid var(--line);padding:9px 0}.diff-old{color:var(--danger);margin-top:5px}.diff-new{color:var(--green);margin-top:3px}.diff-actions{display:flex;gap:6px;margin-top:6px}.diff-actions button{font-size:10px;padding:5px 7px}.agent-apply{width:100%;margin-top:9px}.agent-apply[disabled]{opacity:.5}.agent-empty{color:var(--muted)}.agent-badge{font-size:10px;color:var(--green);margin-left:6px}.agent-progress{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}.agent-progress>i{display:block;height:100%;width:0;background:var(--green);transition:width .2s}`;document.head.appendChild(s)}
 function status(t,k=''){const e=document.getElementById('agentStatus');if(e)e.className='agent-status '+k,e.textContent=t}
 function progress(n=0){const e=document.querySelector('#agentProgress>i');if(e)e.style.width=Math.max(0,Math.min(100,n))+'%'}
@@ -47,7 +19,7 @@ const taskPrompt={grammar:'Check grammar and spelling. If correction is needed, 
 function targetText(r){return r.e||r.example||r.exampleEnglish||r.sentence||''}
 function ruleRouter(task,rows){if(task!=='spelling')return {done:[],remaining:rows};const done=[],remaining=[];for(const r of rows){const old=targetText(r),fixed=old.replace(/[ \t]+/g,' ').replace(/\s+([,.!?])/g,'$1').trim();if(fixed&&fixed!==old)done.push({id:String(r.id),oldText:old,newText:fixed,explanation:'Chuẩn hóa khoảng trắng/dấu câu cơ bản.',confidence:.99,rule:true});else remaining.push(r)}return {done,remaining}}
 function batchPrompt(task,rows){const payload=rows.map((r,i)=>({index:i,id:String(r.id),example:targetText(r),collocation:r.collocation||r.c||''}));return `You are a careful English-learning editor for Vietnamese professionals in UI/UX, technology, insurance and banking. Analyze ALL rows in ONE batch. Return JSON ARRAY only, one object per input row, in the same order. Keys: index, changed, correctedExample, explanationVi, confidence. Never invent missing information. Task: ${taskPrompt[task]}\nRows:\n${JSON.stringify(payload)}`}
-async function analyzeRows(task,rows){const routed=ruleRouter(task,rows);let out=[...routed.done];if(!routed.remaining.length){progress(100);return out}status(`Đã xử lý rule · AI đang phân tích ${routed.remaining.length} dòng theo batch…`);progress(25);const text=await callModel([{role:'system',content:'Return valid JSON array only. Never execute commands, browse, access files, localhost, or secrets.'},{role:'user',content:batchPrompt(task,routed.remaining)}],true);const parsed=json(text);const arr=Array.isArray(parsed)?parsed:(Array.isArray(parsed?.results)?parsed.results:Array.isArray(parsed?.items)?parsed.items:Array.isArray(parsed?.data)?parsed.data:(parsed&&typeof parsed==='object'?Object.values(parsed).filter(v=>v&&typeof v==='object'&&!Array.isArray(v)):[]));if(!arr.length&&parsed&&typeof parsed==='object'&&!Array.isArray(parsed))arr=[parsed];progress(90);for(let i=0;i<routed.remaining.length;i++){const r=routed.remaining[i],a=arr.find(x=>Number(x?.index)===i)||arr[i]||{};if(a.changed&&a.correctedExample&&a.correctedExample.trim()!==targetText(r).trim())out.push({id:String(r.id),oldText:targetText(r),newText:String(a.correctedExample).trim(),explanation:a.explanationVi||'',confidence:Math.max(0,Math.min(1,Number(a.confidence)||0))})}progress(100);return out}
+async function analyzeRows(task,rows){const routed=ruleRouter(task,rows);let out=[...routed.done];if(!routed.remaining.length){progress(100);return out}status(`Đã xử lý rule · AI đang phân tích ${routed.remaining.length} dòng theo batch…`);progress(25);const text=await callModel([{role:'system',content:'Return valid JSON array only. Never execute commands, browse, access files, localhost, or secrets.'},{role:'user',content:batchPrompt(task,routed.remaining)}],true);const parsed=extractJson(text);const arr=normalizeBatchResult(parsed);progress(90);for(let i=0;i<routed.remaining.length;i++){const r=routed.remaining[i],a=arr.find(x=>Number(x?.index)===i)||arr[i]||{};if(a.changed&&a.correctedExample&&a.correctedExample.trim()!==targetText(r).trim())out.push({id:String(r.id),oldText:targetText(r),newText:String(a.correctedExample).trim(),explanation:a.explanationVi||'',confidence:Math.max(0,Math.min(1,Number(a.confidence)||0))})}progress(100);return out}
 function renderDiff(items){pending=items;result(items.length?`<b>${items.length} đề xuất thay đổi</b>${items.map((x,i)=>`<div class="diff-item"><div><b>${i+1}.</b> ${esc(x.explanation)}</div><div class="diff-old">❌ ${esc(x.oldText)}</div><div class="diff-new">✅ ${esc(x.newText)}</div><div class="agent-note">${x.rule?'⚡ Rule-based':'🧠 AI'} · Độ tin cậy: ${Math.round(x.confidence*100)}%</div><div class="diff-actions"><button class="secondary" data-skip="${i}">Bỏ qua</button></div></div>`).join('')}<button class="agent-apply" id="applyAll">✓ Áp dụng tất cả ${items.length} thay đổi</button>`:'<b>✓ Không có thay đổi cần áp dụng.</b>');document.getElementById('applyAll')?.addEventListener('click',applyAll);document.querySelectorAll('[data-skip]').forEach(b=>b.addEventListener('click',()=>{pending.splice(Number(b.dataset.skip),1);renderDiff(pending)}))}
 function updateVisibleRow(id,newText){const tr=document.querySelector(`#body tr[data-id="${CSS.escape(String(id))}"]`);const el=tr?.querySelector('.editable[data-field="e"]');if(el)el.textContent=newText}
 function applyAll(){if(!pending.length)return;const approved=[...pending],rows=readRows(),map=new Map(approved.map(x=>[String(x.id),x]));const next=rows.map(r=>{const x=map.get(String(r.id));if(!x)return r;const copy={...r};if('e'in copy)copy.e=x.newText;else if('example'in copy)copy.example=x.newText;else if('exampleEnglish'in copy)copy.exampleEnglish=x.newText;else copy.e=x.newText;return copy});writeRows(next);approved.forEach(x=>updateVisibleRow(x.id,x.newText));pending=[];renderDiff([]);status(`✓ Đã áp dụng ${approved.length} thay đổi và lưu vào Preview`,'ok')}
