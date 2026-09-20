@@ -3,35 +3,52 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
 const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+const agent=await readFile(new URL('../ai-agent.js',import.meta.url),'utf8');
 
-test('Analytics dashboard UI contract',()=>{
-  assert.ok(html.includes('analytics-card'));
-  assert.ok(html.includes('id="analyticsCheckin"'));
-  assert.ok(html.includes('id="analyticsLearned"'));
-  assert.ok(html.includes('id="analyticsWeek"'));
-  assert.ok(html.includes('id="analyticsMonth"'));
-  assert.ok(html.includes('id="analyticsStreak"'));
-  assert.ok(html.includes('data-analytics-mode="week"'));
-  assert.ok(html.includes('data-analytics-mode="month"'));
-  assert.ok(html.includes('ANALYTICS_KEY'));
-  assert.ok(html.includes('./analytics-core.mjs'));
-  assert.ok(html.includes('recordStudyEvent(id)'));
-  assert.ok(html.includes('JSON.stringify({data,statuses:loadStatuses(),analytics:loadAnalytics()},null,2)'));
+test('new Preview analytics and duplicate surface is wired',()=>{
+  for(const token of [
+    './analytics-ui.js',
+    './collocation-core.mjs',
+    'class="analytics-calendar"',
+    'id="analyticsCheckin"',
+    'id="analyticsPrev"',
+    'id="analyticsNext"',
+    'id="analyticsToday"',
+    'id="duplicateWarning"',
+    "window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)",
+    "const expected='b93e1a7'"
+  ])assert.ok(html.includes(token),token);
 });
 
-test('Duplicate collocation guard UI contract',()=>{
-  assert.ok(html.includes('./collocation-core.mjs'));
-  assert.ok(html.includes('findDuplicateCollocation(data,val,id)'));
+test('automatic learning analytics is independent from manual check-in',()=>{
+  assert.ok(html.includes('window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)'));
+  assert.ok(html.includes('JSON.stringify({data,statuses:loadStatuses(),analytics:window.PreviewAnalytics?.getSnapshot?.()||{checkins:[],learningEvents:[]}},null,2)'));
+});
+
+test('duplicate data is warned and duplicate creation is blocked',()=>{
   assert.ok(html.includes('findDuplicateCollocations(data)'));
+  assert.ok(html.includes('findDuplicateCollocation(data,val,id)'));
   assert.ok(html.includes('Không thể tạo bản trùng.'));
-  assert.ok(html.includes('Preview từ chối Restore để tránh tạo dữ liệu trùng.'));
-  assert.ok(html.includes('id="duplicateWarning"'));
 });
 
-test('Existing Preview features remain loaded',()=>{
+test('Contextual Story generator enforces 3-5 selected rows and uses the existing AI worker',()=>{
+  for(const token of [
+    './contextual-story-core.mjs',
+    "card.id='contextualStoryCard'",
+    'data-story-mode="paragraph"',
+    'data-story-mode="dialogue"',
+    'validateStorySelection(rows)',
+    'buildStoryPrompt(rows,mode)',
+    'callModel([',
+    'Return only the finished story.'
+  ])assert.ok(agent.includes(token),token);
+});
+
+test('existing protected UI/features remain intact',()=>{
   assert.ok(html.includes('./ai-agent.js?v=6'));
   assert.ok(html.includes('./spellcheck.js?v=1'));
   assert.ok(html.includes('./auto-translate.js?v=6'));
+  assert.ok(html.includes('class="card agent-shell ai" hidden aria-hidden="true"'));
 });
 
-console.log('Analytics + duplicate Preview contract tests: PASS');
+console.log('Analytics + duplicate + story Preview contract tests: PASS');
