@@ -11,7 +11,7 @@
 </style>
 </head>
 <body>
-<div class="preview-status" aria-live="polite" data-preview-build="a91c6e4" id="previewStatus"><div class="ps-row"><span class="ps-dot busy" id="psDot"></span><span class="ps-title" id="psTitle">Đang kiểm tra Preview…</span><span class="ps-time" id="psTime"></span></div><div class="ps-sub" id="psSub">Đang kiểm tra source GitHub.</div><div class="ps-actions"><button class="secondary" id="psCheck">↻ Kiểm tra ngay</button><button class="secondary" id="psReload">⟳ Reload Preview</button></div></div>
+<div class="preview-status" aria-live="polite" data-preview-build="c35f7a2" id="previewStatus"><div class="ps-row"><span class="ps-dot busy" id="psDot"></span><span class="ps-title" id="psTitle">Đang kiểm tra Preview…</span><span class="ps-time" id="psTime"></span></div><div class="ps-sub" id="psSub">Đang kiểm tra source GitHub.</div><div class="ps-actions"><button class="secondary" id="psCheck">↻ Kiểm tra ngay</button><button class="secondary" id="psReload">⟳ Reload Preview</button></div></div>
 <div class="app">
 <main class="main">
 <section class="card brand"><div class="actions"><button class="secondary" id="theme">☀️ Light mode</button><button class="secondary" id="backup">💾 Backup</button><button class="secondary" id="restore">📂 Restore</button><button class="secondary" id="csv">📊 Export CSV</button><button class="danger" id="clear">🗑️ Xóa tất cả</button></div></section>
@@ -20,9 +20,9 @@
 </main>
 <aside class="sidebar">
 
-<section class="card agent-shell ai"><div class="agent-placeholder"><div class="agent-info">Đang khởi tạo AI Agent…</div></div></section>
+<section class="card agent-shell ai" hidden aria-hidden="true"><div class="agent-placeholder"><div class="agent-info">Đang khởi tạo AI Agent…</div></div></section>
 <section class="card"><h2>🔐 Preview an toàn</h2><div class="status">🟢 Browser-local AI — dữ liệu bảng không tự gửi lên server AI.</div><div class="user">👤 Agent chỉ đọc các dòng bạn chọn và chỉ ghi thay đổi sau khi bạn bấm “Áp dụng”.</div><div class="config">🔒 Không dùng localhost · Không thực thi command · Không đọc file máy · Không cần secret/API key.<br>Model được tải từ repository model public và chạy trong browser.</div></section>
-<section class="card"><h2 style="font-size:18px;margin-top:0">📌 Cách dùng Agent</h2><p style="color:var(--muted);font-size:13px;margin:0">Chọn các dòng → chọn tác vụ → xem diff → bỏ qua hoặc Áp dụng tất cả. AI không tự sửa dữ liệu.</p></section>
+<section class="card" hidden aria-hidden="true"><h2 style="font-size:18px;margin-top:0">📌 Cách dùng Agent</h2><p style="color:var(--muted);font-size:13px;margin:0">Chọn các dòng → chọn tác vụ → xem diff → bỏ qua hoặc Áp dụng tất cả. AI không tự sửa dữ liệu.</p></section>
 </aside>
 </div>
 <script>
@@ -33,7 +33,7 @@ $('search').addEventListener('input',render);$('filter').addEventListener('chang
 </script>
 <script type="module" src="./ai-agent.js?v=6"></script>
 <script>
-const expected='a91c6e4',raw='https://raw.githubusercontent.com/studywithnhu02/english-collocations/main/preview/index.html';function setPreview(k,title,sub){$('psDot').className='ps-dot '+k;$('psTitle').textContent=title;$('psSub').textContent=sub;$('psTime').textContent=new Date().toLocaleTimeString('vi-VN')}async function checkPreview(){setPreview('busy','🟡 Đang kiểm tra Preview…','Đang so sánh build đang chạy với source GitHub.');try{const r=await fetch(raw+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const text=await r.text();const m=text.match(/data-preview-build="([0-9a-f]{7,40})"/i);const live=m?m[1]:'';if(live===expected)setPreview('ok','🟢 Preview đã cập nhật','AI Agent v3 · build '+live+' · source GitHub đã lên Pages.');else setPreview('busy','🟡 GitHub Pages đang cập nhật','Source mới đã có build '+expected+' · Pages hiện vẫn đang phục vụ '+(live||'build cũ')+'.')}catch(e){setPreview('err','⚠️ Không kiểm tra được','GitHub Pages chưa phản hồi. Bạn vẫn có thể reload thủ công.')}}$('psCheck').addEventListener('click',checkPreview);$('psReload').addEventListener('click',()=>location.reload());checkPreview();setInterval(checkPreview,15000);
+const expected='c35f7a2',raw='https://raw.githubusercontent.com/studywithnhu02/english-collocations/main/preview/index.html';function setPreview(k,title,sub){$('psDot').className='ps-dot '+k;$('psTitle').textContent=title;$('psSub').textContent=sub;$('psTime').textContent=new Date().toLocaleTimeString('vi-VN')}async function checkPreview(){setPreview('busy','🟡 Đang kiểm tra Preview…','Đang so sánh build đang chạy với source GitHub.');try{const r=await fetch(raw+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const text=await r.text();const m=text.match(/data-preview-build="([0-9a-f]{7,40})"/i);const live=m?m[1]:'';if(live===expected)setPreview('ok','🟢 Preview đã cập nhật','AI Agent v3 · build '+live+' · source GitHub đã lên Pages.');else setPreview('busy','🟡 GitHub Pages đang cập nhật','Source mới đã có build '+expected+' · Pages hiện vẫn đang phục vụ '+(live||'build cũ')+'.')}catch(e){setPreview('err','⚠️ Không kiểm tra được','GitHub Pages chưa phản hồi. Bạn vẫn có thể reload thủ công.')}}$('psCheck').addEventListener('click',checkPreview);$('psReload').addEventListener('click',()=>location.reload());checkPreview();setInterval(checkPreview,15000);
 </script>
 
 <script type="module" src="./spellcheck.js?v=1"></script>
