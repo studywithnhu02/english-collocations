@@ -32,4 +32,6 @@ const html=decorateHtml('We need to complet the deadline.',enErrors,'deadline');
 assert.match(html,/class="spell-error"/);
 assert.match(html,/data-spell-index="0"/);
 assert.match(html,/class="spell-search-hit"/);
+const overlap=decorateHtml('complet',enErrors.map(e=>({...e,start:0,end:7})),'ple');
+assert.match(overlap,/class="spell-error spell-search-hit"/);
 console.log('Spellcheck core tests: PASS');
