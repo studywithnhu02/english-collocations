@@ -1,0 +1,6 @@
+import assert from 'node:assert/strict';import test from 'node:test';import {DEFAULT_DOMAINS,addDomain,renameDomain,removeDomain,normalizeDomains} from '../domains-core.mjs';
+test('default domain list is normalized and non-empty',()=>{assert.ok(DEFAULT_DOMAINS.length>=10);assert.equal(normalizeDomains(DEFAULT_DOMAINS).length,DEFAULT_DOMAINS.length)});
+test('custom domain can be added without duplicate names',()=>{const a=addDomain(['Business'],'Product Design');assert.equal(a.added,true);assert.deepEqual(a.domains,['Business','Product Design']);const b=addDomain(a.domains,' business ');assert.equal(b.added,false)});
+test('domain rename updates the selected name and blocks duplicates',()=>{const a=renameDomain(['Business','Email'],'Business','Workplace');assert.equal(a.changed,true);assert.deepEqual(a.domains,['Workplace','Email']);const b=renameDomain(a.domains,'Email','Workplace');assert.equal(b.changed,false);assert.equal(b.duplicate,true)});
+test('domain delete removes only the requested value',()=>{const a=removeDomain(['Business','Email'],'Email');assert.equal(a.changed,true);assert.deepEqual(a.domains,['Business'])});
+console.log('Domains core tests: PASS');
