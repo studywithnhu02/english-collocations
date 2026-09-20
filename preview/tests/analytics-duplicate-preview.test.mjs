@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
-const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+const html=await readFile(new URL('../app.html',import.meta.url),'utf8');
 const agent=await readFile(new URL('../ai-agent.js',import.meta.url),'utf8');
 
 test('new Preview analytics and duplicate surface is wired',()=>{
@@ -16,13 +16,15 @@ test('new Preview analytics and duplicate surface is wired',()=>{
     'id="analyticsToday"',
     'id="duplicateWarning"',
     "window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)",
-    "const expected='f7a91c2'"
+    "const expected='9b4e2a7'"
   ])assert.ok(html.includes(token),token);
 });
 
 test('automatic learning analytics is independent from manual check-in',()=>{
   assert.ok(html.includes('window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice)'));
-  assert.ok(html.includes('JSON.stringify({data,statuses:loadStatuses(),analytics:window.PreviewAnalytics?.getSnapshot?.()||{checkins:[],learningEvents:[]}},null,2)'));
+  assert.ok(html.includes('version:2,data,statuses:loadStatuses()'));
+  assert.ok(html.includes('goals:window.PreviewGoals?.getSnapshot?.()||{}'));
+  assert.ok(html.includes('srs:window.PreviewSRS?.getSnapshot?.()||{}'));
 });
 
 test('duplicate data is warned and duplicate creation is blocked',()=>{
@@ -45,7 +47,7 @@ test('Contextual Story generator enforces 3-5 selected rows and uses the existin
 });
 
 test('existing protected UI/features remain intact',()=>{
-  assert.ok(html.includes('./ai-agent.js?v=7'));
+  assert.ok(html.includes('./ai-agent.js?v=9'));
   assert.ok(html.includes('./spellcheck.js?v=1'));
   assert.ok(html.includes('./auto-translate.js?v=6'));
   assert.ok(html.includes('class="card agent-shell ai" hidden aria-hidden="true"'));
@@ -58,7 +60,7 @@ test('Contextual Story uses direct mode buttons and escaped highlighting',()=>{
   assert.ok(agent.includes('data-story-mode="paragraph"'));
   assert.ok(agent.includes('data-story-mode="dialogue"'));
   assert.ok(agent.includes('runContextualStory(btn.dataset.storyMode)'));
-  assert.ok(agent.includes('resultEl.innerHTML=highlightStory(story,rows)'));
+  assert.ok(agent.includes('renderStoryResult(resultEl,story,rows,mode)'));
   assert.ok(agent.includes('function escapeRegex'));
   assert.ok(agent.includes('return esc(story)'));
   assert.ok(!agent.includes('story-generate'));

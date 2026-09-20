@@ -42,6 +42,16 @@ jobs:
         run: node --test preview/tests/auto-translate-core.test.mjs
       - name: Auto Translate syntax check
         run: node --check preview/auto-translate.js
+          
+      - name: Feature module syntax check
+        run: |
+          node --check preview/auth-gate.js
+          node --check preview/goals-ui.js
+          node --check preview/srs-ui.js
+          node --check preview/smart-tools.js
+          node --check preview/goals-core.mjs
+          node --check preview/srs-core.mjs
+          node --check preview/smart-tools-core.mjs
       - name: Analytics core tests
         run: node --test preview/tests/analytics-core.test.mjs
       - name: Collocation core tests
@@ -54,6 +64,16 @@ jobs:
         run: node --test preview/tests/analytics-ui.test.mjs
       - name: Contextual Story core tests
         run: node --test preview/tests/contextual-story-core.test.mjs
+      - name: Goals core tests
+        run: node --test preview/tests/goals-core.test.mjs
+      - name: SRS core tests
+        run: node --test preview/tests/srs-core.test.mjs
+      - name: Smart Tools core tests
+        run: node --test preview/tests/smart-tools-core.test.mjs
+      - name: Auth Preview contract tests
+        run: node --test preview/tests/auth-preview.test.mjs
+      - name: Feature Preview UI contract tests
+        run: node --test preview/tests/feature-preview-ui.test.mjs
       - name: Spellcheck Preview contract tests
         run: node --test preview/tests/spellcheck-preview.test.mjs
       - name: Analytics + duplicate Preview contract tests

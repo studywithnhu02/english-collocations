@@ -1,5 +1,5 @@
 import {extractJson, normalizeBatchResult} from './ai-agent-core.js';
-import {STORY_MODES,buildStoryPrompt,cleanStoryText,validateStorySelection} from './contextual-story-core.mjs';
+import {STORY_MODES,buildStoryPrompt,cleanStoryText,validateStorySelection,storyCoverage} from './contextual-story-core.mjs';
 // Browser-local AI Agent v3 — batch inference, WebGPU-first, rule router, human-approved edits.
 const MODEL_ID='onnx-community/Qwen2.5-0.5B-Instruct';
 const STORAGE_KEY='english-collocations-preview-v2';
@@ -12,7 +12,7 @@ function selectedRows(){const ids=selectedIds(),rows=readRows();return ids.lengt
 function ensureWorker(){return worker||(worker=new Worker('./ai-agent-worker.js?v=6',{type:'module'}))}
 function callModel(messages,batch=false,options={}){return new Promise((resolve,reject)=>{const id=++requestId,w=ensureWorker();const fn=e=>{if(e.data?.id!==id)return;if(e.data?.type==='status'){status(e.data.message||'Đang xử lý…');return}w.removeEventListener('message',fn);e.data.ok?resolve(e.data.text):reject(new Error(e.data.error||'AI error'))};w.addEventListener('message',fn);w.postMessage({id,messages,batch,...options})})}
 function warmupModel(){try{ensureWorker().postMessage({type:'warmup'})}catch{}}
-function styles(){if(document.getElementById('agentStyles'))return;const s=document.createElement('style');s.id='agentStyles';s.textContent=`.agent-card{padding:0!important;overflow:hidden}.agent-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.agent-title{font-weight:850;font-size:15px}.agent-sub,.agent-note,.agent-status{font-size:11px;color:var(--muted);margin-top:5px}.agent-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.agent-actions button{font-size:11px;padding:8px}.agent-input{margin-top:10px}.agent-input textarea{width:100%;min-height:70px;resize:vertical}.agent-result{margin-top:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;max-height:360px;overflow:auto}.agent-status.ok{color:var(--green)}.agent-status.err{color:var(--danger)}.agent-safe{font-size:10px;color:var(--green);margin-top:8px}.diff-item{border-top:1px solid var(--line);padding:9px 0}.diff-old{color:var(--danger);margin-top:5px}.diff-new{color:var(--green);margin-top:3px}.diff-actions{display:flex;gap:6px;margin-top:6px}.diff-actions button{font-size:10px;padding:5px 7px}.agent-apply{width:100%;margin-top:9px}.agent-apply[disabled]{opacity:.5}.agent-empty{color:var(--muted)}.contextual-story-card{padding:0!important;overflow:hidden}.story-head{padding:12px 14px;border-bottom:1px solid var(--line)}.story-title{font-weight:850;font-size:15px}.story-sub{font-size:10px;color:var(--muted);margin-top:3px}.story-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px 0}.story-mode-btn{padding:8px 8px;font-size:10px}.story-mode-btn.active{background:var(--blue);color:#fff;border-color:transparent}.story-mode-btn:disabled{opacity:.6}.story-selected{padding:8px 12px 0;color:var(--muted);font-size:10px}.story-status{padding:7px 12px 0;color:var(--muted);font-size:10px}.story-result{margin:8px 12px 12px;padding:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;font-size:11px;line-height:1.5;max-height:300px;overflow:auto}.story-result span{color:var(--muted)}.story-collocation{background:#f5c451;color:#111827;border-radius:4px;padding:1px 3px;font-weight:800}.story-legend{padding:7px 12px 0;color:var(--muted);font-size:9px}.agent-badge{font-size:10px;color:var(--green);margin-left:6px}.agent-progress{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}.agent-progress>i{display:block;height:100%;width:0;background:var(--green);transition:width .2s}`;document.head.appendChild(s)}
+function styles(){if(document.getElementById('agentStyles'))return;const s=document.createElement('style');s.id='agentStyles';s.textContent=`.agent-card{padding:0!important;overflow:hidden}.agent-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.agent-title{font-weight:850;font-size:15px}.agent-sub,.agent-note,.agent-status{font-size:11px;color:var(--muted);margin-top:5px}.agent-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.agent-actions button{font-size:11px;padding:8px}.agent-input{margin-top:10px}.agent-input textarea{width:100%;min-height:70px;resize:vertical}.agent-result{margin-top:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;max-height:360px;overflow:auto}.agent-status.ok{color:var(--green)}.agent-status.err{color:var(--danger)}.agent-safe{font-size:10px;color:var(--green);margin-top:8px}.diff-item{border-top:1px solid var(--line);padding:9px 0}.diff-old{color:var(--danger);margin-top:5px}.diff-new{color:var(--green);margin-top:3px}.diff-actions{display:flex;gap:6px;margin-top:6px}.diff-actions button{font-size:10px;padding:5px 7px}.agent-apply{width:100%;margin-top:9px}.agent-apply[disabled]{opacity:.5}.agent-empty{color:var(--muted)}.contextual-story-card{padding:0!important;overflow:hidden}.story-head{padding:12px 14px;border-bottom:1px solid var(--line)}.story-title{font-weight:850;font-size:15px}.story-sub{font-size:10px;color:var(--muted);margin-top:3px}.story-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px 0}.story-mode-btn{padding:8px 8px;font-size:10px}.story-mode-btn.active{background:var(--blue);color:#fff;border-color:transparent}.story-mode-btn:disabled{opacity:.6}.story-selected{padding:8px 12px 0;color:var(--muted);font-size:10px}.story-status{padding:7px 12px 0;color:var(--muted);font-size:10px}.story-result{margin:8px 12px 12px;padding:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;font-size:11px;line-height:1.5;max-height:300px;overflow:auto}.story-result span{color:var(--muted)}.story-paragraph{margin:0}.story-line{display:grid;grid-template-columns:24px minmax(0,1fr);gap:7px;padding:6px 0;border-bottom:1px solid var(--line)}.story-line:last-child{border-bottom:0}.story-speaker{font-weight:900;color:var(--blue)}.story-line-text{min-width:0}.story-collocation{background:#f5c451;color:#111827;border-radius:4px;padding:1px 3px;font-weight:800}.story-legend{padding:7px 12px 0;color:var(--muted);font-size:9px}.agent-badge{font-size:10px;color:var(--green);margin-left:6px}.agent-progress{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}.agent-progress>i{display:block;height:100%;width:0;background:var(--green);transition:width .2s}`;document.head.appendChild(s)}
 function status(t,k=''){const e=document.getElementById('agentStatus');if(e)e.className='agent-status '+k,e.textContent=t}
 function progress(n=0){const e=document.querySelector('#agentProgress>i');if(e)e.style.width=Math.max(0,Math.min(100,n))+'%'}
 function result(html){const e=document.getElementById('agentResult');if(e)e.innerHTML=html}
@@ -32,6 +32,29 @@ function highlightStory(text,rows){
   }
   html+=esc(story.slice(last));
   return html||esc(story);
+}
+function fallbackStory(rows,mode){
+  const phrases=(Array.isArray(rows)?rows:[]).map(row=>String(row?.c??'').trim()).filter(Boolean);
+  if(mode===STORY_MODES.dialogue){
+    return phrases.map((phrase,i)=>(i%2===0?'A: ':'B: ')+ 'Today we will focus on "'+phrase+'".').join('\n');
+  }
+  return 'At work, our team has a clear focus today. '+phrases.map(phrase=>'We will use "'+phrase+'" in the task.').join(' ');
+}
+function renderStoryResult(resultEl,text,rows,mode){
+  resultEl.innerHTML='';
+  if(mode===STORY_MODES.dialogue){
+    const lines=String(text||'').split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+    lines.forEach((line,index)=>{
+      const match=line.match(/^(A|B)\s*:\s*(.*)$/i);
+      const speaker=match?match[1].toUpperCase():(index%2?'B':'A');
+      const body=match?match[2]:line;
+      const row=document.createElement('div');row.className='story-line';
+      row.innerHTML='<span class="story-speaker">'+speaker+'</span><span class="story-line-text">'+highlightStory(body,rows)+'</span>';
+      resultEl.appendChild(row);
+    });
+    return;
+  }
+  const paragraph=document.createElement('p');paragraph.className='story-paragraph';paragraph.innerHTML=highlightStory(String(text||'').trim(),rows);resultEl.appendChild(paragraph);
 }
 function renderAgent(){styles();const old=document.querySelector('.ai');if(!old)return;old.classList.add('agent-card');old.innerHTML=`<div class="agent-head"><div><div class="agent-title">🤖 AI Agent <span class="agent-badge">Browser local</span></div><div class="agent-sub">Rule router → WebGPU → batch → diff → bạn duyệt</div></div></div><div class="agent-body"><div class="agent-actions"><button class="secondary" data-task="grammar">✓ Kiểm tra grammar</button><button class="secondary" data-task="spelling">✎ Kiểm tra chính tả</button><button class="secondary" data-task="natural">✨ Tự nhiên hơn</button><button class="secondary" data-task="translate">🇻🇳 Dịch</button><button class="secondary" data-task="cefr">📊 Phân tích CEFR</button><button class="secondary" data-task="examples">💡 Tạo ví dụ</button></div><div class="agent-input"><textarea id="agentPrompt" placeholder="Ví dụ: Kiểm tra grammar cho các dòng tôi đã chọn và đề xuất sửa..."></textarea><button id="agentAsk" style="width:100%;margin-top:7px">✨ Chạy Agent</button></div><div class="agent-status" id="agentStatus">Sẵn sàng · hãy chọn dòng rồi chạy tác vụ.</div><div class="agent-progress" id="agentProgress"><i></i></div><div class="agent-result" id="agentResult"><span class="agent-empty">🔒 Chưa có thay đổi nào. Agent không tự sửa dữ liệu.</span></div><div class="agent-safe">● Browser-local · WebGPU ưu tiên · không localhost · không API key · không Python</div><div class="agent-note">Lần đầu có thể tải model. Các lần sau browser dùng cache. Tác vụ đơn giản được xử lý bằng rule trước khi gọi AI.</div></div>`;old.querySelectorAll('[data-task]').forEach(b=>b.addEventListener('click',()=>runTask(b.dataset.task)));old.querySelector('#agentAsk').addEventListener('click',runFreeform)}
 const taskPrompt={grammar:'Check grammar and spelling. If correction is needed, return correctedExample. Preserve meaning.',spelling:'Check spelling and obvious punctuation only. If correction is needed, return correctedExample. Preserve meaning.',natural:'Rewrite each example to sound natural and professional workplace English. Preserve meaning.',translate:'Translate each example sentence into natural Vietnamese. Put the translation in correctedExample.',cefr:'Estimate CEFR level. Put the level in explanationVi and leave correctedExample empty.',examples:'Create a better workplace example sentence using the same collocation. Put it in correctedExample.'};
@@ -78,15 +101,27 @@ async function runContextualStory(mode){
   try{
     statusEl.textContent='🧠 AI đang viết theo ngữ cảnh…';
     progress(20);
+    const prompt=buildStoryPrompt(rows,mode);
     const text=await callModel([
       {role:'system',content:'You are a safe workplace English writing assistant. Use only the supplied collocations. Never browse, access files, localhost, commands, or secrets. Return only the finished story.'},
-      {role:'user',content:buildStoryPrompt(rows,mode)}
+      {role:'user',content:prompt}
     ],true,{story:true});
+    progress(75);
+    let story=cleanStoryText(text);
+    const missing=rows.filter(row=>!storyCoverage(story,[row]).length);
+    if(missing.length){
+      statusEl.textContent='↻ AI đang bổ sung collocation còn thiếu…';
+      const repair=await callModel([
+        {role:'system',content:'Return ONLY the corrected finished text. Preserve all supplied collocations exactly as written. Do not add explanations.'},
+        {role:'user',content:prompt+'\\n\\nCRITICAL: The first draft omitted these exact collocations. Regenerate the whole output and include EVERY one of them exactly: '+JSON.stringify(missing.map(row=>row.c))}
+      ],true,{story:true});
+      const repaired=cleanStoryText(repair);
+      if(storyCoverage(repaired,rows).length===rows.length)story=repaired;
+    }
+    if(storyCoverage(story,rows).length!==rows.length)story=fallbackStory(rows,mode);
     progress(100);
-    const story=cleanStoryText(text);
-    resultEl.innerHTML=highlightStory(story,rows);
-    
-    statusEl.textContent='✓ Đã tạo xong · dữ liệu bảng không bị sửa';
+    renderStoryResult(resultEl,story,rows,mode);
+    statusEl.textContent='✓ Đã tạo xong · '+rows.length+' collocation · dữ liệu bảng không bị sửa';
   }catch(error){
     statusEl.textContent='✕ '+(error?.message||String(error));
     resultEl.textContent='AI chưa sẵn sàng. Model local có thể cần tải lần đầu.';
