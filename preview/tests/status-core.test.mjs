@@ -5,7 +5,8 @@ import {DEFAULT_STATUSES,normalizeStatus,uniqueStatuses,ensureStatuses,addStatus
 test('normalizes and de-duplicates statuses',()=>{
   assert.equal(normalizeStatus('  Đã   học  '),'Đã học');
   assert.deepEqual(uniqueStatuses(['Chưa học',' Đã học ','Chưa học','','  ']),['Chưa học','Đã học']);
-  assert.deepEqual(ensureStatuses(['Đang học']),[...DEFAULT_STATUSES,'Đang học']);
+  assert.deepEqual(ensureStatuses([]),[...DEFAULT_STATUSES]);
+  assert.deepEqual(ensureStatuses(['Đang học']),['Đang học']);
 });
 
 test('adds a new status once',()=>{
@@ -20,6 +21,7 @@ test('adds a new status once',()=>{
 
 test('removes a status from catalog',()=>{
   assert.deepEqual(removeStatus(['Chưa học','Đã học','Đang học'],'Đang học'),['Chưa học','Đã học']);
+  assert.deepEqual(removeStatus(['Chưa học','Đã học'],'Chưa học'),['Đã học']);
   assert.deepEqual(removeStatus(['Chưa học','Đã học'],'Không có'),['Chưa học','Đã học']);
 });
 
