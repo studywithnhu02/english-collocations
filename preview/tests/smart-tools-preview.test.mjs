@@ -18,3 +18,13 @@ test('Smart Tools Preview includes open-source expanded collocation source',asyn
   assert.ok(source.includes('Collocation-Vocab-Practice-Claude-SKILL'));
   assert.ok(source.includes('fetchOpenCollocationSuggestions'));
 });
+
+test('everyday life collocation library is wired into autocomplete',async()=>{
+  const source=await readFile(new URL('../smart-tools-core.mjs',import.meta.url),'utf8');
+  const life=await readFile(new URL('../collocation-library-life.mjs',import.meta.url),'utf8');
+  assert.ok(source.includes('./collocation-library-life.mjs'));
+  assert.ok(source.includes('LIFE_SUGGESTIONS'));
+  assert.ok((life.match(/'[^']+\|[^']+\|(A1|A2|B1|B2|C1|C2)'/g)||[]).length>=200);
+  assert.ok(life.includes('book a flight|đặt chuyến bay|A2'));
+  assert.ok(life.includes('maintain a relationship|duy trì một mối quan hệ|B1'));
+});

@@ -36,7 +36,7 @@ test('Previously hidden UI remains hidden and feature modules remain loaded',()=
   assert.ok(html.includes('hidden aria-hidden="true"><h2>🔐 Preview an toàn</h2>'));
   assert.ok(html.includes('./ai-agent.js?v=9'));
   assert.ok(html.includes('./spellcheck.js?v=1'));
-  assert.ok(html.includes('./auto-translate.js?v=6'));
+  assert.ok(html.includes('./auto-translate.js?v=7'));
 });
 
 console.log('Status Preview contract tests: PASS');

@@ -1,4 +1,5 @@
 import {EXPANDED_SUGGESTIONS} from './collocation-library.mjs';
+import {LIFE_SUGGESTIONS} from './collocation-library-life.mjs?v=1';
 import {inferCefr} from './vocabulary-core.mjs';
 export const CONFUSIONS=Object.freeze({
   'make a deadline':{better:'meet a deadline / beat a deadline',message:'Không dùng “make a deadline” khi muốn nói hoàn thành đúng hạn.'},
@@ -494,7 +495,7 @@ export function fastSuggestionItems(value){
   const head=q.split(/\s+/)[0]||'';
   const local=COLLOCATION_BANK[head]||[];
   const global=Object.values(COLLOCATION_BANK).flat();
-  const source=[...local,...global,...EXPANDED_SUGGESTIONS];
+  const source=[...local,...global,...EXPANDED_SUGGESTIONS,...LIFE_SUGGESTIONS];
   const prefix=source.filter(item=>{
     const low=item.c.toLowerCase();
     return low.startsWith(q)&&low!==q;

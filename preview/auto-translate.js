@@ -115,7 +115,7 @@ function schedule(id,sourceField,sourceText,options={}){
 function readFromEvent(el){return normalize(el?.textContent||el?.value||'')}
 
 function bind(){
-  document.querySelectorAll('#body .editable[data-field="c"],#body .editable[data-field="e"]').forEach(el=>{
+  document.querySelectorAll('#body .editable[data-field="c"],#body .editable[data-field="e"][data-example-index="0"]').forEach(el=>{
     if(el.dataset.autoTranslateBound==='6')return;
     el.dataset.autoTranslateBound='6';
     const sourceField=el.dataset.field;

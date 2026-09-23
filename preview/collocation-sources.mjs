@@ -1,8 +1,9 @@
 const DATAMUSE_BASE='https://api.datamuse.com';
+const DATAMUSE_CACHE_KEY='english-collocations-preview-datamuse-v3';
 const OPEN_COLLLOCATION_DATASET_URL='https://raw.githubusercontent.com/ironking63/Collocation-Vocab-Practice-Claude-SKILL/main/assets/collocations.json';
 const CACHE_KEY='english-collocations-preview-source-cache-v2';
 const CACHE_TTL=12*60*60*1000;
-const OPEN_CACHE_KEY='english-collocations-preview-open-mit-v1';
+const OPEN_CACHE_KEY='english-collocations-preview-open-mit-v2';
 const OPEN_CACHE_TTL=7*24*60*60*1000;
 let openDatasetPromise=null;
 
@@ -63,25 +64,52 @@ export async function fetchDatamuseSuggestions(query,{fetchImpl=globalThis.fetch
   const q=normalizeCollocationQuery(query);
   if(q.length<2||typeof fetchImpl!=='function')return[];
   const cap=Math.min(100,Math.max(10,Number(max)||60)),pattern=encodeURIComponent(q+'*');
+  const tokens=q.split(/\s+/);
   const urls=[
     DATAMUSE_BASE+'/sug?s='+encodeURIComponent(q)+'&max='+cap,
     DATAMUSE_BASE+'/words?sp='+pattern+'&max='+cap+'&md=pf'
   ];
-  const tokens=q.split(/\s+/);
-  if(tokens.length===1)urls.push(DATAMUSE_BASE+'/words?rel_bga='+encodeURIComponent(q)+'&max='+cap+'&md=pf');
+  // Corpus-style relations are especially useful for one-word prefixes such as
+  // "make", "take", "risk", "user", "customer", "travel", etc.
+  if(tokens.length===1){
+    const head=encodeURIComponent(q);
+    urls.push(
+      DATAMUSE_BASE+'/words?rel_bga='+head+'&max='+cap+'&md=pf',
+      DATAMUSE_BASE+'/words?rel_jjb='+head+'&max='+cap+'&md=pf',
+      DATAMUSE_BASE+'/words?rel_bgb='+head+'&max='+cap+'&md=pf'
+    );
+  }
   const payloads=await Promise.all(urls.map(url=>fetchJson(url,fetchImpl,signal)));
   const items=[];
-  payloads.forEach(payload=>items.push(...normalizeDatamuseItems(payload,q)));
+  items.push(...normalizeDatamuseItems(payloads[0]||[],q));
+  items.push(...normalizeDatamuseItems(payloads[1]||[],q));
   if(tokens.length===1){
     const head=q;
-    for(const [index,item] of (payloads[2]||[]).entries()){
+    const followers=payloads[2]||[];
+    const nounModifiers=payloads[3]||[];
+    for(const [index,item] of followers.entries()){
       const word=normalizeCollocationPhrase(item?.word||'');
       const phrase=head+' '+word;
-      if(word&&isUsableCollocation(phrase,q))items.push({c:phrase,v:'',meaningEn:'',cefr:'',score:Number(item?.score)||0,source:'datamuse',sourceIndex:index+100});
+      if(word&&isUsableCollocation(phrase,q))items.push({c:phrase,v:'',meaningEn:'',cefr:'',score:(Number(item?.score)||0)+50000,source:'datamuse-bga',sourceIndex:index});
+    }
+    for(const [index,item] of nounModifiers.entries()){
+      const word=normalizeCollocationPhrase(item?.word||'');
+      const phrase=head+' '+word;
+      if(word&&isUsableCollocation(phrase,q))items.push({c:phrase,v:'',meaningEn:'',cefr:'',score:(Number(item?.score)||0)+40000,source:'datamuse-jjb',sourceIndex:index+1000});
+    }
+    // rel_bgb gives predecessors; keep it as a discovery source, but only
+    // phrases that preserve the exact user prefix are admitted below.
+    for(const [index,item] of (payloads[4]||[]).entries()){
+      const word=normalizeCollocationPhrase(item?.word||'');
+      const phrase=word+' '+head;
+      if(word&&isUsableCollocation(phrase,q))items.push({c:phrase,v:'',meaningEn:'',cefr:'',score:(Number(item?.score)||0)+30000,source:'datamuse-bgb',sourceIndex:index+2000});
     }
   }
   const seen=new Set();
-  return items.filter(item=>{const key=item.c.toLowerCase();if(seen.has(key))return false;seen.add(key);return true}).sort((a,b)=>(b.score-a.score)||(a.sourceIndex-b.sourceIndex));
+  return items.filter(item=>{
+    const key=String(item?.c||'').toLowerCase();
+    if(!key||seen.has(key))return false;seen.add(key);return true
+  }).sort((a,b)=>(Number(b?.score)||0)-(Number(a?.score)||0)||(a.sourceIndex-b.sourceIndex));
 }
 export async function getExternalSuggestions(query,{force=false,fetchImpl=globalThis.fetch,signal,max=100}={}){
   const q=normalizeCollocationQuery(query);if(q.length<2)return[];
