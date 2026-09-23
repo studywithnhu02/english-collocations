@@ -17,7 +17,7 @@ test('Goals, SRS and Smart Tools modules are loaded',()=>{
   assert.ok(app.includes('./srs-ui.js?v=1'));
   assert.ok(app.includes('./smart-tools.js?v=9'));
   assert.ok(app.includes('id="appUser"'));
-  assert.ok(app.includes('id="appLogout"'));assert.ok(app.includes('domains-ui.js?v=3'));assert.ok(app.includes('vocabulary-ui.js?v=5'));assert.ok(app.includes('<th>CẤU TRÚC</th>'));assert.ok(app.includes('<th>Ngày Done</th>'));assert.ok(app.includes('min-width:1420px'));assert.ok(app.includes('max-width:none'));assert.ok(app.includes('./history-core.mjs?v=1'));assert.ok(app.includes('class="done-date"'));
+  assert.ok(app.includes('id="appLogout"'));assert.ok(app.includes('domains-ui.js?v=3'));assert.ok(app.includes('vocabulary-ui.js?v=6'));assert.ok(app.includes('<th>CẤU TRÚC</th>'));assert.ok(app.includes('<th>Ngày Done</th>'));assert.ok(app.includes('min-width:1420px'));assert.ok(app.includes('max-width:none'));assert.ok(app.includes('./history-core.mjs?v=1'));assert.ok(app.includes('class="done-date"'));
 });
 
 test('Story output is highlighted and dialogue is split into lines',()=>{
