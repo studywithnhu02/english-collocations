@@ -12,3 +12,18 @@ test('unknown CEFR does not default to A2 and doneAt survives normalization',()=
   const done='2026-09-20T10:30:00.000Z';
   assert.equal(normalizeVocabularyRow({c:'x',doneAt:done}).doneAt,done);
 });
+
+test('multiple example pairs normalize with legacy e/em compatibility',()=>{
+  const r=normalizeVocabularyRow({id:7,c:'user experience',e:'Example one.',em:'Ví dụ một.',examples:[
+    {e:'Example one.',em:'Ví dụ một.'},
+    {e:'Example two.',em:'Ví dụ hai.'}
+  ]});
+  assert.equal(r.examples.length,2);
+  assert.equal(r.e,'Example one.');
+  assert.equal(r.em,'Ví dụ một.');
+  assert.deepEqual(r.examples[1],{e:'Example two.',em:'Ví dụ hai.'});
+});
+test('legacy example fields migrate into examples[]',()=>{
+  const r=normalizeVocabularyRow({id:8,c:'make a decision',e:'We need to decide.',em:'Chúng ta cần quyết định.'});
+  assert.deepEqual(r.examples,[{e:'We need to decide.',em:'Chúng ta cần quyết định.'}]);
+});
