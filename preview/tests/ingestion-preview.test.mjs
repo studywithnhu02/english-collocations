@@ -13,7 +13,7 @@ test('Auto-fill accepts object/array JSON and maps all three fields',()=>{
 
 test('Auto-fill never overwrites user-entered values',()=>{
   const row={c:'meet a deadline',m:'nghĩa của tôi',e:'We need to meet a deadline.',em:''};
-  assert.deepEqual(buildAutoFillChanges(row,{meaningVi:'AI meaning',exampleEn:'AI example',exampleVi:'AI translation'}),{structure:'meet + something'});
+  assert.deepEqual(buildAutoFillChanges(row,{meaningVi:'AI meaning',exampleEn:'AI example',exampleVi:'AI translation'}),{structure:'meet + a deadline'});
 });
 
 test('Auto-fill fills exampleEn and exampleVi together when both are empty',()=>{
@@ -25,7 +25,7 @@ test('Auto-fill rejects examples that omit the exact collocation',()=>{
   const bad={meaningVi:'tính đến',exampleEn:'We need to consider the customer needs.',exampleVi:'Chúng ta cần cân nhắc nhu cầu của khách hàng.'};
   assert.equal(validateAutoFillResult('take into account',good).ok,true);
   assert.equal(validateAutoFillResult('take into account',bad).ok,false);
-  assert.deepEqual(buildAutoFillChanges({c:'take into account',m:'',e:'',em:''},bad,'take into account'),{m:'tính đến',structure:'take into + something'});
+  assert.deepEqual(buildAutoFillChanges({c:'take into account',m:'',e:'',em:''},bad,'take into account'),{m:'tính đến',structure:'take into account + something'});
 });
 
 test('Auto-fill JS uses per-row request versions, AI options and translation fallback',()=>{
