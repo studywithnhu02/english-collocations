@@ -54,3 +54,13 @@ test('blanking an example sentence clears its paired example meaning',()=>{
 });
 
 test('structure auto-fill and keyboard undo/redo contracts are wired',()=>{for(const token of ['data-field="structure"','PreviewIngestion?.autoFill?.(id,val)','undoHistory','redoHistory','createHistory','document.addEventListener(\'keydown\''])assert.ok(app.includes(token),token)});
+
+test('example pair mapping, collocation cascade clear, unlimited examples and fixed header are wired',()=>{
+  assert.ok(app.includes('data-example-index'));
+  assert.ok(app.includes("r.structure=val?inferStructure(val):'';if(!val)r.m=''"));
+  assert.ok(app.includes("xs.push({e:'',em:''});"));
+  assert.ok(!app.includes('xs.length>=20'));
+  assert.ok(app.includes("position:fixed;top:0;"));
+  assert.ok(app.includes("requestAnimationFrame(updateSticky)"));
+  assert.ok(app.includes("exampleIndex:index"));
+});
