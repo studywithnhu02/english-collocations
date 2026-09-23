@@ -1,5 +1,5 @@
 import {EXPANDED_SUGGESTIONS} from './collocation-library.mjs';
-import {LIFE_SUGGESTIONS} from './collocation-library-life.mjs';
+import {LIFE_SUGGESTIONS} from './collocation-library-life.mjs?v=1';
 import {inferCefr} from './vocabulary-core.mjs';
 export const CONFUSIONS=Object.freeze({
   'make a deadline':{better:'meet a deadline / beat a deadline',message:'Không dùng “make a deadline” khi muốn nói hoàn thành đúng hạn.'},
