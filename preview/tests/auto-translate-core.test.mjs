@@ -41,7 +41,7 @@ result=mergeTranslationRow(many,1,'e','Example two.','Nghĩa hai.',1);
 assert.equal(result.rows[0].examples[0].em,'Nghĩa một.');
 assert.equal(result.rows[0].examples[1].em,'Nghĩa hai.');
 assert.equal(result.rows[0].examples[2].em,'Nghĩa ba.');
-assert.equal(result.rows[0].em,'Nghĩa một.');
+assert.equal(result.rows[0].em,undefined);
 
 console.log('Auto Translate core tests: PASS');
 
