@@ -24,7 +24,7 @@ function readCache(){
 
 function writeCache(value){try{localStorage.setItem(CACHE_KEY,JSON.stringify(value))}catch{}}
 
-function cell(tr,field){return tr?.querySelector(`.editable[data-field="${field}"]`)||tr?.querySelector(`[data-field="${field}"]`)}
+function cell(tr,field,exampleIndex=null){const suffix=(field==='e'||field==='em')&&exampleIndex!==null&&exampleIndex!==undefined?'[data-example-index="'+String(exampleIndex)+'"]':'';return tr?.querySelector(`.editable[data-field="${field}"]${suffix}`)||tr?.querySelector(`[data-field="${field}"]${suffix}`)}
 
 function showState(tr,field,state,text=''){
   const el=cell(tr,targetFieldFor(field));
@@ -76,30 +76,30 @@ async function translateOnce(text){
   try{return await promise}finally{inflight.delete(key)}
 }
 
-async function run(id,sourceField,sourceText){
-  const key=translationKey(id,sourceField);
+async function run(id,sourceField,sourceText,exampleIndex=0){
+  const key=translationKey(id,sourceField,sourceField==='e'?exampleIndex:null);
   const version=(requestVersion.get(key)||0)+1;requestVersion.set(key,version);
   const cleanSource=normalize(sourceText);
   if(!shouldTranslate(sourceField,cleanSource))return;
   const targetField=targetFieldFor(sourceField);
   const tr=document.querySelector(`#body tr[data-id="${CSS.escape(String(id))}"]`);
-  showState(tr,sourceField,'loading');
+  showState(tr,sourceField,'loading','',exampleIndex);
   try{
     const translated=normalize(await translateOnce(cleanSource));
     if(isStale(requestVersion.get(key),version))return;
-    const currentSourceEl=document.querySelector(`#body tr[data-id="${CSS.escape(String(id))}"] .editable[data-field="${sourceField}"]`);
+    const currentSourceEl=document.querySelector(`#body tr[data-id="${CSS.escape(String(id))}"] .editable[data-field="${sourceField}"][data-example-index="${exampleIndex}"]`);
     if(!sourceMatches(currentSourceEl?.textContent||currentSourceEl?.value||'',cleanSource))return;
     const rows=readRows();
-    const merged=mergeTranslationRow(rows,id,sourceField,cleanSource,translated);
+    const merged=mergeTranslationRow(rows,id,sourceField,cleanSource,translated,exampleIndex);
     if(merged.changed)writeRows(merged.rows);
     const currentTr=document.querySelector(`#body tr[data-id="${CSS.escape(String(id))}"]`);
-    showState(currentTr,sourceField,'done',translated);
+    showState(currentTr,sourceField,'done',translated,exampleIndex);
     toast('✓ Đã dịch → '+(targetField==='m'?'NGHĨA COLLOCATION':'NGHĨA CÂU VÍ DỤ'));
   }catch(error){
     if(isStale(requestVersion.get(key),version))return;
     console.error('[AutoTranslate]',error);
     const currentTr=document.querySelector(`#body tr[data-id="${CSS.escape(String(id))}"]`);
-    showState(currentTr,sourceField,'error');
+    showState(currentTr,sourceField,'error','',exampleIndex);
     toast('⚠️ Không thể dịch tự động',true);
   }
 }
@@ -109,18 +109,18 @@ function schedule(id,sourceField,sourceText,options={}){
   clearTimeout(timers.get(key));
   if(!shouldTranslate(sourceField,sourceText))return;
   const delay=options.immediate?80:850;
-  timers.set(key,setTimeout(()=>run(id,sourceField,sourceText),delay));
+  const exampleIndex=sourceField==='e'?Math.max(0,Number(options.exampleIndex)||0):0;timers.set(key,setTimeout(()=>run(id,sourceField,sourceText,exampleIndex),delay));
 }
 
 function readFromEvent(el){return normalize(el?.textContent||el?.value||'')}
 
 function bind(){
-  document.querySelectorAll('#body .editable[data-field="c"],#body .editable[data-field="e"][data-example-index="0"]').forEach(el=>{
+  document.querySelectorAll('#body .editable[data-field="c"],#body .editable[data-field="e"][data-example-index]').forEach(el=>{
     if(el.dataset.autoTranslateBound==='6')return;
     el.dataset.autoTranslateBound='6';
     const sourceField=el.dataset.field;
-    el.addEventListener('input',()=>{const tr=el.closest('tr');const id=tr?.dataset.id;if(id)schedule(id,sourceField,readFromEvent(el))});
-    el.addEventListener('blur',()=>{const tr=el.closest('tr');const id=tr?.dataset.id;if(id)schedule(id,sourceField,readFromEvent(el),{immediate:true})});
+    el.addEventListener('input',()=>{const tr=el.closest('tr');const id=tr?.dataset.id;const exampleIndex=sourceField==='e'?Number(el.dataset.exampleIndex)||0:0;if(id)schedule(id,sourceField,readFromEvent(el),{exampleIndex})});
+    el.addEventListener('blur',()=>{const tr=el.closest('tr');const id=tr?.dataset.id;const exampleIndex=sourceField==='e'?Number(el.dataset.exampleIndex)||0:0;if(id)schedule(id,sourceField,readFromEvent(el),{immediate:true,exampleIndex})});
   });
 }
 
@@ -132,7 +132,7 @@ window.AutoTranslate={
     }
     return schedule(id,textOrField,maybeText,options||{});
   },
-  run(id,sourceField,sourceText){return run(id,sourceField,sourceText)},
+  run(id,sourceField,sourceText,exampleIndex=0){return run(id,sourceField,sourceText,exampleIndex)},
   bind
 };
 
