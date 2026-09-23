@@ -28,3 +28,5 @@ test('everyday life collocation library is wired into autocomplete',async()=>{
   assert.ok(life.includes('book a flight|đặt chuyến bay|A2'));
   assert.ok(life.includes('maintain a relationship|duy trì một mối quan hệ|B1'));
 });
+
+test('structure and history core modules are present',async()=>{const structure=await readFile(new URL('../structure-core.mjs',import.meta.url),'utf8');const history=await readFile(new URL('../history-core.mjs',import.meta.url),'utf8');assert.ok(structure.includes('keep in check'));assert.ok(structure.includes('Keep + something + in check'));assert.ok(history.includes('undoHistory'));assert.ok(history.includes('redoHistory'))});
