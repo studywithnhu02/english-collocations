@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import test from 'node:test';
 import {TRANSLATION_TARGETS,normalize,hasTranslatableText,translationKey,targetFieldFor,isStale,sourceMatches,mergeTranslationRow,shouldTranslate} from '../auto-translate-core.mjs';
 
 assert.deepEqual(TRANSLATION_TARGETS,{c:'m',e:'em'});
