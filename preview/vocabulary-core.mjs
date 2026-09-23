@@ -36,15 +36,15 @@ export function normalizeExamples(value,fallbackExample='',fallbackMeaning=''){
    e:String(item?.e??item?.example??'').trim(),
    em:String(item?.em??item?.meaning??item?.exampleMeaning??'').trim()
  })).filter(item=>item.e||item.em):[];
- if(source.length)return source.slice(0,20);
+ if(source.length)return source;
  const e=String(fallbackExample??'').trim(),em=String(fallbackMeaning??'').trim();
  return e||em?[{e,em}]:[];
 }
 export function normalizeVocabularyRow(row={}){
- const source=row.source&&typeof row.source==='object'?row.source:{},quality=row.quality&&typeof row.quality==='object'?row.quality:{},learning=row.learning&&typeof row.learning==='object'?row.learning:{},c=String(row.c??'').trim();
+ const source=row.source&&typeof row.source==='object'?row.source:{},quality=row.quality&&typeof row.quality==='object'?row.quality:{},learning=row.learning&&typeof row.learning==='object'?row.learning:{},c=String(row.c??'').trim(),structure=String(row.structure??'').trim();
  const examples=normalizeExamples(row.examples,row.e??row.example,row.em);
  const first=examples[0]||{e:'',em:''};
- return {...row,doneAt:String(row.doneAt??''),cefr:normalizeCefr(row.cefr,''),domains:normalizeList(row.domains??row.tags??[]),tags:normalizeList(row.tags??[]),examples,e:first.e,em:first.em,source:{type:['manual','ai','library'].includes(source.type)?source.type:'manual'},quality:{naturalnessScore:Number.isFinite(Number(quality.naturalnessScore))?Math.max(0,Math.min(100,Math.round(Number(quality.naturalnessScore)))):null,reviewedAt:String(quality.reviewedAt??'')},learning:{lastReviewedAt:String(learning.lastReviewedAt??''),reviewCount:Math.max(0,Math.floor(Number(learning.reviewCount)||0))}};
+ return {...row,structure,doneAt:String(row.doneAt??''),cefr:normalizeCefr(row.cefr,''),domains:normalizeList(row.domains??row.tags??[]),tags:normalizeList(row.tags??[]),examples,e:first.e,em:first.em,source:{type:['manual','ai','library'].includes(source.type)?source.type:'manual'},quality:{naturalnessScore:Number.isFinite(Number(quality.naturalnessScore))?Math.max(0,Math.min(100,Math.round(Number(quality.naturalnessScore)))):null,reviewedAt:String(quality.reviewedAt??'')},learning:{lastReviewedAt:String(learning.lastReviewedAt??''),reviewCount:Math.max(0,Math.floor(Number(learning.reviewCount)||0))}};
 }
 export function toggleListValue(list,value,limit=8,allowed=null){const current=normalizeList(list,allowed),v=String(value??'').trim();if(!v||current.includes(v))return current.filter(x=>x!==v);if(Array.isArray(allowed)&&!allowed.includes(v))return current;return current.length<limit?[...current,v]:current}
 export function averageCefr(rows){const levels=(Array.isArray(rows)?rows:[]).map(r=>normalizeCefr(r.cefr,inferCefr(r.c))).filter(l=>CEFR_LEVELS.includes(l));if(!levels.length)return null;const avg=levels.reduce((s,l)=>s+CEFR_RANK[l],0)/levels.length,rank=Math.max(1,Math.min(6,Math.round(avg)));return Object.entries(CEFR_RANK).find(([,v])=>v===rank)?.[0]||null}
