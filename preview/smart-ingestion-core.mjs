@@ -1,4 +1,5 @@
 import {extractJson} from './ai-agent-core.js';
+import {inferStructure,normalizeStructure} from './structure-core.mjs?v=2';
 
 function cleanValue(value,max=320){
   return String(value??'').replace(/\s+/g,' ').trim().slice(0,max);
@@ -7,8 +8,8 @@ export function parseAutoFillResponse(text){
   try{
     const parsed=extractJson(text);
     const item=Array.isArray(parsed)?(parsed[0]||{}):(parsed?.items?.[0]||parsed||{});
-    return {meaningVi:cleanValue(item?.meaningVi,240),exampleEn:cleanValue(item?.exampleEn,320),exampleVi:cleanValue(item?.exampleVi,320)};
-  }catch{return{meaningVi:'',exampleEn:'',exampleVi:''}}
+    return {meaningVi:cleanValue(item?.meaningVi,240),exampleEn:cleanValue(item?.exampleEn,320),exampleVi:cleanValue(item?.exampleVi,320),structure:normalizeStructure(item?.structure)};
+  }catch{return{meaningVi:'',exampleEn:'',exampleVi:'',structure:''}}
 }
 export function buildAutoFillChanges(row,result,collocation=''){
   const current=row&&typeof row==='object'?row:{},next=result&&typeof result==='object'?result:{},changes={};
@@ -16,6 +17,7 @@ export function buildAutoFillChanges(row,result,collocation=''){
   const validation=validateAutoFillResult(collocation||current.c,next);
   if(!String(current.e||'').trim()&&validation.exampleContainsCollocation)changes.e=next.exampleEn;
   if(!String(current.em||'').trim()&&!String(current.e||'').trim()&&validation.exampleContainsCollocation&&next.exampleVi)changes.em=next.exampleVi;
+  const structure=inferStructure(collocation||current.c)||normalizeStructure(next.structure);if(structure)changes.structure=structure;
   return changes;
 }
 

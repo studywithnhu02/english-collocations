@@ -1,0 +1,4 @@
+export function createHistory(initial=''){return{undo:[],redo:[],current:String(initial??'')}}
+export function commitHistory(state,next,track=true){const s=state||createHistory(''),value=String(next??'');if(!track||value===s.current)return s;return{undo:[...s.undo,s.current].slice(-100),redo:[],current:value}}
+export function undoHistory(state){const s=state||createHistory('');if(!s.undo.length)return{state:s,snapshot:null};const previous=s.undo[s.undo.length-1];return{state:{undo:s.undo.slice(0,-1),redo:[...s.redo,s.current].slice(-100),current:previous},snapshot:previous}}
+export function redoHistory(state){const s=state||createHistory('');if(!s.redo.length)return{state:s,snapshot:null};const next=s.redo[s.redo.length-1];return{state:{undo:[...s.undo,s.current].slice(-100),redo:s.redo.slice(0,-1),current:next},snapshot:next}}

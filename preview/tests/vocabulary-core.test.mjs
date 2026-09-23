@@ -27,3 +27,8 @@ test('legacy example fields migrate into examples[]',()=>{
   const r=normalizeVocabularyRow({id:8,c:'make a decision',e:'We need to decide.',em:'Chúng ta cần quyết định.'});
   assert.deepEqual(r.examples,[{e:'We need to decide.',em:'Chúng ta cần quyết định.'}]);
 });
+
+import {inferStructure} from '../structure-core.mjs';import {createHistory,commitHistory,undoHistory,redoHistory} from '../history-core.mjs';
+test('structures are retained and common collocations get reusable patterns',()=>{const r=normalizeVocabularyRow({c:'keep in check',structure:'Keep + something + in check'});assert.equal(r.structure,'Keep + something + in check');assert.equal(inferStructure('keep in check'),'Keep + something + in check')});
+test('unlimited example pairs are preserved during normalization',()=>{const examples=Array.from({length:60},(_,i)=>({e:'Example '+(i+1),em:'Nghĩa '+(i+1)}));const r=normalizeVocabularyRow({c:'x',examples});assert.equal(r.examples.length,60);assert.equal(r.examples[59].e,'Example 60')});
+test('undo/redo history restores deleted and edited snapshots',()=>{let h=createHistory('A');h=commitHistory(h,'B');h=commitHistory(h,'C');let u=undoHistory(h);assert.equal(u.snapshot,'B');h=u.state;let u2=undoHistory(h);assert.equal(u2.snapshot,'A');h=u2.state;let d=redoHistory(h);assert.equal(d.snapshot,'B');h=d.state;h=commitHistory(h,'D');assert.equal(redoHistory(h).snapshot,null)});
