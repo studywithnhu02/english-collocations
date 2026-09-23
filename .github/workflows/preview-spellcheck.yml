@@ -45,6 +45,8 @@ jobs:
           node --check preview/coach-ui.js
           node --check preview/anki-export.js
           node --check preview/print-export.js
+      - name: Inline app runtime syntax tests
+        run: node --test preview/tests/app-runtime.test.mjs
       - name: Core regression tests
         run: node --test preview/tests/spellcheck-core.test.mjs
       - name: Runtime dictionary tests
