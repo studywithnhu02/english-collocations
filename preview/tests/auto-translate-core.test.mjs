@@ -53,3 +53,16 @@ test('Auto Translate binds every example row and targets its matching meaning in
   assert.ok(js.includes('mergeTranslationRow(rows,id,sourceField,cleanSource,translated,exampleIndex)'));
   assert.ok(js.includes("translationKey(id,sourceField,sourceField==='e'?exampleIndex:null)"));
 });
+
+test('Translation UI is index-safe for examples 1 through 5',async()=>{
+  const {readFile}=await import('node:fs/promises');
+  const js=await readFile(new URL('../auto-translate.js',import.meta.url),'utf8');
+  assert.ok(js.includes("function showState(tr,field,state,text='',exampleIndex=0)"));
+  assert.ok(js.includes("cell(tr,targetFieldFor(field),field==='e'?exampleIndex:null)"));
+  assert.ok(js.includes("data-example-index"));
+  assert.ok(js.includes("mergeTranslationRow(rows,id,sourceField,cleanSource,translated,exampleIndex)"));
+  assert.ok(js.includes("const hasExample=(field==='e'||field==='em')&&exampleIndex!==null&&exampleIndex!==undefined"));
+  let value=[{id:99,c:'test',examples:Array.from({length:5},(_,i)=>({e:'Example '+(i+1),em:''}))}];
+  for(let i=0;i<5;i++) value=mergeTranslationRow(value,99,'e','Example '+(i+1),'Meaning '+(i+1),i).rows;
+  for(let i=0;i<5;i++) assert.equal(value[0].examples[i].em,'Meaning '+(i+1));
+});

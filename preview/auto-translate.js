@@ -24,10 +24,10 @@ function readCache(){
 
 function writeCache(value){try{localStorage.setItem(CACHE_KEY,JSON.stringify(value))}catch{}}
 
-function cell(tr,field,exampleIndex=null){const suffix=(field==='e'||field==='em')&&exampleIndex!==null&&exampleIndex!==undefined?'[data-example-index="'+String(exampleIndex)+'"]':'';return tr?.querySelector(`.editable[data-field="${field}"]${suffix}`)||tr?.querySelector(`[data-field="${field}"]${suffix}`)}
+function cell(tr,field,exampleIndex=null){const hasExample=(field==='e'||field==='em')&&exampleIndex!==null&&exampleIndex!==undefined;if(hasExample){const selector='[data-field="'+field+'"][data-example-index="'+String(exampleIndex)+'"]';return tr?.querySelector('.editable'+selector)||tr?.querySelector(selector)||null}return tr?.querySelector('.editable[data-field="'+field+'"]')||tr?.querySelector('[data-field="'+field+'"]')||null}
 
-function showState(tr,field,state,text=''){
-  const el=cell(tr,targetFieldFor(field));
+function showState(tr,field,state,text='',exampleIndex=0){
+  const el=cell(tr,targetFieldFor(field),field==='e'?exampleIndex:null);
   if(!el)return;
   if(el.dataset.autoOriginal==null)el.dataset.autoOriginal=el.textContent||'';
   if(state==='loading'){
