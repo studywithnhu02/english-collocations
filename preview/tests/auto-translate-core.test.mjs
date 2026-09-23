@@ -49,7 +49,7 @@ test('Auto Translate binds every example row and targets its matching meaning in
   const {readFile}=await import('node:fs/promises');
   const js=await readFile(new URL('../auto-translate.js',import.meta.url),'utf8');
   assert.ok(js.includes('.editable[data-field="e"][data-example-index]'));
-  assert.ok(js.includes('data-example-index="'+String(exampleIndex)+'"') || js.includes('data-example-index'));
+  assert.ok(js.includes('data-example-index'));
   assert.ok(js.includes('mergeTranslationRow(rows,id,sourceField,cleanSource,translated,exampleIndex)'));
   assert.ok(js.includes("translationKey(id,sourceField,sourceField==='e'?exampleIndex:null)"));
 });
