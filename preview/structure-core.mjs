@@ -1,8 +1,10 @@
 const STRUCTURE_MAP=Object.freeze({
   'keep in check':'Keep + something + in check',
   'work on a project':'work on + something',
+  'meet a deadline':'meet + a deadline',
   'reject a request':'reject + a request',
   'take advantage of':'take advantage of + something',
+  'take into account':'take into account + something',
   'save time':'save + time',
   'allow for':'allow for + something',
   'avoid unnecessary steps':'avoid + noun / doing something',
