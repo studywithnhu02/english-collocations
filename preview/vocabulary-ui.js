@@ -1,4 +1,4 @@
-import {CEFR_LEVELS,levelUp,normalizeVocabularyRow} from './vocabulary-core.mjs';
+import {CEFR_LEVELS,levelUp,normalizeVocabularyRow} from './vocabulary-core.mjs?v=5';
 import {DEFAULT_DOMAINS} from './domains-core.mjs';
 const recallKey='english-collocations-preview-recall-v1';
 let domainFilter='',cefrFilter='';
