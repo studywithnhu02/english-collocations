@@ -60,7 +60,6 @@ test('example pair mapping, collocation cascade clear, unlimited examples and fi
   assert.ok(app.includes("r.structure=val?inferStructure(val):'';if(!val)r.m=''"));
   assert.ok(app.includes("xs.push({e:'',em:''});"));
   assert.ok(!app.includes('xs.length>=20'));
-  assert.ok(app.includes("position:fixed;top:0;"));
-  assert.ok(app.includes("requestAnimationFrame(updateSticky)"));
+  assert.ok(app.includes('vocabulary-ui.js?v=6'));
   assert.ok(app.includes("exampleIndex:index"));
 });
