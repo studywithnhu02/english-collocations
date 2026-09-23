@@ -49,7 +49,7 @@ test('Contextual Story generator enforces 3-5 selected rows and uses the existin
 test('existing protected UI/features remain intact',()=>{
   assert.ok(html.includes('./ai-agent.js?v=9'));
   assert.ok(html.includes('./spellcheck.js?v=1'));
-  assert.ok(html.includes('./auto-translate.js?v=7'));
+  assert.ok(html.includes('./auto-translate.js?v=8'));
   assert.ok(html.includes('class="card agent-shell ai" hidden aria-hidden="true"'));
 });
 
