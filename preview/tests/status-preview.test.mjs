@@ -27,8 +27,8 @@ test('Preview status UI contract',()=>{
 test('Status is persisted and exported',()=>{
   assert.ok(html.includes('version:3,data,statuses:loadStatuses()'));
   assert.ok(html.includes('doneAt:x.doneAt'));
-  assert.ok(html.includes('<th>Status</th><th>Ngày Done</th><th>Ngày tạo</th>'));
-  assert.ok(html.includes("const h=['STT','Collocation','Nghĩa Collocation','Chủ đề','Domain','Tags','CEFR','Câu giao tiếp ví dụ','Nghĩa câu ví dụ','Status','Ngày Done','Ngày tạo']"));
+  assert.ok(html.includes('<th>CẤU TRÚC</th><th>Nghĩa Collocation</th><th>Chủ đề</th><th>Câu giao tiếp ví dụ</th><th>Nghĩa câu ví dụ</th><th>Status</th><th>Ngày Done</th><th>Ngày tạo</th>'));
+  assert.ok(html.includes("const h=['STT','Collocation','Cấu trúc','Nghĩa Collocation','Chủ đề','Domain','Tags','CEFR','Câu giao tiếp ví dụ','Nghĩa câu ví dụ','Status','Ngày Done','Ngày tạo']"));
 });
 
 test('Previously hidden UI remains hidden and feature modules remain loaded',()=>{
