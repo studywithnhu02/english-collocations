@@ -9,7 +9,7 @@ export function parseAutoFillResponse(text){
     const parsed=extractJson(text);
     const item=Array.isArray(parsed)?(parsed[0]||{}):(parsed?.items?.[0]||parsed||{});
     return {meaningVi:cleanValue(item?.meaningVi,240),exampleEn:cleanValue(item?.exampleEn,320),exampleVi:cleanValue(item?.exampleVi,320),structure:normalizeStructure(item?.structure)};
-  }catch{return{meaningVi:'',exampleEn:'',exampleVi:''}}
+  }catch{return{meaningVi:'',exampleEn:'',exampleVi:'',structure:''}}
 }
 export function buildAutoFillChanges(row,result,collocation=''){
   const current=row&&typeof row==='object'?row:{},next=result&&typeof result==='object'?result:{},changes={};
