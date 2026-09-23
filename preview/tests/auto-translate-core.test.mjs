@@ -36,3 +36,9 @@ assert.equal(result.rows[0].e,'We need to go.');
 assert.equal(result.rows[0].em,'Chúng ta cần đi.');
 
 console.log('Auto Translate core tests: PASS');
+
+test('Auto Translate selector only binds the first example row for repeater safety',async()=>{
+  const {readFile}=await import('node:fs/promises');
+  const js=await readFile(new URL('../auto-translate.js',import.meta.url),'utf8');
+  assert.ok(js.includes('.editable[data-field="e"][data-example-index="0"]'));
+});
