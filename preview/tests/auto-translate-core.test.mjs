@@ -18,6 +18,7 @@ assert.equal(shouldTranslate('m','làm việc'),false);
 
 assert.equal(translationKey(42,'c'),'42::c');
 assert.equal(translationKey(42,'e'),'42::e');
+assert.equal(translationKey(42,'e',1),'42::e::1');
 assert.notEqual(translationKey(42,'c'),translationKey(42,'e'));
 
 assert.equal(sourceMatches('  Go ','Go'),true);
@@ -35,11 +36,20 @@ assert.equal(result.rows[0].c,'meet a deadline');
 assert.equal(result.rows[0].m,'đáp ứng thời hạn');
 assert.equal(result.rows[0].e,'We need to go.');
 assert.equal(result.rows[0].em,'Chúng ta cần đi.');
+const many=[{id:1,c:'work on a project',examples:[{e:'Example one.',em:'Nghĩa một.'},{e:'Example two.',em:''},{e:'Example three.',em:'Nghĩa ba.'}]}];
+result=mergeTranslationRow(many,1,'e','Example two.','Nghĩa hai.',1);
+assert.equal(result.rows[0].examples[0].em,'Nghĩa một.');
+assert.equal(result.rows[0].examples[1].em,'Nghĩa hai.');
+assert.equal(result.rows[0].examples[2].em,'Nghĩa ba.');
+assert.equal(result.rows[0].em,undefined);
 
 console.log('Auto Translate core tests: PASS');
 
-test('Auto Translate selector only binds the first example row for repeater safety',async()=>{
+test('Auto Translate binds every example row and targets its matching meaning index',async()=>{
   const {readFile}=await import('node:fs/promises');
   const js=await readFile(new URL('../auto-translate.js',import.meta.url),'utf8');
-  assert.ok(js.includes('.editable[data-field="e"][data-example-index="0"]'));
+  assert.ok(js.includes('.editable[data-field="e"][data-example-index]'));
+  assert.ok(js.includes('data-example-index'));
+  assert.ok(js.includes('mergeTranslationRow(rows,id,sourceField,cleanSource,translated,exampleIndex)'));
+  assert.ok(js.includes("translationKey(id,sourceField,sourceField==='e'?exampleIndex:null)"));
 });
