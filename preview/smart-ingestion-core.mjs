@@ -1,5 +1,5 @@
 import {extractJson} from './ai-agent-core.js';
-import {inferStructure,normalizeStructure} from './structure-core.mjs?v=1';
+import {inferStructure,normalizeStructure} from './structure-core.mjs?v=2';
 
 function cleanValue(value,max=320){
   return String(value??'').replace(/\s+/g,' ').trim().slice(0,max);
