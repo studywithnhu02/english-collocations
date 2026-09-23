@@ -29,6 +29,7 @@ function cell(tr,field,exampleIndex=null){const suffix=(field==='e'||field==='em
 function showState(tr,field,state,text=''){
   const el=cell(tr,targetFieldFor(field));
   if(!el)return;
+  if(!el)return;
   if(el.dataset.autoOriginal==null)el.dataset.autoOriginal=el.textContent||'';
   if(state==='loading'){
     el.classList.add('translation','translating');
