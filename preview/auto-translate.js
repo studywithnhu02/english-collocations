@@ -105,11 +105,12 @@ async function run(id,sourceField,sourceText,exampleIndex=0){
 }
 
 function schedule(id,sourceField,sourceText,options={}){
-  const key=translationKey(id,sourceField);
+  const exampleIndex=sourceField==='e'?Math.max(0,Number(options.exampleIndex)||0):0;
+  const key=translationKey(id,sourceField,sourceField==='e'?exampleIndex:null);
   clearTimeout(timers.get(key));
   if(!shouldTranslate(sourceField,sourceText))return;
   const delay=options.immediate?80:850;
-  const exampleIndex=sourceField==='e'?Math.max(0,Number(options.exampleIndex)||0):0;timers.set(key,setTimeout(()=>run(id,sourceField,sourceText,exampleIndex),delay));
+  timers.set(key,setTimeout(()=>run(id,sourceField,sourceText,exampleIndex),delay));
 }
 
 function readFromEvent(el){return normalize(el?.textContent||el?.value||'')}
@@ -128,7 +129,7 @@ window.AutoTranslate={
   schedule(id,textOrField,maybeText,options){
     // Backward-compatible API: schedule(id, text, options) continues to mean example e→em.
     if(typeof maybeText==='object' || maybeText===undefined){
-      return schedule(id,'e',textOrField,maybeText||{});
+      const opts=maybeText||{};return schedule(id,'e',textOrField,opts);
     }
     return schedule(id,textOrField,maybeText,options||{});
   },
