@@ -3,7 +3,7 @@ const DATAMUSE_CACHE_KEY='english-collocations-preview-datamuse-v3';
 const OPEN_COLLLOCATION_DATASET_URL='https://raw.githubusercontent.com/ironking63/Collocation-Vocab-Practice-Claude-SKILL/main/assets/collocations.json';
 const CACHE_KEY='english-collocations-preview-source-cache-v2';
 const CACHE_TTL=12*60*60*1000;
-const OPEN_CACHE_KEY='english-collocations-preview-open-mit-v1';
+const OPEN_CACHE_KEY='english-collocations-preview-open-mit-v2';
 const OPEN_CACHE_TTL=7*24*60*60*1000;
 let openDatasetPromise=null;
 
