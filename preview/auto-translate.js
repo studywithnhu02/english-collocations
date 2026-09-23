@@ -26,9 +26,8 @@ function writeCache(value){try{localStorage.setItem(CACHE_KEY,JSON.stringify(val
 
 function cell(tr,field,exampleIndex=null){const suffix=(field==='e'||field==='em')&&exampleIndex!==null&&exampleIndex!==undefined?'[data-example-index="'+String(exampleIndex)+'"]':'';return tr?.querySelector(`.editable[data-field="${field}"]${suffix}`)||tr?.querySelector(`[data-field="${field}"]${suffix}`)}
 
-function showState(tr,field,state,text=''){
-  const el=cell(tr,targetFieldFor(field));
-  if(!el)return;
+function showState(tr,field,state,text='',exampleIndex=0){
+  const el=cell(tr,targetFieldFor(field),field==='e'?exampleIndex:null);
   if(!el)return;
   if(el.dataset.autoOriginal==null)el.dataset.autoOriginal=el.textContent||'';
   if(state==='loading'){
