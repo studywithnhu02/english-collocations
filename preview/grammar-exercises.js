@@ -176,7 +176,7 @@ function makeExampleMCQ(t){
 
 function buildAttempt(unit){
  const t=topic(unit);
- const qs=[makeFill(t),makeSentenceMCQ(t),makeFormulaMCQ(t),makeMemoryMCQ(t),makeExampleMCQ(t)].map((q,i)=>({...q,id:\`u\${t.unit}-q\${i+1}\`}));
+ const qs=[makeFill(t),makeSentenceMCQ(t),makeFormulaMCQ(t),makeMemoryMCQ(t),makeExampleMCQ(t)].map((q,i)=>({...q,id:'u'+t.unit+'-q'+(i+1)}));
  return {unit:t.unit,title:t.title,questions:qs,startedAt:new Date().toISOString()};
 }
 
