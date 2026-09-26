@@ -1,5 +1,5 @@
 import {GRAMMAR_TOPICS,CHAPTERS,APPENDICES,loadGrammarProgress,toggleGrammarDone,getGrammarStats} from './grammar-core.mjs';
-import {loadGrammarFolders,updateGrammarFolder,deleteGrammarFolder,restoreAllGrammarFolders,addGrammarFolder,saveGrammarPdfBlob,deleteGrammarPdfBlob,getGrammarPdfBlob,FOLDER_THUMBNAILS} from './grammar-folders.mjs';
+import {loadGrammarFolders,updateGrammarFolder,deleteGrammarFolder,restoreAllGrammarFolders,addGrammarFolder,saveGrammarPdfBlob,deleteGrammarPdfBlob,getGrammarPdfBlob,FOLDER_THUMBNAILS} from './grammar-folders.mjs?v=2';
 
 const state={query:'',chapter:'all',status:'all',selected:1,progress:loadGrammarProgress(),quiz:null,quizIndex:0,view:'home',folderQuery:''};
 const $=id=>document.getElementById(id);
