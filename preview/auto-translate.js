@@ -159,7 +159,6 @@ async function run(id,sourceField,sourceText,exampleIndex=0){
   const cleanSource=normalize(sourceText);
   if(!shouldTranslate(sourceField,cleanSource))return;
   if(lastSource.get(key)===cleanSource)return;
-  lastSource.set(key,cleanSource);
   const targetField=targetFieldFor(sourceField);
   const tr=document.querySelector('#body tr[data-id="'+CSS.escape(String(id))+'"]');
   showState(tr,sourceField,'loading','',exampleIndex);
@@ -172,11 +171,13 @@ async function run(id,sourceField,sourceText,exampleIndex=0){
     const rows=readRows();
     const merged=mergeTranslationRow(rows,id,sourceField,cleanSource,translated,exampleIndex);
     if(merged.changed)writeRows(merged.rows);
+    lastSource.set(key,cleanSource);
     const finalTr=document.querySelector('#body tr[data-id="'+CSS.escape(String(id))+'"]');
     showState(finalTr,sourceField,'done',translated,exampleIndex);
     toast('✓ Đã dịch → '+(targetField==='m'?'NGHĨA COLLOCATION':'NGHĨA CÂU VÍ DỤ'));
   }catch(error){
     if(isStale(requestVersion.get(key),version))return;
+    if(lastSource.get(key)===cleanSource)lastSource.delete(key);
     console.error('[AutoTranslate]',error);
     const currentTr=document.querySelector('#body tr[data-id="'+CSS.escape(String(id))+'"]');
     showState(currentTr,sourceField,'error','',exampleIndex);
