@@ -19,7 +19,7 @@ function start(){const queue=dueCards(currentCards(),TODAY());if(queue.length)re
 function syncRowsApi(data){const next=syncStateRows(load(),data,TODAY());save(next);refresh()}
 function onStatusChange(id,status){if(status==='Đã học'){save(createCard(load(),id,TODAY()))}else{save(removeCard(load(),id,TODAY()))}refresh()}
 window.PreviewSRS={getSnapshot:load,restoreSnapshot(value){save(normalizeState(value,TODAY()));refresh()},syncRows:syncRowsApi,onStatusChange,refresh,start};
-window.addEventListener('preview-data-updated',e=>{const kind=e.detail?.kind;if(kind==='status'||kind==='collection'||kind==='restore')syncRowsApi(rows())});
+window.addEventListener('preview-data-updated',e=>{const kind=e.detail?.kind;if(kind==='status'||kind==='restore')syncRowsApi(rows())});
 window.addEventListener('preview-srs-updated',refresh);
 document.addEventListener('click',e=>{if(e.target.closest('#srsStart'))start();if(e.target.closest('#srsClose'))close()});document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
 refresh();
