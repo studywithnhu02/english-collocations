@@ -249,15 +249,6 @@ const GUIDE_LINES=`
 
 const guide=Object.fromEntries(GUIDE_LINES.map(x=>[x.unit,x]));
 export const GRAMMAR_TOPICS=TITLE_LINES.map(x=>{const c=CHAPTERS.find(c=>x.unit>=c.start&&x.unit<=c.end),g=guide[x.unit]||{};return{id:'u'+x.unit,unit:x.unit,title:x.title,chapterId:c.id,chapter:c.title,range:c.range,formula:g.formula||c.summary,memory:g.memory||c.summary,example:g.example||''}});
-export const APPENDICES=[
-{id:'a1',title:'Active and passive',summary:'Ôn nhanh chủ động ↔ bị động.'},
-{id:'a2',title:'List of irregular verbs',summary:'Tra cứu các dạng động từ bất quy tắc.'},
-{id:'a3',title:'Irregular verbs in groups',summary:'Học động từ bất quy tắc theo nhóm.'},
-{id:'a4',title:'Short forms (he’s / I’d / don’t etc.)',summary:'Các dạng rút gọn thường gặp.'},
-{id:'a5',title:'Spelling',summary:'Quy tắc chính tả cần nhớ.'},
-{id:'a6',title:'Phrasal verbs (look out / take off etc.)',summary:'Tra cứu phrasal verbs cốt lõi.'},
-{id:'a7',title:'Phrasal verbs + object (fill in a form / put out a fire etc.)',summary:'Phrasal verbs đi với tân ngữ.'}
-];
 export function loadGrammarProgress(){try{const current=JSON.parse(localStorage.getItem(GRAMMAR_KEY)||'null');if(current&&typeof current==='object')return current;const legacy=JSON.parse(localStorage.getItem('english-collocations-preview-grammar-v1')||'{}');if(legacy&&typeof legacy==='object'&&Object.keys(legacy).length){localStorage.setItem(GRAMMAR_KEY,JSON.stringify(legacy));return legacy}return {}}catch{return {}}}
 export function saveGrammarProgress(value){localStorage.setItem(GRAMMAR_KEY,JSON.stringify(value||{}))}
 export function toggleGrammarDone(progress,id){const next={...(progress||{})};next[id]={done:!next[id]?.done,updatedAt:new Date().toISOString()};saveGrammarProgress(next);return next}
