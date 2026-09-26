@@ -196,13 +196,13 @@ async function requestTranslation(key){
   if(cached)return cached;
   if(inflight.has(key))return inflight.get(key);
   const promise=new Promise((resolve,reject)=>{
-    enqueue(async()=>{
+    enqueue(()=>{
       let fallbackTimer=0;
       const google=googleTranslate(key);
       const fallback=new Promise((resolve,reject)=>{
         fallbackTimer=setTimeout(()=>myMemoryTranslate(key).then(resolve,reject),FALLBACK_DELAY_MS);
       });
-      Promise.any([google,fallback]).then(value=>{
+      return Promise.any([google,fallback]).then(value=>{
         clearTimeout(fallbackTimer);
         cacheSet(key,value);
         resolve(value);
