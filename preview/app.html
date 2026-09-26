@@ -169,6 +169,70 @@ body.light-theme .grammar-folder-chip{background:#f7f9fc}
 body.light-theme .grammar-folder-card{box-shadow:0 7px 22px #00000012}
 body.light-theme .grammar-folder-card:hover{box-shadow:0 12px 28px #00000018}
 body.light-theme .grammar2-side-card,body.light-theme .grammar2-list,body.light-theme .grammar2-detail-card{box-shadow:0 7px 22px #0000000d}
+
+/* Grammar typography — conversational hierarchy inspired by ChatGPT-style reading */
+.grammar-folder-home,.grammar2-layout{font-size:14px}
+.grammar-folder-eyebrow,.grammar2-eyebrow{font-size:10px;line-height:1.3;letter-spacing:.09em;font-weight:700}
+.grammar-folder-head h1{font-size:26px;line-height:1.15;font-weight:650;letter-spacing:-.018em}
+.grammar-folder-head p{font-size:13px;line-height:1.55;color:var(--muted)}
+.grammar-folder-actions button{font-size:13px;font-weight:600}
+.grammar-folder-chip{font-size:12px;line-height:1.35;padding:7px 10px}
+.grammar-folder-search{font-size:13px}
+.grammar-folder-info strong{font-size:14px;line-height:1.35;font-weight:650}
+.grammar-folder-info small{font-size:11px;line-height:1.45}
+.grammar-folder-range{font-size:11px;line-height:1.45;font-weight:500}
+.grammar-folder-progress-text{font-size:11px;line-height:1.35}
+.grammar-folder-open{font-size:12px;font-weight:650}
+.grammar-folder-unprocessed{font-size:11px;line-height:1.45}
+.grammar-folder-more{font-size:14px}
+.grammar-folder-modal-head h2{font-size:18px;line-height:1.25;font-weight:650}
+.grammar-folder-modal-head p{font-size:12px;line-height:1.5}
+.grammar-folder-field>label{font-size:12px;line-height:1.35;font-weight:650}
+.grammar-folder-field input,.grammar-folder-upload input{font-size:13px}
+.grammar-thumb-option{font-size:18px}
+.grammar-folder-file{font-size:12px;line-height:1.45}
+
+.grammar2-head h1{font-size:24px;line-height:1.2;font-weight:650;letter-spacing:-.015em}
+.grammar2-head p{font-size:12px;line-height:1.55}
+.grammar2-head-actions button{font-size:12px;font-weight:600}
+.grammar2-note{font-size:12px;line-height:1.55;padding:10px 12px}
+.grammar2-toolbar input,.grammar2-toolbar select{font-size:13px}
+.grammar2-list-head{font-size:12px;line-height:1.4}
+.grammar2-unit-no{font-size:11px}
+.grammar2-unit strong{font-size:12px;line-height:1.4;font-weight:600}
+.grammar2-unit small{font-size:10px;line-height:1.4}
+.grammar2-unit-check{font-size:12px}
+.grammar2-side-title strong{font-size:12px;line-height:1.35;font-weight:650}
+.grammar2-side-title span{font-size:10px}
+.grammar2-stats span{font-size:10px}
+.grammar2-stats b{font-size:18px;font-weight:650}
+.grammar2-stats small{font-size:10px}
+.grammar2-chapter span,.grammar2-chapter small{font-size:10px}
+.grammar2-chapter strong{font-size:11px;line-height:1.4;font-weight:600}
+.grammar2-detail-top h2{font-size:20px;line-height:1.25;font-weight:650;letter-spacing:-.012em}
+.grammar2-part{font-size:10px}
+.grammar2-detail-top p{font-size:11px;line-height:1.45}
+.grammar2-unit-badge{font-size:10px}
+.grammar2-focus{padding:12px 13px;gap:6px}
+.grammar2-focus span{font-size:10px;line-height:1.3;letter-spacing:.08em;font-weight:700}
+.grammar2-focus strong{font-size:15px;line-height:1.55;font-weight:650}
+.grammar2-focus small{font-size:12px;line-height:1.55}
+.grammar2-example{padding:11px 13px}
+.grammar2-example span{font-size:10px;line-height:1.35}
+.grammar2-example p{font-size:14px;line-height:1.6}
+.grammar2-learn{gap:10px}
+.grammar2-learn>div{padding:11px 13px}
+.grammar2-learn b{font-size:12px;line-height:1.35;font-weight:650}
+.grammar2-learn ol,.grammar2-learn p{font-size:12px;line-height:1.65}
+.grammar2-nav span{font-size:10px}
+.grammar2-nav button{font-size:11px}
+@media(max-width:650px){
+ .grammar-folder-head h1{font-size:24px}
+ .grammar2-head h1{font-size:22px}
+ .grammar2-detail-top h2{font-size:19px}
+ .grammar2-focus strong{font-size:14px}
+ .grammar2-example p{font-size:13px}
+}
 </style>
 </head>
 <body class="auth-checking nav-expanded">
@@ -199,7 +263,7 @@ body.light-theme .grammar2-side-card,body.light-theme .grammar2-list,body.light-
 <div class="app">
 <section class="grammar-screen" id="grammarScreen" hidden aria-label="Tổng hợp ngữ pháp"></section>
 <main class="main">
-<section class="card brand" id="box1"><div class="box-head"><div><div class="eyebrow">BOX 1 · CÔNG CỤ</div><div class="box-title">⚙️ Quản lý Preview</div><div class="box-sub">Giao diện, backup và trạng thái GitHub Pages.</div></div><div class="account-mini"><span id="appUser">Đang xác thực…</span><button class="secondary small-action" id="appLogout" type="button">Đăng xuất</button></div></div><div class="actions"><button class="secondary" id="theme">☀️ Light mode</button><button class="secondary" id="backup">💾 Backup</button><button class="secondary" id="restore">📂 Restore</button><button class="secondary" id="csv">📊 Export CSV</button><button class="danger" id="clear">🗑️ Xóa tất cả</button></div><div class="github-status-inline" id="previewStatus" aria-live="polite" data-preview-build="1c9e7b4"><div class="ps-row"><span class="ps-dot busy" id="psDot"></span><span class="ps-title" id="psTitle">Đang kiểm tra Preview…</span><span class="ps-time" id="psTime"></span></div><div class="ps-sub" id="psSub">Đang kiểm tra source GitHub.</div><div class="ps-actions"><button class="secondary" id="psCheck">↻ Kiểm tra</button><button class="secondary" id="psReload">⟳ Reload</button></div></div></section>
+<section class="card brand" id="box1"><div class="box-head"><div><div class="eyebrow">BOX 1 · CÔNG CỤ</div><div class="box-title">⚙️ Quản lý Preview</div><div class="box-sub">Giao diện, backup và trạng thái GitHub Pages.</div></div><div class="account-mini"><span id="appUser">Đang xác thực…</span><button class="secondary small-action" id="appLogout" type="button">Đăng xuất</button></div></div><div class="actions"><button class="secondary" id="theme">☀️ Light mode</button><button class="secondary" id="backup">💾 Backup</button><button class="secondary" id="restore">📂 Restore</button><button class="secondary" id="csv">📊 Export CSV</button><button class="danger" id="clear">🗑️ Xóa tất cả</button></div><div class="github-status-inline" id="previewStatus" aria-live="polite" data-preview-build="2a7f8d1"><div class="ps-row"><span class="ps-dot busy" id="psDot"></span><span class="ps-title" id="psTitle">Đang kiểm tra Preview…</span><span class="ps-time" id="psTime"></span></div><div class="ps-sub" id="psSub">Đang kiểm tra source GitHub.</div><div class="ps-actions"><button class="secondary" id="psCheck">↻ Kiểm tra</button><button class="secondary" id="psReload">⟳ Reload</button></div></div></section>
 <section class="card"><div class="controls"><input id="search" placeholder="🔎 Tìm collocation hoặc câu ví dụ..."><select id="filter"><option value="">Tất cả chủ đề</option></select><select id="statusFilter" title="Lọc theo status" aria-label="status"><option value="">status</option></select></div><div class="duplicate-warning" id="duplicateWarning" hidden><span>⚠️</span><span id="duplicateWarningText"></span></div><div class="meta"><span>Tổng số: <b id="count">0</b></span><span>Đang hiển thị: <b id="shown">0</b></span><span>💾 Đã lưu trên Preview</span><span class="persist" id="persist">Local data</span></div><div class="selection-actions"><label class="select-all-label"><input type="checkbox" id="selectAll"> Chọn tất cả</label><button class="danger bulk-delete" id="bulkDelete">Xóa (0)</button></div></section>
 <section class="card table-card"><div class="table-wrap"><table><thead><tr><th class="select-col">Chọn</th><th>STT</th><th>Collocation</th><th>CẤU TRÚC</th><th>Nghĩa Collocation</th><th>Chủ đề</th><th>Câu giao tiếp ví dụ</th><th>Nghĩa câu ví dụ</th><th>Status</th><th>Ngày Done</th><th>Ngày tạo</th><th>Xóa</th></tr></thead><tbody id="body"></tbody></table><div class="empty" id="empty">Không có dữ liệu. Bấm “＋ Thêm dòng” để bắt đầu.</div></div><div class="table-footer"><button id="add">＋ Thêm dòng</button></div></section>
 </main>
@@ -249,7 +313,7 @@ layoutResizer.addEventListener('pointerdown',e=>{if(window.innerWidth<=1000)retu
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script type="module" src="./auth-gate.js?v=1"></script><script type="module" src="./goals-ui.js?v=1"></script><script type="module" src="./srs-ui.js?v=1"></script><script type="module" src="./smart-tools.js?v=9"></script><script type="module" src="./ai-agent.js?v=9"></script><script type="module" src="./domains-ui.js?v=3"></script><script type="module" src="./vocabulary-ui.js?v=6"></script><script type="module" src="./smart-ingestion.js?v=4"></script><script type="module" src="./quiz-ui.js?v=1"></script><script type="module" src="./focus-ui.js?v=1"></script><script type="module" src="./family-ui.js?v=1"></script><script type="module" src="./coverage-ui.js?v=1"></script><script type="module" src="./coach-ui.js?v=2"></script><script type="module" src="./anki-export.js?v=1"></script><script type="module" src="./print-export.js?v=1"></script>
 <script type="module" src="./grammar-ui.js?v=6"></script><script type="module" src="./grammar-exercises.js?v=1"></script>
 <script>
-const expected='1c9e7b4',raw='https://raw.githubusercontent.com/studywithnhu02/english-collocations/main/preview/app.html';function setPreview(k,title,sub){$('psDot').className='ps-dot '+k;$('psTitle').textContent=title;$('psSub').textContent=sub;$('psTime').textContent=new Date().toLocaleTimeString('vi-VN')}async function checkPreview(){setPreview('busy','🟡 Đang kiểm tra Preview…','Đang so sánh build đang chạy với source GitHub.');try{const r=await fetch(raw+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const text=await r.text();const m=text.match(/data-preview-build="([0-9a-f]{7,40})"/i);const live=m?m[1]:'';if(live===expected)setPreview('ok','🟢 Preview đã cập nhật','Management Preview · build '+live+' · source GitHub đã lên Pages.');else setPreview('busy','🟡 GitHub Pages đang cập nhật','Source mới đã có build '+expected+' · Pages hiện vẫn đang phục vụ '+(live||'build cũ')+'.')}catch(e){setPreview('err','⚠️ Không kiểm tra được','GitHub Pages chưa phản hồi. Bạn vẫn có thể reload thủ công.')}}$('psCheck').addEventListener('click',checkPreview);$('psReload').addEventListener('click',()=>location.reload());checkPreview();setInterval(checkPreview,15000);
+const expected='2a7f8d1',raw='https://raw.githubusercontent.com/studywithnhu02/english-collocations/main/preview/app.html';function setPreview(k,title,sub){$('psDot').className='ps-dot '+k;$('psTitle').textContent=title;$('psSub').textContent=sub;$('psTime').textContent=new Date().toLocaleTimeString('vi-VN')}async function checkPreview(){setPreview('busy','🟡 Đang kiểm tra Preview…','Đang so sánh build đang chạy với source GitHub.');try{const r=await fetch(raw+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const text=await r.text();const m=text.match(/data-preview-build="([0-9a-f]{7,40})"/i);const live=m?m[1]:'';if(live===expected)setPreview('ok','🟢 Preview đã cập nhật','Management Preview · build '+live+' · source GitHub đã lên Pages.');else setPreview('busy','🟡 GitHub Pages đang cập nhật','Source mới đã có build '+expected+' · Pages hiện vẫn đang phục vụ '+(live||'build cũ')+'.')}catch(e){setPreview('err','⚠️ Không kiểm tra được','GitHub Pages chưa phản hồi. Bạn vẫn có thể reload thủ công.')}}$('psCheck').addEventListener('click',checkPreview);$('psReload').addEventListener('click',()=>location.reload());checkPreview();setInterval(checkPreview,15000);
 </script>
 
 <script type="module" src="./spellcheck.js?v=1"></script>
