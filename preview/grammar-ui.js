@@ -25,68 +25,101 @@ function bindGrammarResizer(){const el=$('grammar2SideResizer');if(!el)return;le
 }
 
 function folderProgress(folder){
- const a=GRAMMAR_TOPICS.filter(x=>x.chapterId===folder.chapterId),done=a.filter(x=>state.progress[x.id]?.done).length;
+ const a=GRAMMAR_TOPICS.filter(x=>x.chapterId===folder.chapterId);
+ const done=a.filter(x=>state.progress[x.id]?.done).length;
  return {done,total:a.length,percent:a.length?Math.round(done/a.length*100):0};
 }
 function folderThumbHtml(folder){
- return folder.image
-   ? '<img src="'+esc(folder.image)+'" alt="">'
-   : esc(folder.thumb||'📘');
+ if(folder.image)return '<img src="'+esc(folder.image)+'" alt="">';
+ return esc(folder.thumb||'📘');
 }
-function closeFolderOverlays(){document.querySelectorAll('.grammar-folder-menu,.grammar-folder-modal').forEach(x=>x.remove());}
 function renderFolderHome(){
  const root=$('grammarScreen');if(!root)return;
  const folders=loadGrammarFolders();
  const q=state.folderQuery.trim().toLocaleLowerCase('vi');
  const rows=folders.filter(f=>!q||[f.name,f.range,f.chapterId].join(' ').toLocaleLowerCase('vi').includes(q));
  const done=GRAMMAR_TOPICS.filter(x=>state.progress[x.id]?.done).length;
- root.innerHTML='<section class="grammar-folder-home"><div class="grammar-folder-head"><div class="grammar-folder-brand"><div class="grammar-folder-logo">📂</div><div><div class="grammar-folder-eyebrow">GRAMMAR LIBRARY</div><h1>Grammar</h1><p>Chọn một folder để mở khu vực học lý thuyết, bài tập và tiến độ của từng phần.</p></div></div><div class="grammar-folder-actions"><button type="button" class="secondary" id="grammarFolderBack">← Collocation</button><button type="button" class="secondary" id="grammarFolderRestore">↻ Khôi phục folder</button></div></div>'+
- '<div class="grammar-folder-meta"><span class="grammar-folder-chip">📁 <b>'+folders.length+'</b> folder đang hiển thị</span><span class="grammar-folder-chip">📘 <b>'+GRAMMAR_TOPICS.length+'</b> units</span><span class="grammar-folder-chip">✅ <b>'+done+'</b> unit đã nắm</span><input id="grammarFolderSearch" class="grammar-folder-search" value="'+esc(state.folderQuery)+'" placeholder="🔎 Tìm folder..."></div>'+
- (rows.length?'<div class="grammar-folder-grid">'+rows.map(folder=>{const p=folderProgress(folder);return '<article class="grammar-folder-card"><div class="grammar-folder-cover"><div class="grammar-folder-thumb">'+folderThumbHtml(folder)+'</div><div class="grammar-folder-info"><strong>'+esc(folder.name)+'</strong><small>'+esc(folder.range)+'</small></div><button type="button" class="grammar-folder-more" data-folder-manage="'+esc(folder.id)+'" aria-label="Quản lý folder" title="Quản lý folder">•••</button></div><div class="grammar-folder-range">Grammar chapter · '+p.total+' units</div><div class="grammar-folder-progress"><em style="width:'+p.percent+'%"></em></div><div class="grammar-folder-progress-text"><span>'+p.done+'/'+p.total+' đã nắm</span><span>'+p.percent+'%</span></div><button type="button" class="grammar-folder-open" data-folder-open="'+esc(folder.id)+'">Mở folder →</button></article>}).join('')+'</div>':'<div class="grammar-folder-empty">Không tìm thấy folder phù hợp.</div>')+
- '</section>';
+ const cards=rows.map(folder=>{
+   const p=folderProgress(folder);
+   return `<article class="grammar-folder-card">
+     <div class="grammar-folder-cover">
+       <div class="grammar-folder-thumb">${folderThumbHtml(folder)}</div>
+       <div class="grammar-folder-info"><strong>${esc(folder.name)}</strong><small>${esc(folder.range)}</small></div>
+       <button type="button" class="grammar-folder-more" data-folder-manage="${esc(folder.id)}" aria-label="Quản lý folder" title="Quản lý folder">•••</button>
+     </div>
+     <div class="grammar-folder-range">Grammar chapter · ${p.total} units</div>
+     <div class="grammar-folder-progress"><em style="width:${p.percent}%"></em></div>
+     <div class="grammar-folder-progress-text"><span>${p.done}/${p.total} đã nắm</span><span>${p.percent}%</span></div>
+     <button type="button" class="grammar-folder-open" data-folder-open="${esc(folder.id)}">Mở folder →</button>
+   </article>`;
+ }).join('');
+ root.innerHTML=`<section class="grammar-folder-home">
+   <div class="grammar-folder-head">
+     <div class="grammar-folder-brand">
+       <div class="grammar-folder-logo">📂</div>
+       <div><div class="grammar-folder-eyebrow">GRAMMAR LIBRARY</div><h1>Grammar</h1><p>Chọn một folder để mở khu vực học lý thuyết, bài tập và tiến độ của từng phần.</p></div>
+     </div>
+     <div class="grammar-folder-actions">
+       <button type="button" class="secondary" id="grammarFolderBack">← Collocation</button>
+       <button type="button" class="secondary" id="grammarFolderRestore">↻ Khôi phục folder</button>
+     </div>
+   </div>
+   <div class="grammar-folder-meta">
+     <span class="grammar-folder-chip">📁 <b>${folders.length}</b> folder đang hiển thị</span>
+     <span class="grammar-folder-chip">📘 <b>${GRAMMAR_TOPICS.length}</b> units</span>
+     <span class="grammar-folder-chip">✅ <b>${done}</b> unit đã nắm</span>
+     <input id="grammarFolderSearch" class="grammar-folder-search" value="${esc(state.folderQuery)}" placeholder="🔎 Tìm folder...">
+   </div>
+   ${rows.length?`<div class="grammar-folder-grid">${cards}</div>`:'<div class="grammar-folder-empty">Không tìm thấy folder phù hợp.</div>'}
+ </section>`;
  $('grammarFolderBack').addEventListener('click',()=>window.PreviewGrammar?.show?.(false));
  $('grammarFolderRestore').addEventListener('click',()=>{restoreAllGrammarFolders();renderFolderHome()});
  $('grammarFolderSearch').addEventListener('input',e=>{state.folderQuery=e.target.value;renderFolderHome()});
  document.querySelectorAll('[data-folder-open]').forEach(btn=>btn.addEventListener('click',()=>openTheoryForChapter(btn.dataset.folderOpen)));
- document.querySelectorAll('[data-folder-manage]').forEach(btn=>btn.addEventListener('click',()=>openFolderManager(btn.dataset.folderManage,btn)));
+ document.querySelectorAll('[data-folder-manage]').forEach(btn=>btn.addEventListener('click',()=>openFolderManager(btn.dataset.folderManage)));
 }
 function openTheoryForChapter(chapterId){
- const folder=loadGrammarFolders().find(x=>x.id===chapterId);
- if(!folder)return;
- const chapter=CHAPTERS.find(x=>x.id===folder.chapterId||x.id===chapterId);
- if(!chapter)return;
+ const folder=loadGrammarFolders().find(x=>x.id===chapterId);if(!folder)return;
+ const chapter=CHAPTERS.find(x=>x.id===folder.chapterId||x.id===chapterId);if(!chapter)return;
  state.view='theory';state.chapter=chapter.id;state.status='all';state.selected=chapter.start;render();
  window.scrollTo({top:0,behavior:'smooth'});
 }
-async function compressFolderImage(file){
- if(!file||!file.type.startsWith('image/'))throw new Error('invalid-image');
- const src=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(fr.result);fr.onerror=reject;fr.readAsDataURL(file)});
- const img=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src});
- const maxW=640,maxH=420,scale=Math.min(1,maxW/img.width,maxH/img.height),canvas=document.createElement('canvas');
- canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
- return canvas.toDataURL('image/jpeg',.82);
-}
-function openFolderManager(id,anchor){
- closeFolderOverlays();
+function openFolderManager(id){
+ document.querySelector('#grammarFolderManager')?.remove();
  const folder=loadGrammarFolders().find(x=>x.id===id);if(!folder)return;
- const modal=document.createElement('div');modal.className='grammar-folder-modal';modal.id='grammarFolderManager';
- modal.innerHTML='<div class="grammar-folder-modal-card"><div class="grammar-folder-modal-head"><div><div class="grammar-folder-eyebrow">FOLDER SETTINGS</div><h2>Quản lý folder</h2><p>Chỉ thay đổi cách hiển thị folder. Xóa folder không xóa 114 Unit.</p></div><button type="button" class="secondary" id="gfmClose">×</button></div>'+
- '<div class="grammar-folder-field"><label for="gfmName">Tên folder</label><input id="gfmName" value="'+esc(folder.name)+'" maxlength="80"></div>'+
- '<div class="grammar-folder-field"><label>Thumbnail</label><div class="grammar-thumb-options">'+FOLDER_THUMBNAILS.map(x=>'<button type="button" class="grammar-thumb-option '+(!folder.image&&folder.thumb===x?'active':'')+'" data-thumb="'+esc(x)+'">'+esc(x)+'</button>').join('')+'</div></div>'+
- '<div class="grammar-folder-field"><label>Ảnh thumbnail</label><div class="grammar-folder-upload"><input type="file" id="gfmImage" accept="image/*"><button type="button" class="secondary" id="gfmClearImage">Xóa ảnh</button></div></div>'+
- '<div class="grammar-folder-modal-actions"><button type="button" class="danger" id="gfmDelete">🗑️ Xóa folder</button><div class="grammar-folder-modal-right"><button type="button" class="secondary" id="gfmCancel">Hủy</button><button type="button" id="gfmSave">Lưu thay đổi</button></div></div></div>';
+ const modal=document.createElement('div');
+ modal.className='grammar-folder-modal';modal.id='grammarFolderManager';
+ modal.innerHTML=`<div class="grammar-folder-modal-card">
+   <div class="grammar-folder-modal-head">
+     <div><div class="grammar-folder-eyebrow">FOLDER SETTINGS</div><h2>Quản lý folder</h2><p>Đổi tên hoặc thumbnail. Xóa folder không xóa các Unit.</p></div>
+     <button type="button" class="secondary" id="gfmClose">×</button>
+   </div>
+   <div class="grammar-folder-field"><label for="gfmName">Tên folder</label><input id="gfmName" value="${esc(folder.name)}" maxlength="80"></div>
+   <div class="grammar-folder-field"><label>Thumbnail</label><div class="grammar-thumb-options">${FOLDER_THUMBNAILS.map(x=>`<button type="button" class="grammar-thumb-option ${!folder.image&&folder.thumb===x?'active':''}" data-thumb="${esc(x)}">${esc(x)}</button>`).join('')}</div></div>
+   <div class="grammar-folder-field"><label>Ảnh thumbnail</label><div class="grammar-folder-upload"><input type="file" id="gfmImage" accept="image/*"><button type="button" class="secondary" id="gfmClearImage">Xóa ảnh</button></div></div>
+   <div class="grammar-folder-modal-actions"><button type="button" class="danger" id="gfmDelete">🗑️ Xóa folder</button><div class="grammar-folder-modal-right"><button type="button" class="secondary" id="gfmCancel">Hủy</button><button type="button" id="gfmSave">Lưu thay đổi</button></div></div>
+ </div>`;
  document.body.appendChild(modal);
  let selectedThumb=folder.thumb||'📘',selectedImage=folder.image||'';
- const thumbBtns=modal.querySelectorAll('[data-thumb]');
- thumbBtns.forEach(btn=>btn.addEventListener('click',()=>{selectedThumb=btn.dataset.thumb;selectedImage='';thumbBtns.forEach(x=>x.classList.toggle('active',x===btn));}));
- modal.querySelector('#gfmClearImage').addEventListener('click',()=>{selectedImage='';modal.querySelector('#gfmImage').value='';thumbBtns.forEach(x=>x.classList.toggle('active',x.dataset.thumb===selectedThumb));});
- modal.querySelector('#gfmImage').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{selectedImage=await compressFolderImage(file);thumbBtns.forEach(x=>x.classList.remove('active'));}catch{alert('Không đọc được ảnh thumbnail.')}});
+ const thumbs=modal.querySelectorAll('[data-thumb]');
+ thumbs.forEach(btn=>btn.addEventListener('click',()=>{selectedThumb=btn.dataset.thumb;selectedImage='';thumbs.forEach(x=>x.classList.toggle('active',x===btn));}));
+ modal.querySelector('#gfmClearImage').addEventListener('click',()=>{selectedImage='';modal.querySelector('#gfmImage').value='';thumbs.forEach(x=>x.classList.toggle('active',x.dataset.thumb===selectedThumb));});
+ modal.querySelector('#gfmImage').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{selectedImage=await compressFolderImage(file);thumbs.forEach(x=>x.classList.remove('active'));}catch{alert('Không đọc được ảnh thumbnail.');}});
  const save=()=>{const name=modal.querySelector('#gfmName').value.trim();if(!name){alert('Tên folder không được để trống.');return}updateGrammarFolder(id,{name,thumb:selectedThumb,image:selectedImage,deleted:false});modal.remove();renderFolderHome();};
  modal.querySelector('#gfmSave').addEventListener('click',save);
  modal.querySelector('#gfmCancel').addEventListener('click',()=>modal.remove());
  modal.querySelector('#gfmClose').addEventListener('click',()=>modal.remove());
  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});
  modal.querySelector('#gfmDelete').addEventListener('click',()=>{if(!confirm('Xóa folder "'+folder.name+'"? Các Unit và tiến độ vẫn được giữ nguyên.'))return;deleteGrammarFolder(id);modal.remove();renderFolderHome()});
+}
+async function compressFolderImage(file){
+ if(!file||!file.type.startsWith('image/'))throw new Error('invalid-image');
+ const src=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(fr.result);fr.onerror=reject;fr.readAsDataURL(file)});
+ const img=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src});
+ const maxW=640,maxH=420,scale=Math.min(1,maxW/img.width,maxH/img.height);
+ const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+ canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+ return canvas.toDataURL('image/jpeg',.82);
 }
 
 function render(){
@@ -147,4 +180,3 @@ function renderQuiz(){
 export function showTheory(unit=state.selected){const root=$('grammarScreen');if(!root)return;document.body.classList.add('grammar-mode');root.hidden=false;state.progress=loadGrammarProgress();state.view='theory';state.selected=Number(unit)||1;state.chapter=CHAPTERS.find(c=>state.selected>=c.start&&state.selected<=c.end)?.id||'all';loadGrammarSidebarWidth();render()}
 export function showGrammar(open=true){const root=$('grammarScreen');if(!root)return;document.body.classList.toggle('grammar-mode',open);root.hidden=!open;if(open){state.progress=loadGrammarProgress();state.view='home';renderFolderHome()}}
 window.PreviewGrammar={show:showGrammar,showHome:()=>{state.view='home';renderFolderHome()},showTheory,refresh:()=>state.view==='home'?renderFolderHome():render(),getProgress:()=>({...state.progress})};
-window.PreviewGrammar={show:showGrammar,refresh:render,getProgress:()=>({...state.progress})};
