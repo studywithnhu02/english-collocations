@@ -176,7 +176,7 @@ function makeExampleMCQ(t){
 
 function buildAttempt(unit){
  const t=topic(unit);
- const qs=[makeFill(t),makeSentenceMCQ(t),makeFormulaMCQ(t),makeMemoryMCQ(t),makeExampleMCQ(t)];
+ const qs=[makeFill(t),makeSentenceMCQ(t),makeFormulaMCQ(t),makeMemoryMCQ(t),makeExampleMCQ(t)].map((q,i)=>({...q,id:\`u\${t.unit}-q\${i+1}\`}));
  return {unit:t.unit,title:t.title,questions:qs,startedAt:new Date().toISOString()};
 }
 
@@ -196,7 +196,8 @@ function grade(attempt){
  const history=loadHistory();
  history[String(attempt.unit)]={percent,correct,total:results.length,completedAt:new Date().toISOString()};
  saveHistory(history);
- return {correct,total:results.length,percent,results};
+ currentResult={correct,total:results.length,percent,results};
+ return currentResult;
 }
 
 function optionsHtml(q,index){
