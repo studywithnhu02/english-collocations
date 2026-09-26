@@ -186,38 +186,16 @@ async function requestTranslation(key){
   if(inflight.has(key))return inflight.get(key);
   const promise=new Promise((resolve,reject)=>{
     enqueue(async()=>{
-      let done=false;
       let fallbackTimer=0;
-      const controllers=[];
-      const finish=(value,error)=>{
-        if(done)return;
-        if(value){
-          done=true;
-          clearTimeout(fallbackTimer);
-          controllers.forEach(c=>c.abort());
-          cacheSet(key,value);
-          resolve(value);
-          return;
-        }
-        if(error)reject(error);
-      };
-      const googleController={abort(){}};
-      controllers.push(googleController);
-      googleTranslate(key).then(value=>finish(value)).catch(()=>{});
-      fallbackTimer=setTimeout(()=>{
-        const fallbackController={abort(){}};
-        controllers.push(fallbackController);
-        myMemoryTranslate(key).then(value=>finish(value)).catch(error=>{
-          if(!done)finish('',error);
-        });
-      },FALLBACK_DELAY_MS);
-      setTimeout(()=>{
-        if(!done){
-          done=true;
-          clearTimeout(fallbackTimer);
-          reject(new Error('Translation timeout'));
-        }
-      },PROVIDER_TIMEOUT_MS+FALLBACK_DELAY_MS+250);
+      const google=googleTranslate(key);
+      const fallback=new Promise((resolve,reject)=>{
+        fallbackTimer=setTimeout(()=>myMemoryTranslate(key).then(resolve,reject),FALLBACK_DELAY_MS);
+      });
+      Promise.any([google,fallback]).then(value=>{
+        clearTimeout(fallbackTimer);
+        cacheSet(key,value);
+        resolve(value);
+      }).catch(()=>reject(new Error('Translation failed')));
     });
   });
   inflight.set(key,promise);
@@ -316,7 +294,6 @@ function bind(){
   if(!body)return;
   eventsBound=true;
   body.addEventListener('input',eventCell);
-  body.addEventListener('blur',eventCell,true);
 }
 function boot(){
   bind();
