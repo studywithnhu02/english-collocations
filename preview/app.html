@@ -8,7 +8,130 @@
 <style>
 :root{--bg:#0d1625;--card:#1c2738;--card2:#222e40;--text:#f4f7fb;--muted:#9aa8bd;--line:#344257;--blue:#2f80ff;--danger:#ff686d;--input:#101a2a;--green:#36c98b;--yellow:#f5c451}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-/* Minimal_Web.fig test theme — clean surfaces, restrained borders, #00A76F primary, #FFAB00 accent. */
+/* Minimal_Web.fig full design-system layer — navigation, topbar, cards, controls, table, analytics and states. */
+.minimal-shell{display:none}
+body.minimal-theme{--bg:#f6f7f8;--card:#fff;--card2:#f4f6f8;--text:#212b36;--muted:#637381;--line:#e6e9ed;--input:#fff;--blue:#00a76f;--green:#00a76f;--yellow:#ffab00;--danger:#ff5630;background:#f6f7f8;color:var(--text)}
+body.minimal-theme .minimal-shell{display:block}
+body.minimal-theme .minimal-nav{position:fixed;z-index:100000;inset:0 auto 0 0;width:248px;padding:22px 16px 18px;background:#fff;border-right:1px solid #e7eaee;display:flex;flex-direction:column}
+body.minimal-theme .minimal-brand{display:flex;align-items:center;gap:11px;padding:2px 10px 22px}
+body.minimal-theme .minimal-brand-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#00a76f;color:#fff;font-size:18px;font-weight:900;box-shadow:0 5px 14px rgba(0,167,111,.18)}
+body.minimal-theme .minimal-brand-name{font-size:14px;font-weight:900;color:#212b36;line-height:1.05}
+body.minimal-theme .minimal-brand-name span{display:block;color:#919eab;font-size:10px;font-weight:700;margin-top:3px}
+body.minimal-theme .minimal-nav-group{padding:10px 12px 7px;color:#919eab;font-size:9px;font-weight:900;letter-spacing:.08em}
+body.minimal-theme .minimal-nav-item{width:100%;display:flex;align-items:center;gap:10px;min-height:38px;margin:2px 0;padding:9px 11px;border:0;border-radius:9px;background:transparent;color:#637381;text-align:left;font:600 11px/1.2 inherit;box-shadow:none}
+body.minimal-theme .minimal-nav-item span{width:18px;color:#919eab;font-size:14px;text-align:center}
+body.minimal-theme .minimal-nav-item b{font-weight:750}
+body.minimal-theme .minimal-nav-item:hover{background:#f4f6f8;color:#212b36}
+body.minimal-theme .minimal-nav-item.active{background:#e9f8f2;color:#007e59}
+body.minimal-theme .minimal-nav-item.active span{color:#00a76f}
+body.minimal-theme .minimal-nav-bottom{margin-top:auto;padding:8px 6px 0}
+body.minimal-theme .minimal-help-card{padding:13px 12px;border-radius:12px;background:linear-gradient(180deg,#e9f8f2 0%,#f6fbf9 100%);border:1px solid #ccefe2;display:grid;gap:3px}
+body.minimal-theme .minimal-help-kicker{font-size:8px;letter-spacing:.08em;color:#00a76f;font-weight:900}
+body.minimal-theme .minimal-help-card strong{font-size:11px;color:#212b36}
+body.minimal-theme .minimal-help-card small{font-size:9px;color:#637381}
+body.minimal-theme .minimal-topbar{position:fixed;z-index:99999;top:0;right:0;left:248px;height:72px;background:rgba(255,255,255,.96);border-bottom:1px solid #e7eaee;display:flex;align-items:center;gap:14px;padding:0 20px;backdrop-filter:blur(12px)}
+body.minimal-theme .minimal-breadcrumb{display:flex;align-items:center;gap:7px;white-space:nowrap;min-width:210px}
+body.minimal-theme .minimal-breadcrumb span{font-size:10px;color:#919eab}
+body.minimal-theme .minimal-breadcrumb strong{font-size:10px;color:#c4cbd1}
+body.minimal-theme .minimal-breadcrumb b{font-size:11px;color:#212b36}
+body.minimal-theme .minimal-search-proxy{flex:1;max-width:520px;display:flex;align-items:center;gap:8px;height:38px;padding:0 11px;border:1px solid #e0e5e9;border-radius:9px;background:#fff;color:#919eab;text-align:left;font:600 10px/1 inherit;box-shadow:none}
+body.minimal-theme .minimal-search-proxy:hover{background:#fafbfc;border-color:#cdd5db}
+body.minimal-theme .minimal-search-proxy>span:first-child{font-size:16px;color:#637381}
+body.minimal-theme .minimal-search-proxy kbd{margin-left:auto;padding:2px 6px;border:1px solid #e3e7eb;border-radius:5px;background:#f4f6f8;color:#919eab;font:700 8px/1 inherit}
+body.minimal-theme .minimal-top-actions{display:flex;align-items:center;gap:7px;margin-left:auto}
+body.minimal-theme .minimal-top-icon,.minimal-design-toggle{height:34px!important;padding:0 9px!important;border-radius:8px!important;font-size:10px!important}
+body.minimal-theme .minimal-top-icon{min-width:34px;background:#fff!important;border:1px solid #e0e5e9!important;color:#637381!important}
+body.minimal-theme .minimal-design-toggle{background:#00a76f!important;border:1px solid #00a76f!important;color:#fff!important}
+body.minimal-theme .minimal-avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#d9f5ec;border:1px solid #bfe9db;color:#007e59;font-size:10px;font-weight:900}
+body.minimal-theme .app{width:calc(100% - 248px);min-width:0;margin-left:248px;padding:90px 18px 18px;background:#f6f7f8}
+body.minimal-theme .card{background:#fff;border:1px solid #e7eaee;border-radius:14px;box-shadow:0 6px 22px rgba(145,158,171,.09);padding:16px}
+body.minimal-theme .main>.brand,.minimal-theme .main>.card:not(.brand):not(.table-card){padding:13px 16px 8px}
+body.minimal-theme .main>.brand .actions{gap:7px}
+body.minimal-theme .brand h1{font-size:18px}
+body.minimal-theme .sub,.minimal-theme .box-sub{color:#919eab}
+body.minimal-theme .box-title{font-size:15px;color:#212b36}
+body.minimal-theme .actions{gap:7px}
+body.minimal-theme button{border-radius:8px;font-weight:800;box-shadow:none}
+body.minimal-theme button.secondary{background:#fff;color:#212b36;border:1px solid #dfe3e8}
+body.minimal-theme button.secondary:hover{background:#f4f6f8}
+body.minimal-theme button:not(.secondary):not(.danger):not(.status-button):not(.status-choice):not(.example-remove):not(.example-add):not(.small-action):not(.analytics-tab):not(.minimal-nav-item):not(.minimal-top-icon):not(.minimal-design-toggle){background:#00a76f}
+body.minimal-theme .table-card{padding:11px}
+body.minimal-theme .table-wrap{border:1px solid #e3e7eb;border-radius:12px;background:#fff}
+body.minimal-theme table{min-width:1320px}
+body.minimal-theme th{background:#f7f8fa;color:#637381;font-size:9px;letter-spacing:.03em;border-bottom:1px solid #e2e7eb}
+body.minimal-theme th,body.minimal-theme td{border-right:1px solid #eef0f2;border-bottom-color:#e7eaee}
+body.minimal-theme th:last-child,body.minimal-theme td:last-child{border-right-color:transparent}
+body.minimal-theme td{padding:10px 9px;color:#212b36}
+body.minimal-theme .coll{font-size:12px;font-weight:850;color:#212b36}
+body.minimal-theme .structure{font-size:10px;color:#637381}
+body.minimal-theme .meaning,body.minimal-theme .translation,body.minimal-theme .date,body.minimal-theme .done-date{color:#637381}
+body.minimal-theme .topic{background:#e8f7f2;color:#007e59;border:1px solid #c7ecde;border-radius:7px;padding:4px 7px}
+body.minimal-theme .editable{border-radius:6px}
+body.minimal-theme .editable:hover{background:#f4f6f8}
+body.minimal-theme .editable:focus{outline:2px solid rgba(0,167,111,.18);background:#fff}
+body.minimal-theme .controls input,body.minimal-theme .controls select{height:38px}
+body.minimal-theme input,body.minimal-theme select,body.minimal-theme textarea{background:#fff;border-color:#dfe3e8;color:#212b36;border-radius:8px}
+body.minimal-theme input::placeholder{color:#a5afb8}
+body.minimal-theme input:focus,body.minimal-theme select:focus,body.minimal-theme textarea:focus{border-color:#00a76f;box-shadow:0 0 0 3px rgba(0,167,111,.09)}
+body.minimal-theme .meta{color:#919eab;font-size:10px}
+body.minimal-theme .persist{color:#00a76f}
+body.minimal-theme .select-all-label{color:#637381}
+body.minimal-theme .analytics-card{padding:16px}
+body.minimal-theme .analytics-title{font-size:17px;color:#212b36}
+body.minimal-theme .analytics-sub,.minimal-theme .analytics-foot{color:#919eab}
+body.minimal-theme .analytics-stat{background:#fff;border:1px solid #e7eaee;border-radius:10px;padding:9px 10px;box-shadow:0 2px 7px rgba(145,158,171,.06)}
+body.minimal-theme .analytics-stat span{color:#919eab;font-size:8px}
+body.minimal-theme .analytics-stat b{color:#212b36;font-size:17px}
+body.minimal-theme .analytics-checkin{background:#fff!important;border-color:#dfe3e8!important;color:#637381!important}
+body.minimal-theme .analytics-checkin.done{background:#e8f7f2!important;color:#007e59!important;border-color:#bfe9db!important}
+body.minimal-theme .analytics-calendar-head strong,body.minimal-theme .analytics-chart-head strong{color:#212b36}
+body.minimal-theme .analytics-calendar-actions button,body.minimal-theme .analytics-tabs button{background:#fff;color:#637381;border-color:#dfe3e8}
+body.minimal-theme .analytics-tabs button.active{background:#00a76f;color:#fff;border-color:#00a76f}
+body.minimal-theme .calendar-day{background:#fafbfc;border-color:#e5e9ed;color:#212b36}
+body.minimal-theme .calendar-day.checked{background:#e8f7f2;border-color:#8dd7bd;color:#007e59}
+body.minimal-theme .calendar-day.today{outline:2px solid #00a76f}
+body.minimal-theme .calendar-dot{background:#00a76f}
+body.minimal-theme .calendar-count{background:#00a76f}
+body.minimal-theme .analytics-track{background:#f4f6f8;border-color:#e0e5e9}
+body.minimal-theme .analytics-bar{background:#00a76f}
+body.minimal-theme .status-button{background:#fff;color:#637381;border-color:#dfe3e8;border-radius:8px}
+body.minimal-theme .status-button.status-not-learned{background:#fff8e8;color:#996b00;border-color:#f7d98b}
+body.minimal-theme .status-button.status-learned{background:#e8f7f2;color:#007e59;border-color:#bfe9db}
+body.minimal-theme .status-button.status-in-progress{background:#eef8f5;color:#087b5d;border-color:#bfe9db}
+body.minimal-theme .status-button.status-custom{background:#f4f6f8;color:#637381;border-color:#dfe3e8}
+body.minimal-theme .status-menu-global{background:#fff;border-color:#e0e5e9;border-radius:12px;box-shadow:0 18px 42px rgba(67,72,79,.15)}
+body.minimal-theme .status-choice{color:#212b36}
+body.minimal-theme .status-choice:hover{background:#f4f6f8}
+body.minimal-theme .example-pair{border-bottom:1px dashed #e7eaee}
+body.minimal-theme .example-number{border-color:#e2e7eb;color:#919eab;background:#fafbfc}
+body.minimal-theme .example-remove{border-color:#e0e5e9;background:#f4f6f8;color:#919eab}
+body.minimal-theme .example-add{border-color:#ccefe2;color:#00a76f;background:#fff}
+body.minimal-theme .github-status-inline{background:#f4f6f8;border-color:#e3e7eb}
+body.minimal-theme .preview-status{background:#fff;border-color:#e0e5e9;box-shadow:0 14px 34px rgba(67,72,79,.12)}
+body.minimal-theme .layout-resizer::before{background:#b8c2ca;box-shadow:-3px 0 0 #b8c2ca,3px 0 0 #b8c2ca}
+body.minimal-theme .coach-inline{background:#fff;border-color:#e0e5e9;box-shadow:0 8px 24px rgba(145,158,171,.08)}
+body.minimal-theme .duplicate-warning{background:#fff8e8;color:#996b00;border-color:#f7d98b}
+body.minimal-theme .agent-shell{box-shadow:none}
+body.minimal-theme .app .table-footer button{background:#00a76f}
+body.minimal-theme .design-toggle-active{background:#e8f7f2!important;color:#007e59!important;border-color:#bfe9db!important}
+@media(max-width:1100px){
+ body.minimal-theme .minimal-nav{width:76px;padding:16px 10px}
+ body.minimal-theme .minimal-brand{justify-content:center;padding:2px 0 18px}
+ body.minimal-theme .minimal-brand-name,body.minimal-theme .minimal-nav-group,body.minimal-theme .minimal-nav-item b,body.minimal-theme .minimal-help-card{display:none}
+ body.minimal-theme .minimal-nav-item{justify-content:center;padding:10px}
+ body.minimal-theme .minimal-topbar{left:76px}
+ body.minimal-theme .app{width:calc(100% - 76px);margin-left:76px}
+}
+@media(max-width:760px){
+ body.minimal-theme .minimal-topbar{height:62px;padding:0 10px}
+ body.minimal-theme .minimal-breadcrumb{min-width:0}
+ body.minimal-theme .minimal-breadcrumb span,body.minimal-theme .minimal-breadcrumb strong,body.minimal-theme .minimal-search-proxy{display:none}
+ body.minimal-theme .app{width:100%;margin-left:0;padding:76px 10px 10px}
+ body.minimal-theme .minimal-nav{display:none}
+ body.minimal-theme .minimal-topbar{left:0}
+ body.minimal-theme .minimal-top-actions{gap:5px}
+}
+
 body.minimal-theme{--bg:#f9fafb;--card:#fff;--card2:#f4f6f8;--text:#1c252e;--muted:#637381;--line:#e6e9ed;--input:#fff;--blue:#00a76f;--green:#00a76f;--yellow:#ffab00;--danger:#ff5630;color-scheme:light;background:var(--bg)}
 body.minimal-theme .card{border-color:#e7eaee;border-radius:16px;box-shadow:0 4px 16px rgba(145,158,171,.12),0 0 0 1px rgba(145,158,171,.05)}
 body.minimal-theme .table-card{box-shadow:0 3px 12px rgba(145,158,171,.10)}
@@ -51,9 +174,43 @@ body.minimal-theme .example-pair{border-bottom-color:#e7eaee}
 </style>
 </head>
 <body class="auth-checking">
+<div class="minimal-shell" id="minimalShell" aria-hidden="true">
+  <aside class="minimal-nav" aria-label="Minimal navigation">
+    <div class="minimal-brand">
+      <div class="minimal-brand-mark">M</div>
+      <div class="minimal-brand-name">Collocation<span>Library</span></div>
+    </div>
+    <div class="minimal-nav-group">OVERVIEW</div>
+    <button type="button" class="minimal-nav-item active" data-minimal-target="table-card"><span>▤</span><b>Collocations</b></button>
+    <button type="button" class="minimal-nav-item" data-minimal-target="analytics"><span>◔</span><b>Học tập</b></button>
+    <div class="minimal-nav-group">MANAGEMENT</div>
+    <button type="button" class="minimal-nav-item" data-minimal-target="box1"><span>⚙</span><b>Quản lý Preview</b></button>
+    <button type="button" class="minimal-nav-item" data-minimal-target="analytics"><span>◫</span><b>Analytics</b></button>
+    <div class="minimal-nav-bottom">
+      <div class="minimal-help-card">
+        <span class="minimal-help-kicker">PREVIEW</span>
+        <strong>Design system</strong>
+        <small>Minimal_Web.fig</small>
+      </div>
+    </div>
+  </aside>
+  <header class="minimal-topbar">
+    <div class="minimal-breadcrumb">
+      <span>Workspace</span><strong>/</strong><b>English Collocations</b>
+    </div>
+    <button type="button" class="minimal-search-proxy" id="minimalSearchProxy" title="Focus vào tìm kiếm collocation">
+      <span>⌕</span><span>Tìm collocation hoặc câu ví dụ...</span><kbd>⌘ K</kbd>
+    </button>
+    <div class="minimal-top-actions">
+      <button type="button" class="minimal-top-icon" id="minimalThemeTop" title="Đổi Dark / Light">☼</button>
+      <button type="button" class="minimal-design-toggle" id="designToggleTop" aria-pressed="true">🎨 Minimal</button>
+      <div class="minimal-avatar" aria-label="Người dùng">N</div>
+    </div>
+  </header>
+</div>
 <div class="app">
 <main class="main">
-<section class="card brand" id="box1"><div class="box-head"><div><div class="eyebrow">BOX 1 · CÔNG CỤ</div><div class="box-title">⚙️ Quản lý Preview</div><div class="box-sub">Giao diện, backup và trạng thái GitHub Pages.</div></div><div class="account-mini"><span id="appUser">Đang xác thực…</span><button class="secondary small-action" id="appLogout" type="button">Đăng xuất</button></div></div><div class="actions"><button class="secondary" id="theme">☀️ Light mode</button><button class="secondary" id="designToggle" type="button" title="Chuyển giữa giao diện cũ và Design System Minimal">🎨 Giao diện: Cũ</button><button class="secondary" id="backup">💾 Backup</button><button class="secondary" id="restore">📂 Restore</button><button class="secondary" id="csv">📊 Export CSV</button><button class="danger" id="clear">🗑️ Xóa tất cả</button></div><div class="github-status-inline" id="previewStatus" aria-live="polite" data-preview-build="d7f20ab"><div class="ps-row"><span class="ps-dot busy" id="psDot"></span><span class="ps-title" id="psTitle">Đang kiểm tra Preview…</span><span class="ps-time" id="psTime"></span></div><div class="ps-sub" id="psSub">Đang kiểm tra source GitHub.</div><div class="ps-actions"><button class="secondary" id="psCheck">↻ Kiểm tra</button><button class="secondary" id="psReload">⟳ Reload</button></div></div></section>
+<section class="card brand" id="box1"><div class="box-head"><div><div class="eyebrow">BOX 1 · CÔNG CỤ</div><div class="box-title">⚙️ Quản lý Preview</div><div class="box-sub">Giao diện, backup và trạng thái GitHub Pages.</div></div><div class="account-mini"><span id="appUser">Đang xác thực…</span><button class="secondary small-action" id="appLogout" type="button">Đăng xuất</button></div></div><div class="actions"><button class="secondary" id="theme">☀️ Light mode</button><button class="secondary" id="designToggle" type="button" title="Chuyển giữa giao diện cũ và Design System Minimal">🎨 Giao diện: Cũ</button><button class="secondary" id="backup">💾 Backup</button><button class="secondary" id="restore">📂 Restore</button><button class="secondary" id="csv">📊 Export CSV</button><button class="danger" id="clear">🗑️ Xóa tất cả</button></div><div class="github-status-inline" id="previewStatus" aria-live="polite" data-preview-build="e2b4f6a"><div class="ps-row"><span class="ps-dot busy" id="psDot"></span><span class="ps-title" id="psTitle">Đang kiểm tra Preview…</span><span class="ps-time" id="psTime"></span></div><div class="ps-sub" id="psSub">Đang kiểm tra source GitHub.</div><div class="ps-actions"><button class="secondary" id="psCheck">↻ Kiểm tra</button><button class="secondary" id="psReload">⟳ Reload</button></div></div></section>
 <section class="card"><div class="controls"><input id="search" placeholder="🔎 Tìm collocation hoặc câu ví dụ..."><select id="filter"><option value="">Tất cả chủ đề</option></select><select id="statusFilter" title="Lọc theo status" aria-label="status"><option value="">status</option></select></div><div class="duplicate-warning" id="duplicateWarning" hidden><span>⚠️</span><span id="duplicateWarningText"></span></div><div class="meta"><span>Tổng số: <b id="count">0</b></span><span>Đang hiển thị: <b id="shown">0</b></span><span>💾 Đã lưu trên Preview</span><span class="persist" id="persist">Local data</span></div><div class="selection-actions"><label class="select-all-label"><input type="checkbox" id="selectAll"> Chọn tất cả</label><button class="danger bulk-delete" id="bulkDelete">Xóa (0)</button></div></section>
 <section class="card table-card"><div class="table-wrap"><table><thead><tr><th class="select-col">Chọn</th><th>STT</th><th>Collocation</th><th>CẤU TRÚC</th><th>Nghĩa Collocation</th><th>Chủ đề</th><th>Câu giao tiếp ví dụ</th><th>Nghĩa câu ví dụ</th><th>Status</th><th>Ngày Done</th><th>Ngày tạo</th><th>Xóa</th></tr></thead><tbody id="body"></tbody></table><div class="empty" id="empty">Không có dữ liệu. Bấm “＋ Thêm dòng” để bắt đầu.</div></div><div class="table-footer"><button id="add">＋ Thêm dòng</button></div></section>
 </main>
@@ -82,11 +239,16 @@ function fillStatusMenu(button){openStatusId=Number(button.closest('tr').dataset
 function render(){const duplicates=duplicateGroups();$('duplicateWarning').hidden=!duplicates.length;if(duplicates.length){const sample=duplicates.slice(0,3).map(group=>'“'+group.value+'”').join(', ');$('duplicateWarningText').textContent='Phát hiện '+duplicates.length+' collocation bị trùng: '+sample+(duplicates.length>3?'…':'')}const q=$('search').value,topic=$('filter').value,status=$('statusFilter').value,topics=[...new Set(data.map(x=>x.t).filter(Boolean))].sort(),statuses=loadStatuses();$('filter').innerHTML='<option value="">Tất cả chủ đề</option>'+topics.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('');if(topics.includes(topic))$('filter').value=topic;$('statusFilter').innerHTML='<option value="">status</option>'+statuses.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('');const selectedStatus=statuses.find(x=>normalizeStatus(x)===normalizeStatus(status));if(selectedStatus)$('statusFilter').value=selectedStatus;const rows=getFiltered();$('count').textContent=data.length;$('shown').textContent=rows.length;$('empty').style.display=rows.length?'none':'block';$('selectAll').checked=rows.length>0&&rows.every(x=>selected.has(x.id));$('bulkDelete').classList.toggle('visible',selected.size>0);$('bulkDelete').textContent='Xóa ('+selected.size+')';$('body').innerHTML=rows.map(x=>'<tr data-id="'+esc(x.id)+'"><td class="select-col"><input class="row-check" type="checkbox" '+(selected.has(x.id)?'checked':'')+'></td><td>'+(data.indexOf(x)+1)+'</td><td><div class="editable coll" data-field="c" contenteditable="true">'+mark(x.c,q)+'</div></td><td><div class="editable structure" data-field="structure" contenteditable="true">'+mark(x.structure,q)+'</div></td><td><div class="editable meaning" data-field="m" contenteditable="true">'+mark(x.m,q)+'</div></td><td><div class="editable topic" data-field="t" contenteditable="true">'+mark(x.t,q)+'</div></td><td class="example-cell">'+exampleStackHtml(x,q,'e')+'</td><td class="example-cell">'+exampleStackHtml(x,q,'em')+'</td><td>'+statusCell(x)+'</td><td class="done-date">'+date(x.doneAt)+'</td><td class="date">'+date(x.createdAt)+'</td><td class="row-actions"><button class="danger del">Xóa</button></td></tr>').join('');document.querySelectorAll('.row-check').forEach(el=>el.addEventListener('change',e=>{const id=Number(e.target.closest('tr').dataset.id);e.target.checked?selected.add(id):selected.delete(id);render()}));document.querySelectorAll('.del').forEach(el=>el.addEventListener('click',()=>deleteRows([Number(el.closest('tr').dataset.id)])));document.querySelectorAll('.example-add').forEach(el=>el.addEventListener('click',()=>{const id=Number(el.closest('tr').dataset.id);syncLatest();const r=data.find(x=>x.id===id);if(!r)return;const xs=examplesOf(r);xs.push({e:'',em:''});r.examples=xs;r.e=xs[0]?.e||'';r.em=xs[0]?.em||'';save();render();setTimeout(()=>document.querySelector('tr[data-id="'+id+'"] .editable[data-field="e"][data-example-index="'+(xs.length-1)+'"]')?.focus(),20)}));document.querySelectorAll('.example-remove').forEach(el=>el.addEventListener('click',()=>{const id=Number(el.closest('tr').dataset.id),index=Number(el.dataset.exampleRemove);syncLatest();const r=data.find(x=>x.id===id);if(!r)return;const xs=examplesOf(r);xs.splice(index,1);r.examples=xs.length?xs:[{e:'',em:''}];r.e=r.examples[0].e||'';r.em=r.examples[0].em||'';save();render()}));document.querySelectorAll('.editable').forEach(el=>{el.addEventListener('blur',()=>commit(el));el.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();el.blur()}})})}
 function syncLatest(){data=load();return data}function syncExamplePair(r,index){const xs=examplesOf(r);while(xs.length<=index)xs.push({e:'',em:''});r.examples=xs;r.e=r.examples[0]?.e||'';r.em=r.examples[0]?.em||''}function commit(el){syncLatest();const id=Number(el.closest('tr').dataset.id),field=el.dataset.field,r=data.find(x=>x.id===id);if(!r)return;const val=el.innerText.trim();if(field==='c'&&val){const duplicate=findDuplicateCollocation(data,val,id);if(duplicate){alert('Collocation này đã tồn tại trong bảng: “'+duplicate.c+'”. Không thể tạo bản trùng.');render();setTimeout(()=>document.querySelector('tr[data-id="'+id+'"] .editable[data-field="c"]')?.focus(),50);return}}if(field==='c'){r.cefr=String(el.dataset.suggestCefr||'').trim();delete el.dataset.suggestCefr;r.structure=val?inferStructure(val):'';if(!val)r.m=''}if(field==='e'||field==='em'){const index=Math.max(0,Number(el.dataset.exampleIndex)||0);syncExamplePair(r,index);r.examples[index][field]=val;if(field==='e'&&!val)r.examples[index].em='';syncExamplePair(r,index);save();render();if(field==='e'&&val)window.AutoTranslate?.schedule(id,'e',val,{immediate:true,exampleIndex:index});return}if(r[field]===val&&field!=='c')return;r[field]=val;save();render();if(field==='c'&&val)window.PreviewIngestion?.autoFill?.(id,val)}function addRow(){syncLatest();const r=row({c:'',structure:'',m:'',t:'',e:'',em:'',examples:[{e:'',em:''}],s:'Chưa học'});data.push(r);save();render();setTimeout(()=>document.querySelector('tr[data-id="'+r.id+'"] .editable[data-field="c"]')?.focus(),50)}function deleteRows(ids){syncLatest();data=data.filter(x=>!ids.includes(x.id));ids.forEach(id=>selected.delete(id));window.PreviewAnalytics?.pruneToRows?.(data);window.PreviewSRS?.syncRows?.(data);save();render()}function clearAll(){syncLatest();if(!data.length)return;if(!confirm('Xóa toàn bộ '+data.length+' dòng?'))return;data=[];selected.clear();window.PreviewAnalytics?.pruneToRows?.(data);window.PreviewSRS?.syncRows?.(data);save();render()}function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}function backup(){downloadBlob(new Blob([JSON.stringify({version:3,data,statuses:loadStatuses(),analytics:window.PreviewAnalytics?.getSnapshot?.()||{checkins:[],learningEvents:[]},goals:window.PreviewGoals?.getSnapshot?.()||{},srs:window.PreviewSRS?.getSnapshot?.()||{},coach:window.PreviewCoach?.getSnapshot?.()||{},domains:window.PreviewDomains?.getSnapshot?.()||[]},null,2)],{type:'application/json'}),'english-collocations-preview-backup.json')}function restore(){const i=document.createElement('input');i.type='file';i.accept='.json,application/json';i.onchange=()=>{const f=i.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result);const restored=Array.isArray(p)?p:p?.data;if(!Array.isArray(restored))throw 0;const restoredRows=restored.map(row),duplicates=findDuplicateCollocations(restoredRows);if(duplicates.length){alert('File backup có '+duplicates.length+' collocation bị trùng. Preview từ chối Restore để tránh tạo dữ liệu trùng.');return}data=restoredRows;if(!Array.isArray(p)&&Array.isArray(p.statuses))saveStatuses(p.statuses);if(!Array.isArray(p)&&p.analytics&&typeof p.analytics==='object')window.PreviewAnalytics?.restoreSnapshot?.(p.analytics);window.PreviewGoals?.restoreSnapshot?.(p.goals);window.PreviewSRS?.restoreSnapshot?.(p.srs);if(!Array.isArray(p)&&p.coach)window.PreviewCoach?.restoreSnapshot?.(p.coach);if(!Array.isArray(p)&&Array.isArray(p.domains))window.PreviewDomains?.restoreSnapshot?.(p.domains);window.PreviewAnalytics?.pruneToRows?.(data);window.PreviewSRS?.syncRows?.(data);selected.clear();save();render()}catch{alert('File backup không hợp lệ.')}};r.readAsText(f)};i.click()}function csv(){const h=['STT','Collocation','Cấu trúc','Nghĩa Collocation','Chủ đề','Domain','Tags','CEFR','Câu giao tiếp ví dụ','Nghĩa câu ví dụ','Status','Ngày Done','Ngày tạo'],ls=[h,...data.map((r,i)=>[i+1,r.c,r.structure||'',r.m,r.t,(r.domains||[]).join(' | '),(r.tags||[]).join(' | '),r.cefr,examplesOf(r).map(x=>x.e).filter(Boolean).join('\n'),examplesOf(r).map(x=>x.em).filter(Boolean).join('\n'),r.s,date(r.doneAt),date(r.createdAt)])].map(a=>a.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(','));downloadBlob(new Blob(['\\ufeff'+ls.join('\\n')],{type:'text/csv;charset=utf-8'}),'english-collocations-preview.csv')}function applyTheme(v){document.body.classList.toggle('light-theme',v==='light');$('theme').textContent=v==='light'?'🌙 Dark mode':'☀️ Light mode'}function toggleTheme(){const v=document.body.classList.contains('light-theme')?'dark':'light';localStorage.setItem(THEME,v);applyTheme(v)}
 const DESIGN_KEY='english-collocations-preview-design-v1',DESIGN_BACKUP_KEY='english-collocations-preview-theme-backup-v1';
-function applyDesignMode(mode){const minimal=mode==='minimal';document.body.classList.toggle('minimal-theme',minimal);const btn=$('designToggle');if(btn){btn.textContent=minimal?'🎨 Giao diện: Minimal':'🎨 Giao diện: Cũ';btn.classList.toggle('design-toggle-active',minimal);btn.setAttribute('aria-pressed',String(minimal));}}
+function applyDesignMode(mode){const minimal=mode==='minimal';document.body.classList.toggle('minimal-theme',minimal);const btn=$('designToggle');if(btn){btn.textContent=minimal?'🎨 Giao diện: Minimal':'🎨 Giao diện: Cũ';btn.classList.toggle('design-toggle-active',minimal);btn.setAttribute('aria-pressed',String(minimal));}const top=$('designToggleTop');if(top){top.textContent=minimal?'🎨 Minimal':'🎨 Cũ';top.setAttribute('aria-pressed',String(minimal));}if($('minimalShell')){$('minimalShell').setAttribute('aria-hidden',String(!minimal));}}
 function setDesignMode(mode){if(mode==='minimal'){if(!localStorage.getItem(DESIGN_BACKUP_KEY))localStorage.setItem(DESIGN_BACKUP_KEY,localStorage.getItem(THEME)||'dark');localStorage.setItem(DESIGN_KEY,'minimal');applyDesignMode('minimal');applyTheme('light')}else{localStorage.setItem(DESIGN_KEY,'legacy');applyDesignMode('legacy');const restore=localStorage.getItem(DESIGN_BACKUP_KEY)||localStorage.getItem(THEME)||'dark';localStorage.setItem(THEME,restore);applyTheme(restore);localStorage.removeItem(DESIGN_BACKUP_KEY)}}
 function toggleDesignMode(){const next=document.body.classList.contains('minimal-theme')?'legacy':'minimal';setDesignMode(next)}function refreshFromStorage(){const next=load();if(JSON.stringify(next)!==JSON.stringify(data)){data=next;render()}}
 function applyHistorySnapshot(snapshot){try{const parsed=JSON.parse(snapshot);data=(Array.isArray(parsed)?parsed:[]).map(row);window.PreviewAnalytics?.pruneToRows?.(data);window.PreviewSRS?.syncRows?.(data);save(false);selected.clear();render()}catch{}}function undo(){const result=undoHistory({undo:undoStack,redo:redoStack,current:historySnapshot});undoStack=result.state.undo;redoStack=result.state.redo;if(result.snapshot)applyHistorySnapshot(result.snapshot)}function redo(){const result=redoHistory({undo:undoStack,redo:redoStack,current:historySnapshot});undoStack=result.state.undo;redoStack=result.state.redo;if(result.snapshot)applyHistorySnapshot(result.snapshot)}window.PreviewTable={getRows:()=>data.map(x=>row(x)),setRows(next){data=(Array.isArray(next)?next:[]).map(x=>row(x));save();render()},refresh:render,undo,redo};
-$('search').addEventListener('input',render);$('filter').addEventListener('change',render);$('statusFilter').addEventListener('change',render);$('designToggle').addEventListener('click',toggleDesignMode);$('selectAll').addEventListener('change',e=>{getFiltered().forEach(x=>e.target.checked?selected.add(x.id):selected.delete(x.id));render()});$('bulkDelete').addEventListener('click',()=>deleteRows([...selected]));$('add').addEventListener('click',addRow);$('clear').addEventListener('click',clearAll);$('backup').addEventListener('click',backup);$('restore').addEventListener('click',restore);$('csv').addEventListener('click',csv);$('theme').addEventListener('click',toggleTheme);window.addEventListener('storage',()=>{data=load();render()});document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.key.toLowerCase()!=='z')return;if(e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;e.preventDefault();e.shiftKey?redo():undo()});document.addEventListener('click',e=>{const toggle=e.target.closest('[data-status-toggle]');if(toggle){e.preventDefault();e.stopPropagation();fillStatusMenu(toggle);return}if(!e.target.closest('#statusMenu'))closeStatusMenu()});$('statusMenu').addEventListener('click',e=>{const choice=e.target.closest('[data-status-choice]');if(choice){const id=openStatusId;syncLatest();const result=setRowStatus(data,id,choice.dataset.statusChoice);if(result.changed)data=result.rows;if(result.changed){window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice);window.PreviewSRS?.onStatusChange?.(id,choice.dataset.statusChoice)}save();closeStatusMenu();render();return}const remove=e.target.closest('[data-status-remove]');if(remove){const status=normalizeStatus(remove.dataset.statusRemove);if(!status)return;if(!confirm('Xóa trạng thái "'+status+'"? Các dòng đang dùng trạng thái này sẽ được bỏ trạng thái.'))return;syncLatest();const cleared=clearStatusFromRows(data,status);if(cleared.changed)data=cleared.rows;saveStatuses(removeStatus(loadStatuses(),status));save();closeStatusMenu();render();return}if(e.target.closest('#statusAdd')){const name=prompt('Nhập tên trạng thái mới:','Đang học');const result=addStatus(loadStatuses(),name);if(!result.added)return;saveStatuses(result.statuses);if(openStatusId!==null){syncLatest();const assigned=setRowStatus(data,openStatusId,result.status);if(assigned.changed)data=assigned.rows;save()}closeStatusMenu();render();return}});window.addEventListener('resize',closeStatusMenu);window.addEventListener('scroll',closeStatusMenu,true);window.addEventListener('storage',()=>{data=load();render()});applyTheme(localStorage.getItem(THEME)||'dark');applyDesignMode(localStorage.getItem(DESIGN_KEY)==='minimal'?'minimal':'legacy');data=load();const initialSnapshot=JSON.stringify(data.map(row));const initialHistory=createHistory(initialSnapshot);historySnapshot=initialHistory.current;undoStack=initialHistory.undo;redoStack=initialHistory.redo;historyReady=true;render();
+$('search').addEventListener('input',render);$('filter').addEventListener('change',render);$('statusFilter').addEventListener('change',render);$('designToggle').addEventListener('click',toggleDesignMode);
+const minimalSearchProxy=$('minimalSearchProxy'),minimalThemeTop=$('minimalThemeTop'),designToggleTop=$('designToggleTop'),minimalShell=$('minimalShell');
+minimalSearchProxy?.addEventListener('click',()=>{$('search')?.focus();$('search')?.scrollIntoView({behavior:'smooth',block:'center'})});
+minimalThemeTop?.addEventListener('click',toggleTheme);
+designToggleTop?.addEventListener('click',toggleDesignMode);
+document.querySelectorAll('[data-minimal-target]').forEach(btn=>btn.addEventListener('click',()=>{const target=btn.dataset.minimalTarget,el=target==='table-card'?document.querySelector('.table-card'):target==='analytics'?document.querySelector('.analytics-card'):document.getElementById(target);if(el){el.scrollIntoView({behavior:'smooth',block:'start'});}document.querySelectorAll('.minimal-nav-item').forEach(x=>x.classList.toggle('active',x===btn));}));$('selectAll').addEventListener('change',e=>{getFiltered().forEach(x=>e.target.checked?selected.add(x.id):selected.delete(x.id));render()});$('bulkDelete').addEventListener('click',()=>deleteRows([...selected]));$('add').addEventListener('click',addRow);$('clear').addEventListener('click',clearAll);$('backup').addEventListener('click',backup);$('restore').addEventListener('click',restore);$('csv').addEventListener('click',csv);$('theme').addEventListener('click',toggleTheme);window.addEventListener('storage',()=>{data=load();render()});document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.key.toLowerCase()!=='z')return;if(e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;e.preventDefault();e.shiftKey?redo():undo()});document.addEventListener('click',e=>{const toggle=e.target.closest('[data-status-toggle]');if(toggle){e.preventDefault();e.stopPropagation();fillStatusMenu(toggle);return}if(!e.target.closest('#statusMenu'))closeStatusMenu()});$('statusMenu').addEventListener('click',e=>{const choice=e.target.closest('[data-status-choice]');if(choice){const id=openStatusId;syncLatest();const result=setRowStatus(data,id,choice.dataset.statusChoice);if(result.changed)data=result.rows;if(result.changed){window.PreviewAnalytics?.recordStudy(id,choice.dataset.statusChoice);window.PreviewSRS?.onStatusChange?.(id,choice.dataset.statusChoice)}save();closeStatusMenu();render();return}const remove=e.target.closest('[data-status-remove]');if(remove){const status=normalizeStatus(remove.dataset.statusRemove);if(!status)return;if(!confirm('Xóa trạng thái "'+status+'"? Các dòng đang dùng trạng thái này sẽ được bỏ trạng thái.'))return;syncLatest();const cleared=clearStatusFromRows(data,status);if(cleared.changed)data=cleared.rows;saveStatuses(removeStatus(loadStatuses(),status));save();closeStatusMenu();render();return}if(e.target.closest('#statusAdd')){const name=prompt('Nhập tên trạng thái mới:','Đang học');const result=addStatus(loadStatuses(),name);if(!result.added)return;saveStatuses(result.statuses);if(openStatusId!==null){syncLatest();const assigned=setRowStatus(data,openStatusId,result.status);if(assigned.changed)data=assigned.rows;save()}closeStatusMenu();render();return}});window.addEventListener('resize',closeStatusMenu);window.addEventListener('scroll',closeStatusMenu,true);window.addEventListener('storage',()=>{data=load();render()});applyTheme(localStorage.getItem(THEME)||'dark');applyDesignMode(localStorage.getItem(DESIGN_KEY)==='minimal'?'minimal':'legacy');data=load();const initialSnapshot=JSON.stringify(data.map(row));const initialHistory=createHistory(initialSnapshot);historySnapshot=initialHistory.current;undoStack=initialHistory.undo;redoStack=initialHistory.redo;historyReady=true;render();
 const LAYOUT_KEY='english-collocations-preview-layout-v1',layoutResizer=$('layoutResizer'),appShell=document.querySelector('.app');let layoutDragging=false;
 function layoutBounds(){const rect=appShell.getBoundingClientRect(),minSidebar=320,maxSidebar=Math.min(620,Math.max(320,rect.width-520-12));return{rect,minSidebar,maxSidebar}}
 function applySidebarWidth(value,persist=true){const {minSidebar,maxSidebar}=layoutBounds();const width=Math.round(Math.min(maxSidebar,Math.max(minSidebar,Number(value)||minSidebar)));appShell.style.setProperty('--sidebar-w',width+'px');if(persist)localStorage.setItem(LAYOUT_KEY,String(width));return width}
@@ -97,7 +259,7 @@ layoutResizer.addEventListener('pointerdown',e=>{if(window.innerWidth<=1000)retu
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script type="module" src="./auth-gate.js?v=1"></script><script type="module" src="./goals-ui.js?v=1"></script><script type="module" src="./srs-ui.js?v=1"></script><script type="module" src="./smart-tools.js?v=9"></script><script type="module" src="./ai-agent.js?v=9"></script><script type="module" src="./domains-ui.js?v=3"></script><script type="module" src="./vocabulary-ui.js?v=6"></script><script type="module" src="./smart-ingestion.js?v=4"></script><script type="module" src="./quiz-ui.js?v=1"></script><script type="module" src="./focus-ui.js?v=1"></script><script type="module" src="./family-ui.js?v=1"></script><script type="module" src="./coverage-ui.js?v=1"></script><script type="module" src="./coach-ui.js?v=2"></script><script type="module" src="./anki-export.js?v=1"></script><script type="module" src="./print-export.js?v=1"></script>
 <script>
-const expected='d7f20ab',raw='https://raw.githubusercontent.com/studywithnhu02/english-collocations/main/preview/app.html';function setPreview(k,title,sub){$('psDot').className='ps-dot '+k;$('psTitle').textContent=title;$('psSub').textContent=sub;$('psTime').textContent=new Date().toLocaleTimeString('vi-VN')}async function checkPreview(){setPreview('busy','🟡 Đang kiểm tra Preview…','Đang so sánh build đang chạy với source GitHub.');try{const r=await fetch(raw+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const text=await r.text();const m=text.match(/data-preview-build="([0-9a-f]{7,40})"/i);const live=m?m[1]:'';if(live===expected)setPreview('ok','🟢 Preview đã cập nhật','Management Preview · build '+live+' · source GitHub đã lên Pages.');else setPreview('busy','🟡 GitHub Pages đang cập nhật','Source mới đã có build '+expected+' · Pages hiện vẫn đang phục vụ '+(live||'build cũ')+'.')}catch(e){setPreview('err','⚠️ Không kiểm tra được','GitHub Pages chưa phản hồi. Bạn vẫn có thể reload thủ công.')}}$('psCheck').addEventListener('click',checkPreview);$('psReload').addEventListener('click',()=>location.reload());checkPreview();setInterval(checkPreview,15000);
+const expected='e2b4f6a',raw='https://raw.githubusercontent.com/studywithnhu02/english-collocations/main/preview/app.html';function setPreview(k,title,sub){$('psDot').className='ps-dot '+k;$('psTitle').textContent=title;$('psSub').textContent=sub;$('psTime').textContent=new Date().toLocaleTimeString('vi-VN')}async function checkPreview(){setPreview('busy','🟡 Đang kiểm tra Preview…','Đang so sánh build đang chạy với source GitHub.');try{const r=await fetch(raw+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const text=await r.text();const m=text.match(/data-preview-build="([0-9a-f]{7,40})"/i);const live=m?m[1]:'';if(live===expected)setPreview('ok','🟢 Preview đã cập nhật','Management Preview · build '+live+' · source GitHub đã lên Pages.');else setPreview('busy','🟡 GitHub Pages đang cập nhật','Source mới đã có build '+expected+' · Pages hiện vẫn đang phục vụ '+(live||'build cũ')+'.')}catch(e){setPreview('err','⚠️ Không kiểm tra được','GitHub Pages chưa phản hồi. Bạn vẫn có thể reload thủ công.')}}$('psCheck').addEventListener('click',checkPreview);$('psReload').addEventListener('click',()=>location.reload());checkPreview();setInterval(checkPreview,15000);
 </script>
 
 <script type="module" src="./spellcheck.js?v=1"></script>
