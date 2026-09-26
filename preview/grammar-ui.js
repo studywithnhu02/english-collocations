@@ -7,19 +7,37 @@ const topic=unit=>GRAMMAR_TOPICS.find(x=>x.unit===unit);
 const visible=()=>{const q=state.query.trim().toLocaleLowerCase('vi');return GRAMMAR_TOPICS.filter(x=>(state.chapter==='all'||x.chapterId===state.chapter)&&(state.status==='all'||(state.status==='done'&&state.progress[x.id]?.done)||(state.status==='todo'&&!state.progress[x.id]?.done))&&(!q||[x.unit,x.title,x.chapter,x.formula,x.memory,x.example].join(' ').toLocaleLowerCase('vi').includes(q)))};
 const chapterProgress=id=>{const a=GRAMMAR_TOPICS.filter(x=>x.chapterId===id),d=a.filter(x=>state.progress[x.id]?.done).length;return{done:d,total:a.length,percent:Math.round(d/a.length*100)}};
 
+const GRAMMAR_LAYOUT_KEY='english-collocations-preview-grammar-layout-v1';
+let grammarResizeBound=false;
+function grammarLayoutBounds(){const root=$('grammarScreen'),rect=root?.getBoundingClientRect();if(!rect)return{min:260,max:520};const min=260,max=Math.min(520,Math.max(min,rect.width-650));return{min,max}};
+function applyGrammarSidebarWidth(value,persist=true){const root=$('grammarScreen');if(!root)return;const {min,max}=grammarLayoutBounds();const width=Math.round(Math.min(max,Math.max(min,Number(value)||320)));root.style.setProperty('--grammar-side-w',width+'px');if(persist)localStorage.setItem(GRAMMAR_LAYOUT_KEY,String(width));}
+function loadGrammarSidebarWidth(){const saved=Number(localStorage.getItem(GRAMMAR_LAYOUT_KEY));if(Number.isFinite(saved)&&saved>=260)applyGrammarSidebarWidth(saved,false);}
+function resetGrammarSidebarWidth(){localStorage.removeItem(GRAMMAR_LAYOUT_KEY);const root=$('grammarScreen');root?.style.removeProperty('--grammar-side-w');}
+function bindGrammarResizer(){const el=$('grammar2SideResizer');if(!el)return;let dragging=false;
+ const pointerMove=e=>{if(!dragging)return;const root=$('grammarScreen'),rect=root.getBoundingClientRect();applyGrammarSidebarWidth(Math.round(rect.right-e.clientX),true)};
+ const stop=e=>{if(!dragging)return;dragging=false;el.classList.remove('is-dragging');document.body.classList.remove('grammar-resizing');try{el.releasePointerCapture?.(e.pointerId)}catch{}};
+ el.addEventListener('pointerdown',e=>{if(window.innerWidth<=1100)return;dragging=true;el.classList.add('is-dragging');document.body.classList.add('grammar-resizing');el.setPointerCapture?.(e.pointerId);pointerMove(e);e.preventDefault()});
+ el.addEventListener('pointermove',pointerMove);el.addEventListener('pointerup',stop);el.addEventListener('pointercancel',stop);
+ el.addEventListener('dblclick',resetGrammarSidebarWidth);
+ el.addEventListener('keydown',e=>{if(window.innerWidth<=1100)return;const root=$('grammarScreen');const current=parseFloat(getComputedStyle(root).getPropertyValue('--grammar-side-w'))||320;const {min,max}=grammarLayoutBounds();if(e.key==='ArrowLeft'){e.preventDefault();applyGrammarSidebarWidth(Math.min(max,current+16));}else if(e.key==='ArrowRight'){e.preventDefault();applyGrammarSidebarWidth(Math.max(min,current-16));}else if(e.key==='Home'){e.preventDefault();applyGrammarSidebarWidth(max);}else if(e.key==='End'){e.preventDefault();applyGrammarSidebarWidth(min);}});
+ grammarResizeBound=true;
+}
+
 function render(){
  const root=$('grammarScreen');if(!root)return;
  const s=getGrammarStats(state.progress),rows=visible();
  if(!rows.some(x=>x.unit===state.selected)&&rows[0])state.selected=rows[0].unit;
  root.innerHTML=
+ '<div class="grammar2-layout"><section class="grammar2-main">'+
  '<div class="grammar2-head"><div><div class="grammar2-eyebrow">ESSENTIAL GRAMMAR IN USE · ELEMENTARY</div><h1>📘 Grammar Learning Hub</h1><p>114 unit được lấy theo đúng thứ tự mục lục của tài liệu, sau đó cô đọng thành công thức 1 dòng + mẹo nhớ + ví dụ.</p></div><div class="grammar2-head-actions"><button type="button" class="secondary" id="grammarBack">← Collocation</button><button type="button" id="grammarExercise">📝 Bài tập</button><button type="button" class="secondary" id="grammarQuiz">🎯 Ôn nhanh</button></div></div>'+
  '<div class="grammar2-note"><b>3 bước học:</b> ① đọc công thức → ② nói lại ví dụ → ③ tự đặt 3 câu của bạn. Phần “Mẹo nhớ” là bản tóm tắt dễ học, không phải nguyên văn tài liệu.</div>'+
- '<div class="grammar2-stats"><div><span>Units</span><b>'+s.total+'</b><small>theo tài liệu</small></div><div><span>Đã nắm</span><b>'+s.done+'</b><small>đã đánh dấu</small></div><div><span>Còn lại</span><b>'+s.remaining+'</b><small>chưa hoàn thành</small></div><div class="grammar2-progress"><div><span>Progress</span><b>'+s.percent+'%</b></div><i><em style="width:'+s.percent+'%"></em></i></div></div>'+
- '<div class="grammar2-chapters">'+CHAPTERS.map(c=>{const p=chapterProgress(c.id);return '<button type="button" class="grammar2-chapter '+(state.chapter===c.id?'active':'')+'" data-chapter="'+c.id+'"><span>'+c.range+'</span><strong>'+esc(c.title)+'</strong><small>'+p.done+'/'+p.total+' · '+p.percent+'%</small><i><em style="width:'+p.percent+'%"></em></i></button>'}).join('')+'</div>'+
  '<div class="grammar2-toolbar"><input id="grammarSearch2" value="'+esc(state.query)+'" placeholder="🔎 Tìm unit, chủ đề, công thức hoặc từ khóa..."><select id="grammarChapter2"><option value="all">Tất cả phần</option>'+CHAPTERS.map(c=>'<option value="'+c.id+'" '+(state.chapter===c.id?'selected':'')+'>'+esc(c.range)+' · '+esc(c.title)+'</option>').join('')+'</select><select id="grammarStatus2"><option value="all">Tất cả trạng thái</option><option value="todo" '+(state.status==='todo'?'selected':'')+'>Chưa học</option><option value="done" '+(state.status==='done'?'selected':'')+'>Đã nắm</option></select></div>'+
  '<div class="grammar2-body"><section class="grammar2-list"><div class="grammar2-list-head"><b>'+rows.length+'</b> / '+GRAMMAR_TOPICS.length+' units</div><div class="grammar2-unit-list">'+rows.map(x=>{const done=!!state.progress[x.id]?.done;return '<button type="button" class="grammar2-unit '+(state.selected===x.unit?'selected':'')+'" data-unit="'+x.unit+'"><span class="grammar2-unit-no">'+String(x.unit).padStart(3,'0')+'</span><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.chapter)+'</small></div><span class="grammar2-unit-check">'+(done?'✓':'')+'</span></button>'}).join('')+(rows.length?'':'<div class="grammar2-empty">Không tìm thấy unit phù hợp.</div>')+'</div></section><section class="grammar2-detail" id="grammarDetail"></section></div>'+
- '<div class="grammar2-reference"><div class="grammar2-reference-head"><div><div class="grammar2-eyebrow">REFERENCE</div><h2>Phần phụ lục trong tài liệu</h2></div><span>'+APPENDICES.length+' phần</span></div><div class="grammar2-reference-grid">'+APPENDICES.map(x=>'<div><strong>'+esc(x.title)+'</strong><p>'+esc(x.summary)+'</p></div>').join('')+'</div></div>';
+ '</section><aside class="grammar2-side"><div class="grammar2-side-card"><div class="grammar2-side-title"><strong>📊 Tổng quan học tập</strong><span>114 Units</span></div>'+
+ '<div class="grammar2-stats"><div><span>Units</span><b>'+s.total+'</b><small>theo tài liệu</small></div><div><span>Đã nắm</span><b>'+s.done+'</b><small>đã đánh dấu</small></div><div><span>Còn lại</span><b>'+s.remaining+'</b><small>chưa hoàn thành</small></div><div class="grammar2-progress"><div><span>Progress</span><b>'+s.percent+'%</b></div><i><em style="width:'+s.percent+'%"></em></i></div></div>'+
+ '<div class="grammar2-side-title"><strong>📚 Các phần</strong><span>10 chapters</span></div><div class="grammar2-chapters">'+CHAPTERS.map(c=>{const p=chapterProgress(c.id);return '<button type="button" class="grammar2-chapter '+(state.chapter===c.id?'active':'')+'" data-chapter="'+c.id+'"><span>'+c.range+'</span><strong>'+esc(c.title)+'</strong><small>'+p.done+'/'+p.total+' · '+p.percent+'%</small><i><em style="width:'+p.percent+'%"></em></i></button>'}).join('')+'</div></div></aside><div class="grammar2-side-resizer" id="grammar2SideResizer" role="separator" aria-orientation="vertical" aria-label="Kéo để thay đổi chiều rộng khu vực tổng quan Grammar" tabindex="0" title="Kéo để thay đổi chiều rộng"></div></div>';
  renderDetail();
+ bindGrammarResizer();
  $('grammarSearch2').addEventListener('input',e=>{state.query=e.target.value;render()});
  $('grammarChapter2').addEventListener('change',e=>{state.chapter=e.target.value;render()});
  $('grammarStatus2').addEventListener('change',e=>{state.status=e.target.value;render()});
@@ -29,7 +47,6 @@ function render(){
  document.querySelectorAll('[data-chapter]').forEach(btn=>btn.addEventListener('click',()=>{state.chapter=btn.dataset.chapter;state.status='all';state.selected=CHAPTERS.find(c=>c.id===btn.dataset.chapter)?.start||state.selected;render()}));
  document.querySelectorAll('[data-unit]').forEach(btn=>btn.addEventListener('click',()=>{state.selected=Number(btn.dataset.unit);renderDetail();document.querySelectorAll('[data-unit]').forEach(x=>x.classList.toggle('selected',x===btn));}));
 }
-
 function renderDetail(){
  const box=$('grammarDetail');if(!box)return;const t=topic(state.selected);
  if(!t){box.innerHTML='<div class="grammar2-detail-empty">Chọn một unit.</div>';return}
@@ -59,5 +76,5 @@ function renderQuiz(){
  modal.querySelectorAll('[data-q]').forEach(btn=>btn.addEventListener('click',()=>{const ok=btn.textContent===q.correct;btn.classList.add(ok?'correct':'wrong');setTimeout(()=>{state.quizIndex++;state.quizIndex<state.quiz.length?renderQuiz():modal.remove()},400)}));
 }
 
-export function showGrammar(open=true){const root=$('grammarScreen');if(!root)return;document.body.classList.toggle('grammar-mode',open);root.hidden=!open;if(open){state.progress=loadGrammarProgress();render()}}
+export function showGrammar(open=true){const root=$('grammarScreen');if(!root)return;document.body.classList.toggle('grammar-mode',open);root.hidden=!open;if(open){state.progress=loadGrammarProgress();loadGrammarSidebarWidth();render()}}
 window.PreviewGrammar={show:showGrammar,refresh:render,getProgress:()=>({...state.progress})};
