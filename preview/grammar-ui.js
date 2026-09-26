@@ -1,92 +1,61 @@
-import {GRAMMAR_TOPICS,grammarLevels,grammarCategories,loadGrammarProgress,toggleGrammarDone,getGrammarStats} from './grammar-core.mjs';
+import {GRAMMAR_TOPICS,CHAPTERS,APPENDICES,loadGrammarProgress,toggleGrammarDone,getGrammarStats} from './grammar-core.mjs';
 
-const state={level:'All',category:'All',query:'',selected:null,progress:loadGrammarProgress(),quizIndex:0,quizOpen:false};
-const quiz=[
- {q:'Which sentence is correct?',a:['She work from home.','She works from home.','She working from home.'],correct:1,topic:'Present Simple'},
- {q:'Choose the correct question.',a:['Where you work?','Where do you work?','Where does you work?'],correct:1,topic:'Questions'},
- {q:'Which sentence uses Present Perfect correctly?',a:['I have finished the report.','I have finish the report.','I finished the report since Monday.'],correct:0,topic:'Present Perfect'},
- {q:'Choose the correct conditional.',a:['If we test early, we will learn faster.','If we will test early, we learn faster.','If we tested early, we will learn faster.'],correct:0,topic:'Conditionals'},
- {q:'Which passive sentence is correct?',a:['The report approved yesterday.','The report was approved yesterday.','The report was approve yesterday.'],correct:1,topic:'Passive Voice'},
-];
+const state={query:'',chapter:'all',status:'all',selected:1,progress:loadGrammarProgress(),quiz:null,quizIndex:0};
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const topic=unit=>GRAMMAR_TOPICS.find(x=>x.unit===unit);
+const visible=()=>{const q=state.query.trim().toLocaleLowerCase('vi');return GRAMMAR_TOPICS.filter(x=>(state.chapter==='all'||x.chapterId===state.chapter)&&(state.status==='all'||(state.status==='done'&&state.progress[x.id]?.done)||(state.status==='todo'&&!state.progress[x.id]?.done))&&(!q||[x.unit,x.title,x.chapter,x.formula,x.memory,x.example].join(' ').toLocaleLowerCase('vi').includes(q)))};
+const chapterProgress=id=>{const a=GRAMMAR_TOPICS.filter(x=>x.chapterId===id),d=a.filter(x=>state.progress[x.id]?.done).length;return{done:d,total:a.length,percent:Math.round(d/a.length*100)}};
 
-function el(tag,cls,html){const n=document.createElement(tag);if(cls)n.className=cls;if(html!==undefined)n.innerHTML=html;return n}
-function qsa(sel,root=document){return [...root.querySelectorAll(sel)]}
-function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-
-function filtered(){
- const q=state.query.trim().toLocaleLowerCase('vi');
- return GRAMMAR_TOPICS.filter(x=>(state.level==='All'||x.level===state.level)&&(state.category==='All'||x.category===state.category)&&(!q||[x.title,x.summary,x.category,x.level,x.formula,x.examples.join(' ')].join(' ').toLocaleLowerCase('vi').includes(q)));
-}
-function progressStats(){return getGrammarStats(state.progress)}
-
-function render(){const root=document.getElementById('grammarScreen');if(!root)return;root.innerHTML='';
- const stats=progressStats(), rows=filtered();
- root.append(
-  el('div','grammar-head','<div><div class="grammar-eyebrow">ENGLISH · GRAMMAR</div><h1>📘 Grammar Hub</h1><p>Hệ thống ngữ pháp từ nền tảng đến nâng cao, dùng để học – tra cứu – luyện tập.</p></div><div class="grammar-head-actions"><button type="button" class="secondary" id="grammarBack">← Collocation</button><button type="button" id="grammarQuizBtn">🎯 Quick Quiz</button></div>'),
-  el('div','grammar-stats-row',
-   '<div class="grammar-stat"><span>Chủ đề</span><b>'+stats.total+'</b><small>tổng số bài</small></div>'+
-   '<div class="grammar-stat"><span>Đã nắm</span><b>'+stats.done+'</b><small>đã đánh dấu hoàn thành</small></div>'+
-   '<div class="grammar-stat"><span>Còn lại</span><b>'+stats.remaining+'</b><small>chủ đề chưa hoàn thành</small></div>'+
-   '<div class="grammar-stat progress-stat"><div><span>Progress</span><b>'+stats.percent+'%</b></div><div class="grammar-progress"><i style="width:'+stats.percent+'%"></i></div></div>'
-  ),
-  el('div','grammar-toolbar',
-   '<input id="grammarSearch" placeholder="🔎 Tìm grammar topic..." value="'+esc(state.query)+'">'+
-   '<select id="grammarLevel">'+grammarLevels().map(x=>'<option value="'+x+'" '+(x===state.level?'selected':'')+'>'+x+'</option>').join('')+'</select>'+
-   '<select id="grammarCategory">'+grammarCategories().map(x=>'<option value="'+esc(x)+'" '+(x===state.category?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select>'
-  ),
-  el('div','grammar-layout')
- );
- const layout=root.querySelector('.grammar-layout');
- const list=el('div','grammar-list');const detail=el('div','grammar-detail');
- if(!rows.length){list.append(el('div','grammar-empty','Không tìm thấy chủ đề phù hợp.'))}
- rows.forEach(topic=>{
-  const done=!!state.progress[topic.id]?.done;
-  const card=el('button','grammar-topic-card '+(state.selected===topic.id?'selected':''));
-  card.type='button';card.innerHTML='<div class="grammar-topic-top"><span class="grammar-level '+topic.level.toLowerCase().replace(/[^a-z]+/g,'-')+'">'+esc(topic.level)+'</span>'+(done?'<span class="grammar-done">✓ Done</span>':'')+'</div><strong>'+esc(topic.title)+'</strong><small>'+esc(topic.category)+'</small><p>'+esc(topic.summary)+'</p>';
-  card.addEventListener('click',()=>{state.selected=topic.id;render()});list.append(card);
- });
- layout.append(list);
- if(state.selected&&rows.some(x=>x.id===state.selected)) detail.append(renderDetail(state.selected));
- else detail.append(el('div','grammar-detail-empty','<div class="grammar-detail-icon">📖</div><h2>Chọn một chủ đề</h2><p>Chọn grammar topic bên trái để xem công thức, ví dụ, lỗi thường gặp và đánh dấu đã nắm.</p>'));
- layout.append(detail);
-
- root.querySelector('#grammarSearch').addEventListener('input',e=>{state.query=e.target.value;state.selected=null;render()});
- root.querySelector('#grammarLevel').addEventListener('change',e=>{state.level=e.target.value;state.selected=null;render()});
- root.querySelector('#grammarCategory').addEventListener('change',e=>{state.category=e.target.value;state.selected=null;render()});
- root.querySelector('#grammarBack').addEventListener('click',()=>showGrammar(false));
- root.querySelector('#grammarQuizBtn').addEventListener('click',()=>openQuiz());
+function render(){
+ const root=$('grammarScreen');if(!root)return;
+ const s=getGrammarStats(state.progress),rows=visible();
+ if(!rows.some(x=>x.unit===state.selected)&&rows[0])state.selected=rows[0].unit;
+ root.innerHTML=
+ '<div class="grammar2-head"><div><div class="grammar2-eyebrow">ESSENTIAL GRAMMAR IN USE · ELEMENTARY</div><h1>📘 Grammar Learning Hub</h1><p>114 unit được lấy theo đúng thứ tự mục lục của tài liệu, sau đó cô đọng thành công thức 1 dòng + mẹo nhớ + ví dụ.</p></div><div class="grammar2-head-actions"><button type="button" class="secondary" id="grammarBack">← Collocation</button><button type="button" id="grammarQuiz">🎯 Ôn nhanh</button></div></div>'+
+ '<div class="grammar2-note"><b>3 bước học:</b> ① đọc công thức → ② nói lại ví dụ → ③ tự đặt 3 câu của bạn. Phần “Mẹo nhớ” là bản tóm tắt dễ học, không phải nguyên văn tài liệu.</div>'+
+ '<div class="grammar2-stats"><div><span>Units</span><b>'+s.total+'</b><small>theo tài liệu</small></div><div><span>Đã nắm</span><b>'+s.done+'</b><small>đã đánh dấu</small></div><div><span>Còn lại</span><b>'+s.remaining+'</b><small>chưa hoàn thành</small></div><div class="grammar2-progress"><div><span>Progress</span><b>'+s.percent+'%</b></div><i><em style="width:'+s.percent+'%"></em></i></div></div>'+
+ '<div class="grammar2-chapters">'+CHAPTERS.map(c=>{const p=chapterProgress(c.id);return '<button type="button" class="grammar2-chapter '+(state.chapter===c.id?'active':'')+'" data-chapter="'+c.id+'"><span>'+c.range+'</span><strong>'+esc(c.title)+'</strong><small>'+p.done+'/'+p.total+' · '+p.percent+'%</small><i><em style="width:'+p.percent+'%"></em></i></button>'}).join('')+'</div>'+
+ '<div class="grammar2-toolbar"><input id="grammarSearch2" value="'+esc(state.query)+'" placeholder="🔎 Tìm unit, chủ đề, công thức hoặc từ khóa..."><select id="grammarChapter2"><option value="all">Tất cả phần</option>'+CHAPTERS.map(c=>'<option value="'+c.id+'" '+(state.chapter===c.id?'selected':'')+'>'+esc(c.range)+' · '+esc(c.title)+'</option>').join('')+'</select><select id="grammarStatus2"><option value="all">Tất cả trạng thái</option><option value="todo" '+(state.status==='todo'?'selected':'')+'>Chưa học</option><option value="done" '+(state.status==='done'?'selected':'')+'>Đã nắm</option></select></div>'+
+ '<div class="grammar2-body"><section class="grammar2-list"><div class="grammar2-list-head"><b>'+rows.length+'</b> / '+GRAMMAR_TOPICS.length+' units</div><div class="grammar2-unit-list">'+rows.map(x=>{const done=!!state.progress[x.id]?.done;return '<button type="button" class="grammar2-unit '+(state.selected===x.unit?'selected':'')+'" data-unit="'+x.unit+'"><span class="grammar2-unit-no">'+String(x.unit).padStart(3,'0')+'</span><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.chapter)+'</small></div><span class="grammar2-unit-check">'+(done?'✓':'')+'</span></button>'}).join('')+(rows.length?'':'<div class="grammar2-empty">Không tìm thấy unit phù hợp.</div>')+'</div></section><section class="grammar2-detail" id="grammarDetail"></section></div>'+
+ '<div class="grammar2-reference"><div class="grammar2-reference-head"><div><div class="grammar2-eyebrow">REFERENCE</div><h2>Phần phụ lục trong tài liệu</h2></div><span>'+APPENDICES.length+' phần</span></div><div class="grammar2-reference-grid">'+APPENDICES.map(x=>'<div><strong>'+esc(x.title)+'</strong><p>'+esc(x.summary)+'</p></div>').join('')+'</div></div>';
+ renderDetail();
+ $('grammarSearch2').addEventListener('input',e=>{state.query=e.target.value;render()});
+ $('grammarChapter2').addEventListener('change',e=>{state.chapter=e.target.value;render()});
+ $('grammarStatus2').addEventListener('change',e=>{state.status=e.target.value;render()});
+ $('grammarBack').addEventListener('click',()=>window.PreviewGrammar?.show?.(false));
+ $('grammarQuiz').addEventListener('click',openQuiz);
+ document.querySelectorAll('[data-chapter]').forEach(btn=>btn.addEventListener('click',()=>{state.chapter=btn.dataset.chapter;state.status='all';state.selected=CHAPTERS.find(c=>c.id===btn.dataset.chapter)?.start||state.selected;render()}));
+ document.querySelectorAll('[data-unit]').forEach(btn=>btn.addEventListener('click',()=>{state.selected=Number(btn.dataset.unit);renderDetail();document.querySelectorAll('[data-unit]').forEach(x=>x.classList.toggle('selected',x===btn));}));
 }
 
-function renderDetail(id){
- const topic=GRAMMAR_TOPICS.find(x=>x.id===id);const done=!!state.progress[id]?.done;const box=el('div','grammar-detail-card');
- box.innerHTML='<div class="grammar-detail-header"><div><span class="grammar-level '+topic.level.toLowerCase().replace(/[^a-z]+/g,'-')+'">'+esc(topic.level)+'</span><h2>'+esc(topic.title)+'</h2><p>'+esc(topic.summary)+'</p></div><button type="button" class="'+(done?'secondary':'')+'" id="grammarDone">'+(done?'✓ Đã nắm':'Đánh dấu đã nắm')+'</button></div>'+
- '<div class="grammar-formula"><span>FORMULA</span><strong>'+esc(topic.formula)+'</strong></div>'+
- '<div class="grammar-detail-grid"><section><h3>Ví dụ</h3>'+topic.examples.map((x,i)=>'<div class="grammar-example"><b>'+((i+1)+'.')+'</b><span>'+esc(x)+'</span></div>').join('')+'</section><section><h3>Điểm cần nhớ</h3><div class="grammar-notes">'+topic.notes.map(x=>'<div>• '+esc(x)+'</div>').join('')+'</div></section></div>'+
- '<div class="grammar-mistake"><b>⚠️ Common mistake</b><span>'+esc(topic.common)+'</span></div>';
- box.querySelector('#grammarDone').addEventListener('click',()=>{state.progress=toggleGrammarDone(state.progress,id);render()});
- return box;
+function renderDetail(){
+ const box=$('grammarDetail');if(!box)return;const t=topic(state.selected);
+ if(!t){box.innerHTML='<div class="grammar2-detail-empty">Chọn một unit.</div>';return}
+ const done=!!state.progress[t.id]?.done,idx=GRAMMAR_TOPICS.findIndex(x=>x.unit===t.unit),prev=GRAMMAR_TOPICS[idx-1],next=GRAMMAR_TOPICS[idx+1];
+ box.innerHTML='<div class="grammar2-detail-card"><div class="grammar2-detail-top"><div><span class="grammar2-unit-badge">UNIT '+t.unit+'</span><span class="grammar2-part">'+esc(t.range)+'</span><h2>'+esc(t.title)+'</h2><p>'+esc(t.chapter)+'</p></div><button type="button" class="'+(done?'secondary':'')+'" id="grammarDone2">'+(done?'✓ Đã nắm':'Đánh dấu đã nắm')+'</button></div>'+
+ '<div class="grammar2-focus"><span>CÔNG THỨC 1 DÒNG</span><strong>'+esc(t.formula)+'</strong><small>'+esc(t.memory)+'</small></div>'+
+ '<div class="grammar2-example"><span>💬 Ví dụ ngắn</span><p>'+esc(t.example||'Tự đặt 3 câu theo công thức trên.')+'</p></div>'+
+ '<div class="grammar2-learn"><div><b>Học thế nào?</b><ol><li>Đọc “Công thức 1 dòng”.</li><li>Nói ví dụ thành tiếng 2 lần.</li><li>Tự đặt 3 câu liên quan công việc/đời sống.</li></ol></div><div><b>Ghi nhớ</b><p>'+esc(t.memory)+'</p></div></div>'+
+ '<div class="grammar2-nav"><button type="button" '+(prev?'':'disabled')+' id="grammarPrev">← Unit '+(prev?.unit||'')+'</button><span>'+t.unit+' / 114</span><button type="button" '+(next?'':'disabled')+' id="grammarNext">Unit '+(next?.unit||'')+' →</button></div></div>';
+ box.querySelector('#grammarDone2').addEventListener('click',()=>{state.progress=toggleGrammarDone(state.progress,t.id);render()});
+ box.querySelector('#grammarPrev').addEventListener('click',()=>{if(prev){state.selected=prev.unit;render()}});
+ box.querySelector('#grammarNext').addEventListener('click',()=>{if(next){state.selected=next.unit;render()}});
 }
 
-function openQuiz(){state.quizOpen=true;state.quizIndex=0;renderQuiz()}
+function openQuiz(){
+ const source=(GRAMMAR_TOPICS.filter(x=>!state.progress[x.id]?.done).slice(0,5));
+ const pool=source.length?source:GRAMMAR_TOPICS.slice(0,5);
+ state.quiz=pool.map((x,i)=>{const opts=[x.formula,GRAMMAR_TOPICS[(x.unit+7)%GRAMMAR_TOPICS.length].formula,GRAMMAR_TOPICS[(x.unit+23)%GRAMMAR_TOPICS.length].formula];return{unit:x.unit,title:x.title,correct:x.formula,options:[...new Set(opts)].slice(0,3),index:i}});
+ state.quizIndex=0;renderQuiz();
+}
 function renderQuiz(){
- let old=document.getElementById('grammarQuizModal');old?.remove();
- const q=quiz[state.quizIndex%quiz.length];
- const modal=el('div','grammar-modal');modal.id='grammarQuizModal';
- modal.innerHTML='<div class="grammar-modal-card"><div class="grammar-modal-head"><div><span class="grammar-eyebrow">QUICK QUIZ</span><h2>🎯 '+esc(q.topic)+'</h2></div><button type="button" class="secondary" id="quizClose">×</button></div><div class="grammar-quiz-q">'+esc(q.q)+'</div><div class="grammar-quiz-options">'+q.a.map((x,i)=>'<button type="button" data-answer="'+i+'">'+esc(x)+'</button>').join('')+'</div><div class="grammar-quiz-foot">Question '+(state.quizIndex+1)+' / '+quiz.length+'</div></div>';
- document.body.appendChild(modal);
- modal.addEventListener('click',e=>{if(e.target===modal)e.currentTarget.remove()});
- modal.querySelector('#quizClose').addEventListener('click',()=>modal.remove());
- modal.querySelectorAll('[data-answer]').forEach(btn=>btn.addEventListener('click',()=>{
-   const ok=Number(btn.dataset.answer)===q.correct;
-   btn.classList.add(ok?'correct':'wrong');
-   setTimeout(()=>{state.quizIndex=(state.quizIndex+1)%quiz.length;renderQuiz()},450);
- }));
+ $('grammarQuizModal')?.remove();const q=state.quiz?.[state.quizIndex];if(!q)return;
+ const modal=document.createElement('div');modal.className='grammar2-modal';modal.id='grammarQuizModal';
+ modal.innerHTML='<div class="grammar2-modal-card"><div class="grammar2-modal-head"><div><div class="grammar2-eyebrow">QUICK REVIEW · UNIT '+q.unit+'</div><h2>'+esc(q.title)+'</h2></div><button class="secondary" id="quizClose">×</button></div><p class="grammar2-question">Đâu là công thức tóm tắt đúng cho unit này?</p><div class="grammar2-options">'+q.options.map((x,i)=>'<button type="button" data-q="'+i+'">'+esc(x)+'</button>').join('')+'</div><small>Question '+(q.index+1)+' / '+state.quiz.length+'</small></div>';
+ document.body.appendChild(modal);modal.querySelector('#quizClose').addEventListener('click',()=>modal.remove());modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});
+ modal.querySelectorAll('[data-q]').forEach(btn=>btn.addEventListener('click',()=>{const ok=btn.textContent===q.correct;btn.classList.add(ok?'correct':'wrong');setTimeout(()=>{state.quizIndex++;state.quizIndex<state.quiz.length?renderQuiz():modal.remove()},400)}));
 }
 
-export function showGrammar(open=true){
- const root=document.getElementById('grammarScreen');if(!root)return;
- document.body.classList.toggle('grammar-mode',open);
- root.hidden=!open;
- if(open){state.progress=loadGrammarProgress();render();}
-}
+export function showGrammar(open=true){const root=$('grammarScreen');if(!root)return;document.body.classList.toggle('grammar-mode',open);root.hidden=!open;if(open){state.progress=loadGrammarProgress();render()}}
 window.PreviewGrammar={show:showGrammar,refresh:render,getProgress:()=>({...state.progress})};
