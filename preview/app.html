@@ -342,6 +342,25 @@ body.light-theme .grammar-folder-modal-card,
 body.light-theme .grammar2-list,
 body.light-theme .grammar2-detail-card,
 body.light-theme .grammar2-side-card{box-shadow:0 6px 20px #0000000a}
+
+/* UX audit pass — stronger scanability, proximity and feedback without changing interaction patterns */
+.main>.brand,.main>.card:not(.brand):not(.table-card){padding:12px 14px 10px}
+.main>.brand .actions{gap:8px}
+.main>.card:not(.brand):not(.table-card) .meta{margin-top:10px}
+.main>.card:not(.brand):not(.table-card) .selection-actions{margin-top:10px}
+.table-wrap{scrollbar-gutter:stable both-edges}
+table{border-spacing:0}
+th{position:sticky;top:0;z-index:4;backdrop-filter:blur(8px)}
+tbody tr{transition:background-color .12s ease}
+tbody tr:hover{background:#ffffff06}
+body.light-theme tbody tr:hover{background:#00000005}
+.actions button,.controls input,.controls select,.selection-actions button{flex:0 0 auto}
+.controls input{min-width:0}
+.status-button{min-height:32px}
+.example-add,.example-remove{min-height:30px}
+.preview-status{max-width:min(380px,calc(100vw - 36px))}
+@media(max-width:1000px){th{position:sticky;top:0}.main>.brand,.main>.card:not(.brand):not(.table-card){padding:12px 14px 10px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body class="auth-checking nav-expanded">
@@ -425,6 +444,6 @@ layoutResizer.addEventListener('pointerdown',e=>{if(window.innerWidth<=1000)retu
 const expected='3c7a9e2',raw='https://raw.githubusercontent.com/studywithnhu02/english-collocations/main/preview/app.html';function setPreview(k,title,sub){$('psDot').className='ps-dot '+k;$('psTitle').textContent=title;$('psSub').textContent=sub;$('psTime').textContent=new Date().toLocaleTimeString('vi-VN')}async function checkPreview(){setPreview('busy','🟡 Đang kiểm tra Preview…','Đang so sánh build đang chạy với source GitHub.');try{const r=await fetch(raw+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const text=await r.text();const m=text.match(/data-preview-build="([0-9a-f]{7,40})"/i);const live=m?m[1]:'';if(live===expected)setPreview('ok','🟢 Preview đã cập nhật','Management Preview · build '+live+' · source GitHub đã lên Pages.');else setPreview('busy','🟡 GitHub Pages đang cập nhật','Source mới đã có build '+expected+' · Pages hiện vẫn đang phục vụ '+(live||'build cũ')+'.')}catch(e){setPreview('err','⚠️ Không kiểm tra được','GitHub Pages chưa phản hồi. Bạn vẫn có thể reload thủ công.')}}$('psCheck').addEventListener('click',checkPreview);$('psReload').addEventListener('click',()=>location.reload());checkPreview();setInterval(checkPreview,15000);
 </script>
 
-<script type="module" src="./spellcheck.js?v=1"></script>
-<script type="module" src="./auto-translate.js?v=8"></script>
+<script type="module" src="./spellcheck.js?v=2"></script>
+<script type="module" src="./auto-translate.js?v=9"></script>
 </body></html>
