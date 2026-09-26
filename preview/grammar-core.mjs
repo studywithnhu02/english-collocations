@@ -258,7 +258,7 @@ export const APPENDICES=[
 {id:'a6',title:'Phrasal verbs (look out / take off etc.)',summary:'Tra cứu phrasal verbs cốt lõi.'},
 {id:'a7',title:'Phrasal verbs + object (fill in a form / put out a fire etc.)',summary:'Phrasal verbs đi với tân ngữ.'}
 ];
-export function loadGrammarProgress(){try{const v=JSON.parse(localStorage.getItem(GRAMMAR_KEY)||'{}');return v&&typeof v==='object'?v:{}}catch{return {}}}
+export function loadGrammarProgress(){try{const current=JSON.parse(localStorage.getItem(GRAMMAR_KEY)||'null');if(current&&typeof current==='object')return current;const legacy=JSON.parse(localStorage.getItem('english-collocations-preview-grammar-v1')||'{}');if(legacy&&typeof legacy==='object'&&Object.keys(legacy).length){localStorage.setItem(GRAMMAR_KEY,JSON.stringify(legacy));return legacy}return {}}catch{return {}}}
 export function saveGrammarProgress(value){localStorage.setItem(GRAMMAR_KEY,JSON.stringify(value||{}))}
 export function toggleGrammarDone(progress,id){const next={...(progress||{})};next[id]={done:!next[id]?.done,updatedAt:new Date().toISOString()};saveGrammarProgress(next);return next}
 export function getGrammarStats(progress){const done=GRAMMAR_TOPICS.filter(x=>progress?.[x.id]?.done).length,total=GRAMMAR_TOPICS.length;return{total,done,remaining:total-done,percent:Math.round(done/total*100)}}
