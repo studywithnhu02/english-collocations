@@ -1,5 +1,5 @@
 import {GRAMMAR_TOPICS,CHAPTERS,APPENDICES,loadGrammarProgress,toggleGrammarDone,getGrammarStats} from './grammar-core.mjs';
-import {loadGrammarFolders,updateGrammarFolder,deleteGrammarFolder,restoreAllGrammarFolders,FOLDER_THUMBNAILS} from './grammar-folders.mjs';
+import {loadGrammarFolders,updateGrammarFolder,deleteGrammarFolder,restoreAllGrammarFolders,addGrammarFolder,saveGrammarPdfBlob,deleteGrammarPdfBlob,getGrammarPdfBlob,FOLDER_THUMBNAILS} from './grammar-folders.mjs';
 
 const state={query:'',chapter:'all',status:'all',selected:1,progress:loadGrammarProgress(),quiz:null,quizIndex:0,view:'home',folderQuery:''};
 const $=id=>document.getElementById(id);
@@ -25,92 +25,115 @@ function bindGrammarResizer(){const el=$('grammar2SideResizer');if(!el)return;le
 }
 
 function folderProgress(folder){
- const a=GRAMMAR_TOPICS.filter(x=>x.chapterId===folder.chapterId);
- const done=a.filter(x=>state.progress[x.id]?.done).length;
- return {done,total:a.length,percent:a.length?Math.round(done/a.length*100):0};
+ if(folder.hasTheory)return {done:state.progress?Object.values(state.progress).filter(x=>x?.done).length:0,total:Number(folder.unitCount)||GRAMMAR_TOPICS.length,percent:folder.unitCount?Math.round((Object.values(state.progress).filter(x=>x?.done).length/(Number(folder.unitCount)||1))*100):0};
+ return {done:0,total:0,percent:0};
 }
 function folderThumbHtml(folder){
  if(folder.image)return '<img src="'+esc(folder.image)+'" alt="">';
  return esc(folder.thumb||'📘');
 }
+function formatFileSize(bytes){
+ const n=Number(bytes)||0;
+ if(!n)return '';
+ if(n<1024*1024)return Math.max(1,Math.round(n/1024))+' KB';
+ return (n/(1024*1024)).toFixed(1)+' MB';
+}
+function inferPdfName(fileName){
+ const base=String(fileName||'').replace(/\.pdf$/i,'').replace(/[_-]+/g,' ').trim();
+ return base||'Tài liệu Grammar mới';
+}
+function closeFolderOverlays(){document.querySelectorAll('.grammar-folder-modal').forEach(x=>x.remove());}
 function renderFolderHome(){
  const root=$('grammarScreen');if(!root)return;
  const folders=loadGrammarFolders();
  const q=state.folderQuery.trim().toLocaleLowerCase('vi');
- const rows=folders.filter(f=>!q||[f.name,f.range,f.chapterId].join(' ').toLocaleLowerCase('vi').includes(q));
- const done=GRAMMAR_TOPICS.filter(x=>state.progress[x.id]?.done).length;
+ const rows=folders.filter(f=>!q||[f.name,f.fileName,f.status].join(' ').toLocaleLowerCase('vi').includes(q));
+ const analyzed=folders.filter(f=>f.hasTheory).length;
+ const units=folders.reduce((sum,f)=>sum+(f.hasTheory?(Number(f.unitCount)||0):0),0);
  const cards=rows.map(folder=>{
    const p=folderProgress(folder);
-   return `<article class="grammar-folder-card">
-     <div class="grammar-folder-cover">
-       <div class="grammar-folder-thumb">${folderThumbHtml(folder)}</div>
-       <div class="grammar-folder-info"><strong>${esc(folder.name)}</strong><small>${esc(folder.range)}</small></div>
-       <button type="button" class="grammar-folder-more" data-folder-manage="${esc(folder.id)}" aria-label="Quản lý folder" title="Quản lý folder">•••</button>
-     </div>
-     <div class="grammar-folder-range">Grammar chapter · ${p.total} units</div>
-     <div class="grammar-folder-progress"><em style="width:${p.percent}%"></em></div>
-     <div class="grammar-folder-progress-text"><span>${p.done}/${p.total} đã nắm</span><span>${p.percent}%</span></div>
-     <button type="button" class="grammar-folder-open" data-folder-open="${esc(folder.id)}">Mở folder →</button>
-   </article>`;
+   const openAction=folder.hasTheory
+     ? '<button type="button" class="grammar-folder-open" data-folder-open="'+esc(folder.id)+'">Mở lý thuyết →</button>'
+     : '<button type="button" class="grammar-folder-open secondary" disabled>Chưa tổng hợp lý thuyết</button>';
+   return '<article class="grammar-folder-card">'+
+     '<div class="grammar-folder-cover"><div class="grammar-folder-thumb">'+folderThumbHtml(folder)+'</div><div class="grammar-folder-info"><strong>'+esc(folder.name)+'</strong><small>PDF · '+esc(folder.fileName||'Chưa có file')+'</small></div><button type="button" class="grammar-folder-more" data-folder-manage="'+esc(folder.id)+'" aria-label="Quản lý tài liệu" title="Quản lý tài liệu">•••</button></div>'+
+     '<div class="grammar-folder-range">'+esc(folder.status)+(folder.unitCount?' · '+folder.unitCount+' units':'')+(folder.addedAt?'':'')+'</div>'+
+     (folder.hasTheory?'<div class="grammar-folder-progress"><em style="width:'+Math.min(100,p.percent)+'%"></em></div><div class="grammar-folder-progress-text"><span>'+p.done+'/'+p.total+' đã nắm</span><span>'+p.percent+'%</span></div>':'<div class="grammar-folder-unprocessed">File đã thêm · chờ tổng hợp lý thuyết</div>')+
+     openAction+'</article>';
  }).join('');
- root.innerHTML=`<section class="grammar-folder-home">
-   <div class="grammar-folder-head">
-     <div class="grammar-folder-brand">
-       <div class="grammar-folder-logo">📂</div>
-       <div><div class="grammar-folder-eyebrow">GRAMMAR LIBRARY</div><h1>Grammar</h1><p>Chọn một folder để mở khu vực học lý thuyết, bài tập và tiến độ của từng phần.</p></div>
-     </div>
-     <div class="grammar-folder-actions">
-       <button type="button" class="secondary" id="grammarFolderBack">← Collocation</button>
-       <button type="button" class="secondary" id="grammarFolderRestore">↻ Khôi phục folder</button>
-     </div>
-   </div>
-   <div class="grammar-folder-meta">
-     <span class="grammar-folder-chip">📁 <b>${folders.length}</b> folder đang hiển thị</span>
-     <span class="grammar-folder-chip">📘 <b>${GRAMMAR_TOPICS.length}</b> units</span>
-     <span class="grammar-folder-chip">✅ <b>${done}</b> unit đã nắm</span>
-     <input id="grammarFolderSearch" class="grammar-folder-search" value="${esc(state.folderQuery)}" placeholder="🔎 Tìm folder...">
-   </div>
-   ${rows.length?`<div class="grammar-folder-grid">${cards}</div>`:'<div class="grammar-folder-empty">Không tìm thấy folder phù hợp.</div>'}
- </section>`;
+ root.innerHTML='<section class="grammar-folder-home">'+
+   '<div class="grammar-folder-head"><div class="grammar-folder-brand"><div class="grammar-folder-logo">📚</div><div><div class="grammar-folder-eyebrow">GRAMMAR LIBRARY</div><h1>Kho tài liệu Grammar</h1><p>Quản lý các file PDF được phân tích để tổng hợp thành hệ thống lý thuyết Grammar.</p></div></div>'+
+   '<div class="grammar-folder-actions"><button type="button" class="secondary" id="grammarFolderBack">← Collocation</button><button type="button" id="grammarFolderAdd">＋ Thêm PDF</button><button type="button" class="secondary" id="grammarFolderRestore">↻ Khôi phục</button></div></div>'+
+   '<div class="grammar-folder-meta"><span class="grammar-folder-chip">📁 <b>'+folders.length+'</b> tài liệu</span><span class="grammar-folder-chip">📘 <b>'+units+'</b> units</span><span class="grammar-folder-chip">✅ <b>'+analyzed+'</b> đã có lý thuyết</span><input id="grammarFolderSearch" class="grammar-folder-search" value="'+esc(state.folderQuery)+'" placeholder="🔎 Tìm tên tài liệu hoặc file PDF..."></div>'+
+   (rows.length?'<div class="grammar-folder-grid">'+cards+'</div>':'<div class="grammar-folder-empty">Chưa có tài liệu phù hợp.</div>')+
+   '</section>';
  $('grammarFolderBack').addEventListener('click',()=>window.PreviewGrammar?.show?.(false));
+ $('grammarFolderAdd').addEventListener('click',()=>openAddPdfManager());
  $('grammarFolderRestore').addEventListener('click',()=>{restoreAllGrammarFolders();renderFolderHome()});
  $('grammarFolderSearch').addEventListener('input',e=>{state.folderQuery=e.target.value;renderFolderHome()});
- document.querySelectorAll('[data-folder-open]').forEach(btn=>btn.addEventListener('click',()=>openTheoryForChapter(btn.dataset.folderOpen)));
+ document.querySelectorAll('[data-folder-open]').forEach(btn=>btn.addEventListener('click',()=>openTheoryForSource(btn.dataset.folderOpen)));
  document.querySelectorAll('[data-folder-manage]').forEach(btn=>btn.addEventListener('click',()=>openFolderManager(btn.dataset.folderManage)));
 }
-function openTheoryForChapter(chapterId){
- const folder=loadGrammarFolders().find(x=>x.id===chapterId);if(!folder)return;
- const chapter=CHAPTERS.find(x=>x.id===folder.chapterId||x.id===chapterId);if(!chapter)return;
- state.view='theory';state.chapter=chapter.id;state.status='all';state.selected=chapter.start;render();
- window.scrollTo({top:0,behavior:'smooth'});
+function openTheoryForSource(sourceId){
+ const source=loadGrammarFolders().find(x=>x.id===sourceId);
+ if(!source||!source.hasTheory)return;
+ state.view='theory';state.chapter='all';state.status='all';state.selected=1;
+ render();window.scrollTo({top:0,behavior:'smooth'});
 }
 function openFolderManager(id){
- document.querySelector('#grammarFolderManager')?.remove();
+ closeFolderOverlays();
  const folder=loadGrammarFolders().find(x=>x.id===id);if(!folder)return;
- const modal=document.createElement('div');
- modal.className='grammar-folder-modal';modal.id='grammarFolderManager';
- modal.innerHTML=`<div class="grammar-folder-modal-card">
-   <div class="grammar-folder-modal-head">
-     <div><div class="grammar-folder-eyebrow">FOLDER SETTINGS</div><h2>Quản lý folder</h2><p>Đổi tên hoặc thumbnail. Xóa folder không xóa các Unit.</p></div>
-     <button type="button" class="secondary" id="gfmClose">×</button>
-   </div>
-   <div class="grammar-folder-field"><label for="gfmName">Tên folder</label><input id="gfmName" value="${esc(folder.name)}" maxlength="80"></div>
-   <div class="grammar-folder-field"><label>Thumbnail</label><div class="grammar-thumb-options">${FOLDER_THUMBNAILS.map(x=>`<button type="button" class="grammar-thumb-option ${!folder.image&&folder.thumb===x?'active':''}" data-thumb="${esc(x)}">${esc(x)}</button>`).join('')}</div></div>
-   <div class="grammar-folder-field"><label>Ảnh thumbnail</label><div class="grammar-folder-upload"><input type="file" id="gfmImage" accept="image/*"><button type="button" class="secondary" id="gfmClearImage">Xóa ảnh</button></div></div>
-   <div class="grammar-folder-modal-actions"><button type="button" class="danger" id="gfmDelete">🗑️ Xóa folder</button><div class="grammar-folder-modal-right"><button type="button" class="secondary" id="gfmCancel">Hủy</button><button type="button" id="gfmSave">Lưu thay đổi</button></div></div>
- </div>`;
+ const modal=document.createElement('div');modal.className='grammar-folder-modal';modal.id='grammarFolderManager';
+ modal.innerHTML='<div class="grammar-folder-modal-card"><div class="grammar-folder-modal-head"><div><div class="grammar-folder-eyebrow">PDF SOURCE SETTINGS</div><h2>Quản lý tài liệu</h2><p>Đổi tên, thumbnail hoặc thay file PDF. Xóa tài liệu chỉ gỡ khỏi thư viện, không xóa phần lý thuyết đã tổng hợp.</p></div><button type="button" class="secondary" id="gfmClose">×</button></div>'+
+ '<div class="grammar-folder-field"><label for="gfmName">Tên hiển thị</label><input id="gfmName" value="'+esc(folder.name)+'" maxlength="100"></div>'+
+ '<div class="grammar-folder-field"><label>Thumbnail</label><div class="grammar-thumb-options">'+FOLDER_THUMBNAILS.map(x=>'<button type="button" class="grammar-thumb-option '+(!folder.image&&folder.thumb===x?'active':'')+'" data-thumb="'+esc(x)+'">'+esc(x)+'</button>').join('')+'</div></div>'+
+ '<div class="grammar-folder-field"><label>Ảnh thumbnail</label><div class="grammar-folder-upload"><input type="file" id="gfmImage" accept="image/*"><button type="button" class="secondary" id="gfmClearImage">Xóa ảnh</button></div></div>'+
+ '<div class="grammar-folder-field"><label>File PDF hiện tại</label><div class="grammar-folder-file">'+esc(folder.fileName||'Chưa có file')+'</div></div>'+
+ '<div class="grammar-folder-field"><label>Thay file PDF</label><input type="file" id="gfmPdf" accept="application/pdf,.pdf"></div>'+
+ '<div class="grammar-folder-modal-actions"><button type="button" class="danger" id="gfmDelete">🗑️ Xóa tài liệu</button><div class="grammar-folder-modal-right"><button type="button" class="secondary" id="gfmCancel">Hủy</button><button type="button" id="gfmSave">Lưu thay đổi</button></div></div></div>';
  document.body.appendChild(modal);
- let selectedThumb=folder.thumb||'📘',selectedImage=folder.image||'';
+ let selectedThumb=folder.thumb||'📘',selectedImage=folder.image||'',selectedFile=null;
  const thumbs=modal.querySelectorAll('[data-thumb]');
  thumbs.forEach(btn=>btn.addEventListener('click',()=>{selectedThumb=btn.dataset.thumb;selectedImage='';thumbs.forEach(x=>x.classList.toggle('active',x===btn));}));
  modal.querySelector('#gfmClearImage').addEventListener('click',()=>{selectedImage='';modal.querySelector('#gfmImage').value='';thumbs.forEach(x=>x.classList.toggle('active',x.dataset.thumb===selectedThumb));});
  modal.querySelector('#gfmImage').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{selectedImage=await compressFolderImage(file);thumbs.forEach(x=>x.classList.remove('active'));}catch{alert('Không đọc được ảnh thumbnail.');}});
- const save=()=>{const name=modal.querySelector('#gfmName').value.trim();if(!name){alert('Tên folder không được để trống.');return}updateGrammarFolder(id,{name,thumb:selectedThumb,image:selectedImage,deleted:false});modal.remove();renderFolderHome();};
- modal.querySelector('#gfmSave').addEventListener('click',save);
+ modal.querySelector('#gfmPdf').addEventListener('change',e=>{selectedFile=e.target.files?.[0]||null;});
+ modal.querySelector('#gfmSave').addEventListener('click',async()=>{
+   const name=modal.querySelector('#gfmName').value.trim();if(!name){alert('Tên tài liệu không được để trống.');return}
+   if(selectedFile&&selectedFile.type!=='application/pdf'&&!/\.pdf$/i.test(selectedFile.name)){alert('Vui lòng chọn file PDF.');return}
+   if(selectedFile)await saveGrammarPdfBlob(id,selectedFile);
+   updateGrammarFolder(id,{name,thumb:selectedThumb,image:selectedImage,fileName:selectedFile?.name||folder.fileName,fileSize:selectedFile?.size||folder.fileSize,updatedAt:new Date().toISOString()});
+   modal.remove();renderFolderHome();
+ });
  modal.querySelector('#gfmCancel').addEventListener('click',()=>modal.remove());
  modal.querySelector('#gfmClose').addEventListener('click',()=>modal.remove());
  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});
- modal.querySelector('#gfmDelete').addEventListener('click',()=>{if(!confirm('Xóa folder "'+folder.name+'"? Các Unit và tiến độ vẫn được giữ nguyên.'))return;deleteGrammarFolder(id);modal.remove();renderFolderHome()});
+ modal.querySelector('#gfmDelete').addEventListener('click',async()=>{if(!confirm('Xóa "'+folder.name+'" khỏi thư viện? Lý thuyết đã tổng hợp vẫn được giữ.'))return;deleteGrammarFolder(id);await deleteGrammarPdfBlob(id);modal.remove();renderFolderHome()});
+}
+function openAddPdfManager(){
+ closeFolderOverlays();
+ const modal=document.createElement('div');modal.className='grammar-folder-modal';modal.id='grammarAddPdf';
+ modal.innerHTML='<div class="grammar-folder-modal-card"><div class="grammar-folder-modal-head"><div><div class="grammar-folder-eyebrow">NEW PDF SOURCE</div><h2>Thêm tài liệu PDF</h2><p>Thêm file PDF vào kho. Sau khi có dữ liệu phân tích, tài liệu có thể được nối với bộ lý thuyết tương ứng.</p></div><button type="button" class="secondary" id="gapClose">×</button></div>'+
+ '<div class="grammar-folder-field"><label for="gapFile">File PDF</label><input type="file" id="gapFile" accept="application/pdf,.pdf"></div>'+
+ '<div class="grammar-folder-field"><label for="gapName">Tên hiển thị</label><input id="gapName" maxlength="100" placeholder="Ví dụ: English Grammar in Use"></div>'+
+ '<div class="grammar-folder-field"><label>Thumbnail</label><div class="grammar-thumb-options">'+FOLDER_THUMBNAILS.map(x=>'<button type="button" class="grammar-thumb-option '+(x==='📘'?'active':'')+'" data-add-thumb="'+esc(x)+'">'+esc(x)+'</button>').join('')+'</div></div>'+
+ '<div class="grammar-folder-field"><label>Ảnh thumbnail</label><input type="file" id="gapImage" accept="image/*"></div>'+
+ '<div class="grammar-folder-modal-actions"><div></div><div class="grammar-folder-modal-right"><button type="button" class="secondary" id="gapCancel">Hủy</button><button type="button" id="gapSave">＋ Thêm tài liệu</button></div></div></div>';
+ document.body.appendChild(modal);
+ let selectedThumb='📘',selectedImage='',selectedFile=null;
+ modal.querySelector('#gapFile').addEventListener('change',e=>{selectedFile=e.target.files?.[0]||null;if(selectedFile&&!modal.querySelector('#gapName').value.trim())modal.querySelector('#gapName').value=inferPdfName(selectedFile.name);});
+ modal.querySelectorAll('[data-add-thumb]').forEach(btn=>btn.addEventListener('click',()=>{selectedThumb=btn.dataset.addThumb;selectedImage='';modal.querySelectorAll('[data-add-thumb]').forEach(x=>x.classList.toggle('active',x===btn));}));
+ modal.querySelector('#gapImage').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{selectedImage=await compressFolderImage(file);modal.querySelectorAll('[data-add-thumb]').forEach(x=>x.classList.remove('active'));}catch{alert('Không đọc được ảnh thumbnail.');}});
+ const close=()=>modal.remove();
+ modal.querySelector('#gapCancel').addEventListener('click',close);modal.querySelector('#gapClose').addEventListener('click',close);modal.addEventListener('click',e=>{if(e.target===modal)close()});
+ modal.querySelector('#gapSave').addEventListener('click',async()=>{
+   if(!selectedFile||(!selectedFile.type||selectedFile.type!=='application/pdf')&&!/\.pdf$/i.test(selectedFile.name)){alert('Hãy chọn một file PDF.');return}
+   const name=modal.querySelector('#gapName').value.trim()||inferPdfName(selectedFile.name);
+   const id='src-pdf-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
+   const record=addGrammarFolder({id,name,fileName:selectedFile.name,fileSize:selectedFile.size,thumb:selectedThumb,image:selectedImage,hasTheory:false,theoryKey:'',unitCount:0,status:'Chưa tổng hợp'});
+   try{await saveGrammarPdfBlob(record.id,selectedFile);}catch{alert('Không lưu được file PDF trong trình duyệt.');return}
+   close();renderFolderHome();
+ });
 }
 async function compressFolderImage(file){
  if(!file||!file.type.startsWith('image/'))throw new Error('invalid-image');
