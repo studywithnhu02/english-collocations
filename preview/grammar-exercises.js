@@ -201,8 +201,8 @@ function grade(attempt){
 }
 
 function optionsHtml(q,index){
- if(q.type==='text')return '<input class="gx-answer" data-answer="'+index+'" value="'+esc(answerValue(q))+'" placeholder="Nhập đáp án..." autocomplete="off">';
- return '<div class="gx-options">'+q.options.map((x,i)=>'<label class="gx-option"><input type="radio" name="gx-'+index+'" value="'+i+'" '+(String(answerValue(q))===String(i)?'checked':'')+'><span>'+esc(x)+'</span></label>').join('')+'</div>';
+ if(q.type==='text')return '<input class="gx-answer" data-answer="'+index+'" value="'+esc(answerValue(q))+'" placeholder="Nhập đáp án..." autocomplete="off" '+(state.submitted?'disabled':'')+'>';
+ return '<div class="gx-options">'+q.options.map((x,i)=>'<label class="gx-option"><input type="radio" name="gx-'+index+'" value="'+i+'" '+(String(answerValue(q))===String(i)?'checked':'')+' '+(state.submitted?'disabled':'')+'><span>'+esc(x)+'</span></label>').join('')+'</div>';
 }
 
 function renderModal(){
