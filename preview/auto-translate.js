@@ -29,6 +29,8 @@ let activeRequests=0;
 let memoryCache=null;
 let cacheWriteTimer=0;
 let dataWriteTimer=0;
+let cacheIdleId=0;
+let dataIdleId=0;
 let eventsBound=false;
 
 function getCache(){
@@ -42,13 +44,18 @@ function getCache(){
 function cacheGet(key){return getCache()[key]||''}
 function scheduleCacheWrite(){
   clearTimeout(cacheWriteTimer);
+  if(cacheIdleId&&'cancelIdleCallback' in window)window.cancelIdleCallback(cacheIdleId);
   cacheWriteTimer=setTimeout(()=>{
     cacheWriteTimer=0;
-    try{
-      const entries=Object.entries(getCache());
-      const trimmed=entries.slice(Math.max(0,entries.length-CACHE_MAX));
-      localStorage.setItem(CACHE_KEY,JSON.stringify(Object.fromEntries(trimmed)));
-    }catch{}
+    const flush=()=>{
+      cacheIdleId=0;
+      try{
+        const entries=Object.entries(getCache());
+        const trimmed=entries.slice(Math.max(0,entries.length-CACHE_MAX));
+        localStorage.setItem(CACHE_KEY,JSON.stringify(Object.fromEntries(trimmed)));
+      }catch{}
+    };
+    if('requestIdleCallback' in window)cacheIdleId=requestIdleCallback(flush,{timeout:2500});else flush();
   },CACHE_FLUSH_MS);
 }
 function cacheSet(key,value){
@@ -109,7 +116,11 @@ function flushDataPatches(){
 }
 function scheduleDataFlush(){
   clearTimeout(dataWriteTimer);
-  dataWriteTimer=setTimeout(flushDataPatches,DATA_FLUSH_MS);
+  if(dataIdleId&&'cancelIdleCallback' in window)window.cancelIdleCallback(dataIdleId);
+  dataWriteTimer=setTimeout(()=>{
+    dataWriteTimer=0;
+    if('requestIdleCallback' in window)dataIdleId=requestIdleCallback(()=>{dataIdleId=0;flushDataPatches()},{timeout:2500});else flushDataPatches();
+  },DATA_FLUSH_MS);
 }
 function flushAll(){
   flushDataPatches();
