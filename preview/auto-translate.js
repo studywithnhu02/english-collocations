@@ -47,6 +47,17 @@ function scheduleCacheWrite(){
     }catch{}
   },250);
 }
+function seedCacheFromRows(){
+  const rows=readRows(),cache=getCache();
+  for(const row of rows){
+    const c=normalize(row?.c||''),m=normalize(row?.m||'');
+    if(c&&m)cache[c]=m;
+    const examples=Array.isArray(row?.examples)?row.examples:[];
+    examples.forEach(ex=>{const e=normalize(ex?.e||''),em=normalize(ex?.em||'');if(e&&em)cache[e]=em});
+    const e0=normalize(row?.e||''),em0=normalize(row?.em||'');
+    if(e0&&em0)cache[e0]=em0;
+  }
+}
 function cacheGet(key){
   const value=getCache()[key];
   return value?value:'';
@@ -219,6 +230,7 @@ function bindWhenIdle(){
   }else setTimeout(bind,120);
 }
 function boot(){
+  seedCacheFromRows();
   bindWhenIdle();
   const body=document.getElementById('body');
   if(body&&!body.dataset.autoTranslateObserverV7){
