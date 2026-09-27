@@ -1,5 +1,5 @@
 import {familyFor} from './family-core.mjs';
-import {aiJson} from './ai-client.js';
+import {aiJson} from './ai-client.js?v=2';
 let modal=null,request=0;
 const rows=()=>window.PreviewTable?.getRows?.()||[];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
