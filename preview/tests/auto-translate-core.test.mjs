@@ -66,3 +66,16 @@ test('Translation UI is index-safe for examples 1 through 5',async()=>{
   for(let i=0;i<5;i++) value=mergeTranslationRow(value,99,'e','Example '+(i+1),'Meaning '+(i+1),i).rows;
   for(let i=0;i<5;i++) assert.equal(value[0].examples[i].em,'Meaning '+(i+1));
 });
+
+
+test('Auto Translate uses lightweight persistence and bounded provider work',async()=>{
+  const {readFile}=await import('node:fs/promises');
+  const js=await readFile(new URL('../auto-translate.js',import.meta.url),'utf8');
+  assert.ok(js.includes('window.PreviewTable?.schedulePersist?.()'));
+  assert.ok(js.includes('window.PreviewTable?.flushPersist?.()'));
+  assert.ok(js.includes('const MAX_CONCURRENCY=3'));
+  assert.ok(js.includes('AbortController'));
+  assert.equal(js.includes('pendingPatches'),false);
+  assert.equal(js.includes('dataWriteTimer'),false);
+  assert.equal(js.includes('dataIdleId'),false);
+});
