@@ -235,3 +235,358 @@ body.collocation-figma-25-8 .colloc-advanced-dock #vocabToolbar button{width:100
 body.collocation-figma-25-8 .colloc-advanced-dock #vocabToolbar button:nth-child(5){grid-column:1/-1}
 
 @media(max-width:1000px){body.collocation-figma-25-8 .main>.brand .box-sub{white-space:normal!important}.colloc-settings-panel{right:72px!important}}
+
+/* === 25:8 Exact Audit v2 — measured against the 2286×1115 Figma frame === */
+body.collocation-figma-25-8 .main>.table-card{
+  height:422px!important;
+  min-height:422px!important;
+  padding:8px!important;
+}
+body.collocation-figma-25-8 .main>.table-card .table-wrap{
+  height:420px!important;
+  min-height:420px!important;
+}
+body.collocation-figma-25-8 .main>.table-card table{
+  width:1708px!important;
+  min-width:1708px!important;
+  margin:0 16px!important;
+}
+body.collocation-figma-25-8 .main>.table-card th{
+  height:29px!important;
+  padding:6px 16px!important;
+}
+body.collocation-figma-25-8 .main>.table-card th.select-col{
+  padding:7px 12px 6.5px!important;
+  text-align:center!important;
+}
+body.collocation-figma-25-8 .main>.table-card th.select-col input,
+body.collocation-figma-25-8 .main>.table-card td.select-col input{
+  width:14px!important;
+  height:14px!important;
+  margin:0!important;
+  accent-color:#171717!important;
+}
+body.collocation-figma-25-8 .main>.table-card td{
+  padding:6px 16px!important;
+  white-space:nowrap!important;
+}
+body.collocation-figma-25-8 .main>.table-card tbody tr{
+  height:45px!important;
+}
+body.collocation-figma-25-8 .main>.table-card tbody tr:nth-child(2){
+  height:51px!important;
+}
+body.collocation-figma-25-8 .main>.table-card tbody tr:nth-child(2) td{
+  border-top:1px solid #f5f5f5!important;
+}
+body.collocation-figma-25-8 .main>.table-card .editable{
+  min-height:20px!important;
+  padding:2px 0!important;
+  border-radius:4px!important;
+}
+body.collocation-figma-25-8 .main>.table-card .editable[data-field="c"]{
+  font:600 12px/16px Inter,system-ui,sans-serif!important;
+  color:#171717!important;
+}
+body.collocation-figma-25-8 .main>.table-card .editable[data-field="c"]:focus{
+  display:block!important;
+  min-height:30px!important;
+  margin:-5px -9px!important;
+  padding:5px 9px!important;
+  border:1px solid #171717!important;
+  border-radius:6px!important;
+  outline:0!important;
+  box-shadow:0 0 0 1px #171717!important;
+  background:#fff!important;
+}
+body.collocation-figma-25-8 .main>.table-card .editable[data-field="structure"]{
+  font:400 11px/16px "SFMono-Regular",Consolas,monospace!important;
+  color:#404040!important;
+}
+body.collocation-figma-25-8 .main>.table-card .topic{
+  display:inline-flex!important;
+  align-items:center!important;
+  min-height:22px!important;
+  padding:2px 9px!important;
+  border:1px solid rgba(229,229,229,.6)!important;
+  border-radius:4px!important;
+  background:#f5f5f5!important;
+  color:#525252!important;
+  font:500 11px/16px Inter,system-ui,sans-serif!important;
+}
+body.collocation-figma-25-8 .main>.table-card .status-button{
+  min-width:0!important;
+  height:22px!important;
+  padding:3px 9px!important;
+  border-radius:6px!important;
+  font:500 11px/16px Inter,system-ui,sans-serif!important;
+}
+body.collocation-figma-25-8 .main>.table-card .status-button.status-learned{
+  background:#ecfdf5!important;border:1px solid rgba(167,243,208,.7)!important;color:#047857!important;
+}
+body.collocation-figma-25-8 .main>.table-card .status-button.status-in-progress{
+  background:#fffbeb!important;border:1px solid rgba(253,230,138,.7)!important;color:#92400e!important;
+}
+body.collocation-figma-25-8 .main>.table-card .status-button.status-not-learned,
+body.collocation-figma-25-8 .main>.table-card .status-button.status-custom{
+  background:#f5f5f5!important;border:1px solid rgba(229,229,229,.7)!important;color:#525252!important;
+}
+body.collocation-figma-25-8 .main>.table-card .done-date,
+body.collocation-figma-25-8 .main>.table-card .date{
+  font:400 11px/16px "SFMono-Regular",Consolas,monospace!important;color:#a3a3a3!important;
+}
+body.collocation-figma-25-8 .main>.table-card .row-actions button{
+  font:500 12px/16px Inter,system-ui,sans-serif!important;
+  color:#a3a3a3!important;padding:0!important;background:transparent!important;border:0!important;
+}
+
+/* Header/toolbar spacing: exact Figma 59 + 33 + 42 structure */
+body.collocation-figma-25-8 .main>.brand{
+  padding:8px 24px 9px!important;
+}
+body.collocation-figma-25-8 .main>.brand .box-head{
+  margin:0!important;
+}
+body.collocation-figma-25-8 .main>.brand .box-head>div:first-child{
+  line-height:0!important;
+}
+body.collocation-figma-25-8 .main>.brand .eyebrow{
+  height:16px!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  font:700 10px/16px "SFMono-Regular",Consolas,monospace!important;
+  letter-spacing:.5px!important;
+  color:#525252!important;
+}
+body.collocation-figma-25-8 .main>.brand .eyebrow .figma-sep{
+  color:#d4d4d4!important;
+  font:500 12px/16px Inter,system-ui,sans-serif!important;
+}
+body.collocation-figma-25-8 .main>.brand .eyebrow .figma-meta{
+  color:#737373!important;
+  font:500 11px/16px Inter,system-ui,sans-serif!important;
+  letter-spacing:0!important;
+}
+body.collocation-figma-25-8 .main>.brand .box-title{
+  font:600 16px/24px Inter,system-ui,sans-serif!important;
+  letter-spacing:-.4px!important;
+}
+body.collocation-figma-25-8 .main>.brand .box-title:after{
+  margin:0 10px!important;
+  color:#d4d4d4!important;
+}
+body.collocation-figma-25-8 .main>.brand .box-sub{
+  font:400 12px/16px Inter,system-ui,sans-serif!important;
+  color:#737373!important;
+}
+
+/* Right rail: measured absolute positions from Figma's scroll-content */
+body.collocation-figma-25-8 .sidebar{
+  position:relative!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  display:block!important;
+}
+body.collocation-figma-25-8 .sidebar .analytics-card{
+  position:relative!important;
+  width:100%!important;
+  height:548.25px!important;
+  min-height:548.25px!important;
+  margin:0!important;
+  overflow:visible!important;
+}
+body.collocation-figma-25-8 .sidebar .analytics-head{
+  position:absolute!important;
+  left:0!important;right:0!important;top:0!important;
+  height:53px!important;
+}
+body.collocation-figma-25-8 .colloc-side-header-extra{
+  position:absolute!important;
+  left:14px!important;right:14px!important;top:67px!important;
+  width:auto!important;height:30px!important;margin:0!important;
+}
+body.collocation-figma-25-8 .colloc-timezone{
+  position:absolute!important;
+  left:14px!important;right:14px!important;top:113px!important;
+  width:auto!important;height:31px!important;margin:0!important;
+}
+body.collocation-figma-25-8 .sidebar #analyticsCheckin{
+  position:absolute!important;
+  left:14px!important;right:14px!important;top:155.5px!important;
+  width:auto!important;height:35px!important;margin:0!important;
+}
+body.collocation-figma-25-8 .colloc-stats-header{
+  position:absolute!important;
+  left:14px!important;right:14px!important;top:201.5px!important;
+  width:auto!important;height:30px!important;margin:0!important;
+}
+body.collocation-figma-25-8 .sidebar .analytics-stats{
+  position:absolute!important;
+  left:14px!important;right:14px!important;top:243.5px!important;
+  width:auto!important;margin:0!important;padding:0!important;
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+body.collocation-figma-25-8 .sidebar .analytics-stat{
+  height:69px!important;min-height:69px!important;padding:11px!important;
+  border:1px solid rgba(229,229,229,.8)!important;border-radius:8px!important;background:#fff!important;
+}
+body.collocation-figma-25-8 .sidebar .analytics-stat span{
+  font:600 10px/15px Inter,system-ui,sans-serif!important;letter-spacing:.5px!important;
+  text-transform:uppercase!important;color:#a3a3a3!important;
+}
+body.collocation-figma-25-8 .sidebar .analytics-stat b{
+  font:600 18px/28px "SFMono-Regular",Consolas,monospace!important;
+  color:#171717!important;margin-top:4px!important;
+}
+body.collocation-figma-25-8 .sidebar .analytics-foot{
+  position:absolute!important;
+  left:14px!important;right:14px!important;top:425.5px!important;
+  width:auto!important;height:58px!important;min-height:58px!important;margin:0!important;padding:11px!important;
+  border:1px solid rgba(229,229,229,.7)!important;border-radius:8px!important;
+  background:rgba(250,250,250,.8)!important;color:#737373!important;
+  font:400 11px/17.88px Inter,system-ui,sans-serif!important;
+}
+body.collocation-figma-25-8 #goalsCard,
+body.collocation-figma-25-8 .goals-card{
+  position:relative!important;
+  width:auto!important;
+  margin:0 14px 16px!important;
+  padding:13px 0 0!important;
+  border-top:1px solid rgba(229,229,229,.7)!important;
+  border-left:0!important;border-right:0!important;border-bottom:0!important;
+  border-radius:0!important;background:#fbfbfb!important;box-shadow:none!important;
+}
+body.collocation-figma-25-8 #goalsCard .goal-list{gap:8px!important;margin-top:10px!important}
+body.collocation-figma-25-8 #goalsCard .goal-row{
+  padding:11px!important;border:1px solid rgba(229,229,229,.7)!important;
+  border-radius:8px!important;background:rgba(250,250,250,.7)!important;
+}
+body.collocation-figma-25-8 #goalsCard .goal-progress{
+  height:6px!important;margin-top:0!important;border:0!important;background:rgba(229,229,229,.7)!important;
+}
+body.collocation-figma-25-8 #goalsCard .goal-progress>i{
+  background:rgba(229,229,229,.7)!important;
+}
+body.collocation-figma-25-8 #goalsCard .goal-row-head{
+  min-height:28px!important;
+}
+body.collocation-figma-25-8 #goalsCard .goal-target input{
+  width:64px!important;height:28px!important;padding:6px 13px!important;
+  border:1px solid #e5e5e5!important;border-radius:6px!important;background:#fff!important;
+  font:700 12px/normal "SFMono-Regular",Consolas,monospace!important;
+  text-align:center!important;color:#262626!important;
+}
+body.collocation-figma-25-8 #goalsCard .goal-count{
+  min-width:32px!important;text-align:right!important;
+  font:400 11px/16.5px "SFMono-Regular",Consolas,monospace!important;color:#a3a3a3!important;
+}
+body.collocation-figma-25-8 #goalsCard .goal-base-note{
+  font:400 10px/15px "SFMono-Regular",Consolas,monospace!important;color:#a3a3a3!important;
+}
+
+/* Figma suggestion popover — node 25:209–234 */
+body.collocation-figma-25-8 .suggest-popover{
+  width:288px!important;
+  padding:7px!important;
+  background:#fff!important;
+  border:1px solid rgba(229,229,229,.9)!important;
+  border-radius:8px!important;
+  box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1)!important;
+  color:#171717!important;
+}
+body.collocation-figma-25-8 .suggest-head{
+  padding:4px 10px!important;
+  font:600 10px/16px Inter,system-ui,sans-serif!important;
+  letter-spacing:.5px!important;text-transform:uppercase!important;color:#a3a3a3!important;
+}
+body.collocation-figma-25-8 .suggest-list{gap:2px!important;max-height:300px!important;overflow:visible!important}
+body.collocation-figma-25-8 .suggestion-btn{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  width:100%!important;min-height:28px!important;
+  padding:6px 10px!important;
+  border:0!important;border-radius:6px!important;
+  background:transparent!important;color:#404040!important;
+  box-shadow:none!important;
+}
+body.collocation-figma-25-8 .suggestion-btn:hover,
+body.collocation-figma-25-8 .suggestion-btn.active{
+  background:#fafafa!important;border:0!important;
+}
+body.collocation-figma-25-8 .suggestion-btn.is-existing{
+  background:transparent!important;border:0!important;
+}
+body.collocation-figma-25-8 .suggestion-phrase{
+  font:600 12px/16px Inter,system-ui,sans-serif!important;color:#171717!important;
+}
+body.collocation-figma-25-8 .suggestion-meaning{
+  font:400 10px/16px Inter,system-ui,sans-serif!important;color:#a3a3a3!important;
+  margin:0!important;
+}
+body.collocation-figma-25-8 .suggestion-meta{display:none!important}
+body.collocation-figma-25-8 .suggestion-copy{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  width:100%!important;min-width:0!important;gap:10px!important;
+}
+body.collocation-figma-25-8 .suggestion-arrow{
+  display:none!important;
+}
+body.collocation-figma-25-8 .suggest-more{
+  width:100%!important;height:28px!important;min-height:28px!important;
+  margin-top:0!important;padding:6px!important;
+  border:0!important;border-radius:6px!important;
+  background:transparent!important;color:#171717!important;
+  font:500 12px/16px Inter,system-ui,sans-serif!important;
+}
+body.collocation-figma-25-8 .suggest-more:hover{background:#fafafa!important}
+body.collocation-figma-25-8 .suggest-popover>.suggest-note:last-child{
+  display:none!important;
+}
+body.collocation-figma-25-8 .suggest-popover>.suggest-loading{
+  padding:5px 10px!important;font:400 10px/16px Inter,system-ui,sans-serif!important;color:#a3a3a3!important;
+}
+body.collocation-figma-25-8 .colloc-helper-logout{
+  cursor:pointer!important;
+  color:#737373!important;
+}
+body.collocation-figma-25-8 .colloc-helper .sep{
+  color:#d4d4d4!important;
+}
+body.collocation-figma-25-8 .colloc-helper{
+  padding:8px 24px!important;
+}
+body.collocation-figma-25-8 .colloc-helper-sync{
+  font:500 11px/16px Inter,system-ui,sans-serif!important;
+}
+
+/* Exact expanded desktop viewport; keep mobile behavior separate. */
+@media(min-width:1001px){
+  body.collocation-figma-25-8 .main>.table-card{height:422px!important}
+}
+@media(max-width:1000px){
+  body.collocation-figma-25-8 .main>.table-card{
+    height:520px!important;min-height:520px!important;
+  }
+  body.collocation-figma-25-8 .main>.table-card .table-wrap{
+    height:518px!important;min-height:518px!important;
+  }
+  body.collocation-figma-25-8 .sidebar .analytics-card{
+    position:relative!important;height:auto!important;min-height:0!important;
+  }
+  body.collocation-figma-25-8 .sidebar .analytics-head,
+  body.collocation-figma-25-8 .colloc-side-header-extra,
+  body.collocation-figma-25-8 .colloc-timezone,
+  body.collocation-figma-25-8 .sidebar #analyticsCheckin,
+  body.collocation-figma-25-8 .colloc-stats-header,
+  body.collocation-figma-25-8 .sidebar .analytics-stats,
+  body.collocation-figma-25-8 .sidebar .analytics-foot{
+    position:static!important;
+    left:auto!important;right:auto!important;top:auto!important;
+  }
+  body.collocation-figma-25-8 #goalsCard,
+  body.collocation-figma-25-8 .goals-card{
+    position:relative!important;margin:24px 14px 16px!important;
+  }
+}
