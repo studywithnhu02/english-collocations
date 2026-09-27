@@ -8,6 +8,7 @@ const core=await readFile(new URL('../smart-ingestion-core.mjs',import.meta.url)
 const smart=await readFile(new URL('../smart-tools.js',import.meta.url),'utf8');
 const worker=await readFile(new URL('../ai-agent-worker.js',import.meta.url),'utf8');
 const vocab=await readFile(new URL('../vocabulary-ui.js',import.meta.url),'utf8');
+const loader=await readFile(new URL('../runtime-loader.js',import.meta.url),'utf8');
 
 test('fast-lane table rendering avoids full DOM work for large datasets',()=>{
   assert.ok(app.includes("renderLimit=80"));
@@ -58,4 +59,22 @@ test('Vocabulary decoration uses one row map instead of reading the dataset for 
   assert.ok(vocab.includes('function getRow(id)'));
   assert.ok(vocab.includes('decorateRow(tr,getRow(tr.dataset.id)))'));
   assert.ok(vocab.includes('function decorateRow(tr,row)'));
+});
+
+
+test('non-critical modules are lazy-loaded instead of blocking initial Preview startup',()=>{
+  for(const token of [
+    "const MODULES=Object.freeze({",
+    "goals:'./goals-ui.js?v=1'",
+    "aiAgent:'./ai-agent.js?v=12'",
+    "grammar:'./grammar-ui.js?v=6'",
+    "stagedLoad(['vocabulary','goals','srs'",
+    'window.PreviewModules={load,loadGrammar,paths:MODULES}'
+  ])assert.ok(loader.includes(token),token);
+  for(const token of [
+    '<script type="module" src="./goals-ui.js',
+    '<script type="module" src="./srs-ui.js',
+    '<script type="module" src="./ai-agent.js',
+    '<script type="module" src="./grammar-ui.js'
+  ])assert.equal(app.includes(token),false,token);
 });
