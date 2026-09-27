@@ -116,6 +116,8 @@ jobs:
           node --test preview/tests/security-preview.test.mjs
           node --test preview/tests/export-preview.test.mjs
 
+      - name: Performance architecture regression tests
+        run: node --test preview/tests/performance-preview.test.mjs
       - name: Requested behavior regression tests
         run: |
           node --test preview/tests/ingestion-preview.test.mjs
