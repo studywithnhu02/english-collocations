@@ -55,7 +55,7 @@ test('Auto-fill and suggestion AI use the lightweight model while Agent keeps th
 });
 
 test('Vocabulary decoration uses one row map instead of reading the dataset for every DOM row',()=>{
-  assert.ok(vocab.includes('const source=readRows(),byId=new Map'));
-  assert.ok(vocab.includes('decorateRow(tr,byId.get(String(tr.dataset.id)))'));
+  assert.ok(vocab.includes('function getRow(id)'));
+  assert.ok(vocab.includes('decorateRow(tr,getRow(tr.dataset.id)))'));
   assert.ok(vocab.includes('function decorateRow(tr,row)'));
 });
