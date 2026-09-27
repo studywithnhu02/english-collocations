@@ -39,4 +39,10 @@ async function loadGrammar(){
   return true;
 }
 window.PreviewModules={load,loadGrammar,paths:MODULES};
+
+// Critical visual shell: load the Figma 25:8 adapter immediately.
+// It only adapts the existing DOM/CSS and does not touch data, auth, or learning logic.
+// Keeping it out of stagedLoad prevents the management UI from appearing in the old layout first.
+load('collocationFigma').catch(error=>console.warn('[PreviewModules] collocationFigma',error));
+
 stagedLoad(['vocabulary','goals','srs','coverage','coach','domains','quiz','focus','family','anki','print','aiAgent']);
