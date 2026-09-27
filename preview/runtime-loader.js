@@ -14,7 +14,7 @@ const MODULES=Object.freeze({
   grammar:'./grammar-ui.js?v=6',
   grammarExercises:'./grammar-exercises.js?v=1',
   grammarFigma:'./grammar-figma-polish.js?v=1',
-  collocationFigma:'./collocation-figma-25-8.js?v=1'
+  collocationFigma:'./collocation-figma-25-8.js?v=2'
 });
 const loaded=new Map(),queued=new Set();
 function load(name){
