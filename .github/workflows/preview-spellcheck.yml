@@ -119,6 +119,8 @@ jobs:
 
       - name: Performance architecture regression tests
         run: node --test preview/tests/performance-preview.test.mjs
+      - name: Grammar Figma UI parity tests
+        run: node --test preview/tests/grammar-figma-ui.test.mjs
       - name: Requested behavior regression tests
         run: |
           node --test preview/tests/ingestion-preview.test.mjs
