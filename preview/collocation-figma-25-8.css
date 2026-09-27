@@ -163,3 +163,75 @@ body.collocation-figma-25-8.colloc-right-collapsed .sidebar .colloc-head-more{di
   body.collocation-figma-25-8 .main>.card:not(.brand):not(.table-card)>.controls{overflow:auto}
   body.collocation-figma-25-8 .main>.table-card{height:460px!important}
 }
+
+/* === Figma 25:8 final pixel-audit overrides === */
+body.collocation-figma-25-8 .main>.brand .box-head{min-width:0;display:block!important}
+body.collocation-figma-25-8 .main>.brand .box-head>div:first-child{white-space:nowrap;overflow:hidden}
+body.collocation-figma-25-8 .main>.brand .eyebrow{display:block!important;margin:0 0 1px!important;white-space:nowrap!important}
+body.collocation-figma-25-8 .main>.brand .box-title{display:inline-flex!important;align-items:center!important;vertical-align:middle!important;margin:0!important}
+body.collocation-figma-25-8 .main>.brand .box-title:after{content:"|";display:inline-block;margin:0 10px;color:#d4d4d4;font:400 16px/24px Inter,system-ui,sans-serif}
+body.collocation-figma-25-8 .main>.brand .box-sub{position:static!important;display:inline-flex!important;vertical-align:middle!important;max-width:576px!important;margin:0!important;white-space:nowrap!important}
+body.collocation-figma-25-8 .main>.brand .actions{width:86px!important;height:30px!important;flex:none!important}
+body.collocation-figma-25-8 .main>.brand .actions:before{content:"";left:12px;top:8px;width:14px;height:14px;background:#737373;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Zm0-6 1.3 2.6a7.6 7.6 0 0 1 2.2.9l2.8-.7 1.9 1.9-.7 2.8c.4.7.7 1.4.9 2.2l2.6 1.3v2.7l-2.6 1.3a7.6 7.6 0 0 1-.9 2.2l.7 2.8-1.9 1.9-2.8-.7a7.6 7.6 0 0 1-2.2.9L12 23.8h-2.7L8 21.2a7.6 7.6 0 0 1-2.2-.9l-2.8.7-1.9-1.9.7-2.8a7.6 7.6 0 0 1-.9-2.2L.3 12.8v-2.7L2.9 8.8a7.6 7.6 0 0 1 .9-2.2L3.1 3.8 5 1.9l2.8.7a7.6 7.6 0 0 1 2.2-.9L11.3-.9h1.4'/%3E%3C/svg%3E") center/contain no-repeat}
+body.collocation-figma-25-8 .main>.brand .actions:after{width:86px;height:30px;padding-right:12px;justify-content:flex-end}
+
+body.collocation-figma-25-8 .main>.card:not(.brand):not(.table-card){padding:6px 8px 6px!important;align-items:center!important}
+body.collocation-figma-25-8 .main>.card:not(.brand):not(.table-card)>.controls{height:30px!important;gap:10px!important}
+body.collocation-figma-25-8 .main>.card:not(.brand):not(.table-card) .meta{height:30px!important}
+body.collocation-figma-25-8 .main>.card:not(.brand):not(.table-card) .selection-actions{height:30px!important;margin:0 0 0 auto!important;gap:8px!important}
+body.collocation-figma-25-8 .main>.card:not(.brand):not(.table-card) .select-all-label{height:30px!important;padding:7px 11px!important;border:1px solid #e5e5e5!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 1px rgba(0,0,0,.03)!important;cursor:pointer}
+body.collocation-figma-25-8 .main>.card:not(.brand):not(.table-card) .select-all-label input{position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;pointer-events:none!important}
+body.collocation-figma-25-8 .main>.card:not(.brand):not(.table-card) #bulkDelete{height:30px!important}
+body.collocation-figma-25-8 .colloc-batch-extra{height:30px!important}
+body.collocation-figma-25-8 .colloc-batch-extra button{height:30px!important}
+body.collocation-figma-25-8 .table-render-hint{display:none!important}
+body.collocation-figma-25-8 .main>.card:not(.brand):not(.table-card) .vocab-filter,
+body.collocation-figma-25-8 .main>.card:not(.brand):not(.table-card) #vocabToolbar{display:none!important}
+
+body.collocation-figma-25-8 .sidebar{overflow:auto!important;display:block!important;background:#fbfbfb!important}
+body.collocation-figma-25-8 .sidebar .analytics-card{height:auto!important;min-height:0!important;display:block!important;overflow:visible!important;margin:0!important;flex:none!important}
+body.collocation-figma-25-8 .sidebar .analytics-head{position:relative!important;height:53px!important}
+body.collocation-figma-25-8 .sidebar .analytics-head .analytics-checkin{display:none!important}
+body.collocation-figma-25-8 .colloc-side-header-extra{margin:14px 14px 0!important;height:30px!important}
+body.collocation-figma-25-8 .colloc-timezone{margin:16px 14px 0!important;height:31px!important}
+body.collocation-figma-25-8 .sidebar .analytics-card>.analytics-head + .colloc-side-header-extra + .colloc-timezone + #analyticsCheckin,
+body.collocation-figma-25-8 .sidebar #analyticsCheckin{position:static!important;display:flex!important;height:35px!important;margin:11px 14px 0!important;width:calc(100% - 28px)!important}
+body.collocation-figma-25-8 .colloc-stats-header{height:30px!important;margin:10px 14px 0!important;padding:4px 0 0!important}
+body.collocation-figma-25-8 .sidebar .analytics-stats{margin:10px 0 0!important;padding:0 14px!important;gap:8px!important}
+body.collocation-figma-25-8 .sidebar .analytics-stat{height:69px!important;min-height:69px!important}
+body.collocation-figma-25-8 .sidebar .analytics-foot{margin:12px 14px 0!important;min-height:58px!important;padding:10px 11px!important;line-height:17.88px!important}
+
+body.collocation-figma-25-8 #goalsCard,
+body.collocation-figma-25-8 .goals-card{display:block!important;margin:24px 14px 16px!important;padding:13px 0 0!important;border-top:1px solid rgba(229,229,229,.7)!important;border-left:0!important;border-right:0!important;border-bottom:0!important;border-radius:0!important;background:#fbfbfb!important;box-shadow:none!important}
+body.collocation-figma-25-8 #goalsCard .feature-head{margin:0!important;padding:0!important}
+body.collocation-figma-25-8 #goalsCard .feature-title{font:600 12px/16px Inter,system-ui,sans-serif!important;color:#262626!important}
+body.collocation-figma-25-8 #goalsCard .feature-sub{font:400 11px/17.88px Inter,system-ui,sans-serif!important;color:#737373!important}
+body.collocation-figma-25-8 #goalsCard .goal-list{display:grid!important;gap:8px!important;margin-top:10px!important}
+body.collocation-figma-25-8 #goalsCard .goal-row{padding:11px!important;border:1px solid rgba(229,229,229,.7)!important;border-radius:8px!important;background:rgba(250,250,250,.7)!important}
+body.collocation-figma-25-8 #goalsCard .goal-row-head{font:500 12px/16px Inter,system-ui,sans-serif!important;color:#404040!important}
+body.collocation-figma-25-8 #goalsCard .goal-label{font-weight:500!important}
+body.collocation-figma-25-8 #goalsCard .goal-target input{width:64px!important;height:28px!important;padding:6px 13px!important;border:1px solid #e5e5e5!important;border-radius:6px!important;background:#fff!important;font:500 11px/16px "SFMono-Regular",Consolas,monospace!important;text-align:center!important}
+body.collocation-figma-25-8 #goalsCard .goal-count{font:400 10px/16px "SFMono-Regular",Consolas,monospace!important;color:#a3a3a3!important}
+body.collocation-figma-25-8 #goalsCard .goal-progress{height:4px!important;margin-top:6px!important;background:#f5f5f5!important;border:1px solid #e5e5e5!important}
+body.collocation-figma-25-8 #goalsCard .goal-progress>i{background:#171717!important}
+body.collocation-figma-25-8 #goalsCard .goal-foot{margin-top:10px!important;padding-top:0!important;font:400 10px/16px Inter,system-ui,sans-serif!important;color:#a3a3a3!important}
+body.collocation-figma-25-8 #goalsCard .goal-base-note{font:400 10px/16px Inter,system-ui,sans-serif!important;color:#a3a3a3!important}
+
+body.collocation-figma-25-8 .left-nav-section{padding-top:11px!important}
+body.collocation-figma-25-8 .left-nav-item{position:relative!important}
+body.collocation-figma-25-8 .left-nav-count{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:3px 6px;border-radius:4px;background:#f5f5f5;border:1px solid rgba(229,229,229,.6);font:500 10px/16px "SFMono-Regular",Consolas,monospace;color:#404040}
+body.collocation-figma-25-8 .left-nav-count-muted{color:#a3a3a3;border-color:transparent}
+body.collocation-figma-25-8 #leftNavSettings .left-nav-icon:after{content:"";display:block;width:16px;height:16px;background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Zm0-6 1.3 2.6a7.6 7.6 0 0 1 2.2.9l2.8-.7 1.9 1.9-.7 2.8c.4.7.7 1.4.9 2.2l2.6 1.3v2.7l-2.6 1.3a7.6 7.6 0 0 1-.9 2.2l.7 2.8-1.9 1.9-2.8-.7a7.6 7.6 0 0 1-2.2.9L12 23.8h-2.7L8 21.2a7.6 7.6 0 0 1-2.2-.9l-2.8.7-1.9-1.9.7-2.8a7.6 7.6 0 0 1 .9-2.2L.3 12.8v-2.7L2.9 8.8a7.6 7.6 0 0 1 .9-2.2L3.1 3.8 5 1.9l2.8.7a7.6 7.6 0 0 1 2.2-.9L11.3-.9h1.4'/%3E%3C/svg%3E") center/contain no-repeat}
+body.collocation-figma-25-8 .colloc-nav-version{font:400 11px/16.5px "SFMono-Regular",Consolas,monospace;color:#737373}
+body.collocation-figma-25-8 .colloc-nav-sync{margin-left:auto;display:flex;align-items:center;gap:6px;font:500 11px/16.5px Inter,system-ui,sans-serif;color:#059669}
+body.collocation-figma-25-8 .colloc-nav-sync i{width:6px;height:6px;border-radius:999px;background:#10b981}
+body.collocation-figma-25-8 .colloc-settings-panel{top:66px!important;right:304px!important;width:280px!important;max-height:calc(100vh - 82px)!important;overflow:auto!important;padding:8px!important}
+body.collocation-figma-25-8 .colloc-settings-divider{height:1px;background:#e5e5e5;margin:6px 0}
+body.collocation-figma-25-8 .colloc-settings-advanced-title{padding:5px 9px;color:#a3a3a3;font:700 10px/16px Inter,system-ui,sans-serif;letter-spacing:.5px;text-transform:uppercase}
+body.collocation-figma-25-8 .colloc-advanced-dock{display:grid;gap:6px}
+body.collocation-figma-25-8 .colloc-advanced-dock .vocab-filter{width:100%!important;height:30px!important}
+body.collocation-figma-25-8 .colloc-advanced-dock #vocabToolbar{display:grid!important;grid-template-columns:1fr 1fr;gap:6px!important;margin:4px 0 0!important;padding:0!important;border:0!important}
+body.collocation-figma-25-8 .colloc-advanced-dock #vocabToolbar button{width:100%!important;min-width:0!important;height:30px!important;font:500 10px/16px Inter,system-ui,sans-serif!important}
+body.collocation-figma-25-8 .colloc-advanced-dock #vocabToolbar button:nth-child(5){grid-column:1/-1}
+
+@media(max-width:1000px){body.collocation-figma-25-8 .main>.brand .box-sub{white-space:normal!important}.colloc-settings-panel{right:72px!important}}
