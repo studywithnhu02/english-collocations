@@ -5,6 +5,10 @@ import {buildAutoFillChanges,parseAutoFillResponse,validateAutoFillResult} from 
 const KEY='english-collocations-preview-v2';
 const requestVersions=new Map();
 const busyIds=new Set();
+const pendingById=new Map();
+let queueTimer=0;
+let queueIdleId=0;
+let queueRunning=false;
 
 function read(){try{const value=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(value)?value:[]}catch{return[]}}
 
@@ -24,7 +28,7 @@ function ask(collocation,attempt=0){
   return aiJson([
     {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn MUST contain the exact collocation text exactly as supplied and use it naturally in a short workplace or conversational sentence. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. '+strict+' Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
     {role:'user',content:JSON.stringify({collocation:String(collocation||'').trim(),attempt})}
-  ],{batch:false,purpose:'autofill',maxNewTokens:256,timeoutMs:20000});
+  ],{batch:false,purpose:'autofill',maxNewTokens:160,timeoutMs:20000});
 }
 async function waitForTranslator(limitMs=4000){
   const started=Date.now();
@@ -35,9 +39,41 @@ async function waitForTranslator(limitMs=4000){
   return null;
 }
 
+function rowStillNeedsFill(id,value){
+  const rows=window.PreviewTable?.getRows?.()||read();
+  const row=rows.find(r=>String(r.id)===String(id));
+  if(!row)return false;
+  if(String(row.c||'').trim()!==String(value||'').trim())return false;
+  return !String(row.m||'').trim()||!String(row.e||'').trim();
+}
+function scheduleQueuePump(delay=450){
+  clearTimeout(queueTimer);
+  if(queueIdleId&&'cancelIdleCallback' in window)window.cancelIdleCallback(queueIdleId);
+  queueIdleId=0;
+  queueTimer=setTimeout(()=>{
+    queueTimer=0;
+    const run=()=>{queueIdleId=0;pumpQueue()};
+    if('requestIdleCallback' in window)queueIdleId=requestIdleCallback(run,{timeout:1800});else run();
+  },delay);
+}
+async function pumpQueue(){
+  if(queueRunning)return;
+  const first=pendingById.entries().next().value;
+  if(!first)return;
+  pendingById.delete(first[0]);
+  queueRunning=true;
+  try{await autoFill(first[1].id,first[1].value)}
+  finally{queueRunning=false;if(pendingById.size)scheduleQueuePump(120)}
+}
+function queueAutoFill(id,value){
+  const key=String(id),text=String(value||'').trim();
+  if(!text||!rowStillNeedsFill(key,text))return;
+  pendingById.set(key,{id:key,value:text});
+  scheduleQueuePump(450);
+}
 export async function autoFill(id,value){
   const key=String(id),text=String(value||'').trim();
-  if(!text)return;
+  if(!text||!rowStillNeedsFill(key,text))return;
   const version=(requestVersions.get(key)||0)+1;
   requestVersions.set(key,version);
   busyIds.add(key);
@@ -68,7 +104,7 @@ export async function autoFill(id,value){
       }
     }
     const filledExampleEn=String(changes.e||'').trim(),existingExample=String(current.e||'').trim(),exampleToTranslate=filledExampleEn||existingExample;
-    if(requestVersions.get(key)===version&&exampleToTranslate&&!String(current.em||'').trim()){
+    if(requestVersions.get(key)===version&&!String(changes.em||'').trim()&&exampleToTranslate&&!String(current.em||'').trim()){
       const translator=await waitForTranslator();
       if(translator&&requestVersions.get(key)===version){
         try{await translator(key,'e',exampleToTranslate)}catch(error){console.warn('[PreviewIngestion] translation fallback failed',error)}
@@ -76,10 +112,11 @@ export async function autoFill(id,value){
     }
   }catch(error){
     console.error('[PreviewIngestion]',error);
+    if(requestVersions.get(key)===version&&!String(current?.m||'').trim())window.AutoTranslate?.run?.(key,'c',text).catch?.(()=>{});
   }finally{
     busyIds.delete(key);
     if(requestVersions.get(key)===version)setBusy(key,false);
   }
 }
 
-window.PreviewIngestion={autoFill,maybeAutoFill:autoFill,requestVersions};
+window.PreviewIngestion={autoFill,queueAutoFill,maybeAutoFill:queueAutoFill,requestVersions};
