@@ -23,7 +23,8 @@ function setBusy(id,on){
 
 function ask(collocation,needs,attempt=0){
   const strict=attempt>0?' CRITICAL REPAIR: previous output was invalid. Preserve the collocation text exactly.':'';
-  const fields=['meaningVi'];
+  const fields=[];
+  if(needs.meaning)fields.push('meaningVi');
   if(needs.example)fields.push('exampleEn','exampleVi');
   const request={collocation:String(collocation||'').trim(),requestedFields:fields,attempt};
   return aiJson([
