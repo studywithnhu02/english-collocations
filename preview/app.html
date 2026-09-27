@@ -673,6 +673,20 @@ body.grammar-mode .grammar2-layout{grid-template-rows:91px minmax(0,1fr)!importa
 body.grammar-mode .grammar2-note{display:none!important}
 body.grammar-mode .grammar2-body{grid-row:2!important}
 </style>
+<style id="grammar-figma-unit-collapse-v1">
+body.grammar-mode .grammar2-unit-group-toggle{width:100%;min-height:38px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;margin:0;border:0;border-top:1px solid #f5f5f5;background:#fff;color:#404040;cursor:pointer;text-align:left;font:500 12px/16px Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+body.grammar-mode .grammar2-unit-group-toggle:hover{background:#fafafa}
+body.grammar-mode .grammar2-unit-group-toggle:focus-visible{outline:2px solid #a3a3a3;outline-offset:-2px}
+body.grammar-mode .grammar2-unit-group-toggle .grammar2-unit-group-main{display:flex;align-items:center;gap:8px;min-width:0}
+body.grammar-mode .grammar2-unit-group-toggle .grammar2-unit-group-chevron{width:14px;height:14px;display:grid;place-items:center;flex:none;color:#737373;font-size:12px;line-height:1;transition:transform .15s ease}
+body.grammar-mode .grammar2-unit-group-toggle.is-collapsed .grammar2-unit-group-chevron{transform:rotate(-90deg)}
+body.grammar-mode .grammar2-unit-group-title{min-width:0;display:flex;flex-direction:column;gap:1px}
+body.grammar-mode .grammar2-unit-group-title>:first-child{font:400 10px/12.5px "SFMono-Regular",Consolas,monospace;color:#a3a3a3;white-space:nowrap}
+body.grammar-mode .grammar2-unit-group-title>:last-child{font:500 12px/16px Inter,system-ui,sans-serif;color:#404040;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.grammar-mode .grammar2-unit-group-count{padding:2px 6px;border-radius:4px;background:#f5f5f5;color:#a3a3a3;font:400 10px/15px "SFMono-Regular",Consolas,monospace;white-space:nowrap}
+body.grammar-mode .grammar2-unit-group-toggle.is-open .grammar2-unit-group-count{background:#fff;border:1px solid #e5e5e5;color:#525252}
+body.grammar-mode .grammar2-unit.is-group-hidden{display:none!important}
+</style>
 </head>
 <body class="auth-checking nav-expanded">
 <nav class="left-nav" id="leftNav" aria-label="Điều hướng chính">
@@ -961,4 +975,33 @@ layoutResizer.addEventListener('pointerdown',e=>{if(window.innerWidth<=1000)retu
 const expected='jank0f4',raw='https://raw.githubusercontent.com/studywithnhu02/english-collocations/main/preview/app.html';function setPreview(k,title,sub){$('psDot').className='ps-dot '+k;$('psTitle').textContent=title;$('psSub').textContent=sub;$('psTime').textContent=new Date().toLocaleTimeString('vi-VN')}async function checkPreview(){setPreview('busy','🟡 Đang kiểm tra Preview…','Đang so sánh build đang chạy với source GitHub.');try{const r=await fetch(raw+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const text=await r.text();const m=text.match(/data-preview-build="([0-9a-f]{7,40})"/i);const live=m?m[1]:'';if(live===expected)setPreview('ok','🟢 Preview đã cập nhật','Management Preview · build '+live+' · source GitHub đã lên Pages.');else setPreview('busy','🟡 GitHub Pages đang cập nhật','Source mới đã có build '+expected+' · Pages hiện vẫn đang phục vụ '+(live||'build cũ')+'.')}catch(e){setPreview('err','⚠️ Không kiểm tra được','GitHub Pages chưa phản hồi. Bạn vẫn có thể reload thủ công.')}}$('psCheck').addEventListener('click',checkPreview);$('psReload').addEventListener('click',()=>location.reload());checkPreview();setInterval(checkPreview,15000);
 </script>
 
+<script id="grammar-figma-unit-collapse-v1">
+(function(){
+  function init(){
+    if(!document.body.classList.contains('grammar-mode'))return;
+    var rail=document.querySelector('.grammar2-rail,.grammar2-list');
+    if(!rail||rail.dataset.unitCollapseReady==='1')return;
+    var units=Array.from(rail.querySelectorAll('.grammar2-unit'));if(!units.length)return;
+    function order(a,b){var p=a.compareDocumentPosition(b);return(p&Node.DOCUMENT_POSITION_FOLLOWING)?-1:1}
+    var headers=Array.from(rail.querySelectorAll('*')).filter(function(el){
+      if(el.classList.contains('grammar2-unit')||el.closest('.grammar2-unit'))return false;
+      var t=(el.textContent||'').replace(/\s+/g,' ').trim();
+      return /^Units\s+\d+\s*[–-]\s*\d+/i.test(t)&&t.length<=180;
+    }).filter(function(el){return !Array.from(el.children).some(function(c){var t=(c.textContent||'').replace(/\s+/g,' ').trim();return /^Units\s+\d+\s*[–-]\s*\d+/i.test(t)&&t.length<=180;});}).sort(order);
+    if(!headers.length)return;rail.dataset.unitCollapseReady='1';
+    headers.forEach(function(header,i){
+      var next=headers[i+1];
+      var group=units.filter(function(unit){var a=header.compareDocumentPosition(unit)&Node.DOCUMENT_POSITION_FOLLOWING;var b=!next||(next.compareDocumentPosition(unit)&Node.DOCUMENT_POSITION_FOLLOWING);return!!a&&!!b;});
+      if(!group.length)return;
+      var button=document.createElement('button');button.type='button';button.className='grammar2-unit-group-toggle is-open';button.setAttribute('aria-expanded','true');
+      var main=document.createElement('span');main.className='grammar2-unit-group-main';var chev=document.createElement('span');chev.className='grammar2-unit-group-chevron';chev.textContent='⌄';var title=document.createElement('span');title.className='grammar2-unit-group-title';
+      var source=(header.textContent||'').replace(/\s+/g,' ').trim();var m=source.match(/^(Units\s+\d+\s*[–-]\s*\d+)(?:\s+·?\s*(.*))?$/i);var r=document.createElement('span');r.textContent=m?m[1]:source;var l=document.createElement('span');l.textContent=m&&m[2]?m[2].replace(/^·\s*/,''):'Grammar units';title.append(r,l);main.append(chev,title);
+      var count=document.createElement('span');count.className='grammar2-unit-group-count';count.textContent=group.length+' units';button.append(main,count);header.parentNode.insertBefore(button,header);header.style.display='none';
+      button.addEventListener('click',function(){var c=button.classList.toggle('is-collapsed');button.classList.toggle('is-open',!c);button.setAttribute('aria-expanded',c?'false':'true');group.forEach(function(u){u.classList.toggle('is-group-hidden',c);});});
+    });
+  }
+  function boot(){init();setTimeout(init,300);setTimeout(init,1000)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+</script>
 </body></html>
