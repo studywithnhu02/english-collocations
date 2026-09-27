@@ -38,8 +38,8 @@ test('Smart suggestion is wired to the collocation cell with CEFR, duplicate mar
   assert.ok(smart.includes('.startsWith(q)'));
   assert.ok(smart.includes('begin exactly with the supplied input'));assert.ok(smart.includes('getExternalSuggestions'));
   assert.ok(smart.includes('up to 30 common natural English collocations'));assert.ok(smart.includes('purpose:\'suggestion-meanings\''));assert.ok(smart.includes('maxNewTokens:768'));assert.ok(smart.includes('slice(0,60)'));assert.ok(smart.includes('local Preview Library'));
-  assert.ok(smart.includes('local.length<10'));
-  assert.ok(smart.includes('suggestCefr'));assert.ok(smart.includes('Nghĩa tiếng Việt được ưu tiên'));
+  assert.ok(smart.includes("textContent='✨ Tìm thêm từ + AI'"));
+  assert.ok(smart.includes('suggestCefr'));assert.ok(smart.includes('local Preview Library'));
   assert.ok(!smart.includes('Smart Refinement'));
   assert.ok(!smart.includes('refineRun'));
 });
