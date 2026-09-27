@@ -112,7 +112,8 @@ export async function autoFill(id,value){
     }
   }catch(error){
     console.error('[PreviewIngestion]',error);
-    if(requestVersions.get(key)===version&&!String(current?.m||'').trim())window.AutoTranslate?.run?.(key,'c',text).catch?.(()=>{});
+    const fallbackRow=(window.PreviewTable?.getRows?.()||read()).find(r=>String(r.id)===key);
+    if(requestVersions.get(key)===version&&!String(fallbackRow?.m||'').trim())window.AutoTranslate?.run?.(key,'c',text).catch?.(()=>{});
   }finally{
     busyIds.delete(key);
     if(requestVersions.get(key)===version)setBusy(key,false);
