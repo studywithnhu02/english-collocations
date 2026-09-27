@@ -55,16 +55,26 @@
     var stats=card.querySelector('.analytics-stats');
     var checkin=card.querySelector('#analyticsCheckin');
     if(stats){
+      function setRightSidebarCollapsed(collapsed){
+        body.classList.toggle('colloc-right-collapsed',!!collapsed);
+        var quickButton=document.querySelector('.colloc-side-header-extra');
+        var expandButton=document.querySelector('.colloc-right-expand');
+        if(quickButton)quickButton.setAttribute('aria-expanded',String(!collapsed));
+        if(expandButton)expandButton.setAttribute('aria-hidden',String(!collapsed));
+        try{localStorage.setItem('english-collocations-colloc-right-sidebar-v2',collapsed?'collapsed':'expanded')}catch(e){}
+      }
       var expandRail=document.createElement('button');
       expandRail.type='button';
       expandRail.className='colloc-right-expand';
+      expandRail.setAttribute('data-colloc-right-expand','1');
       expandRail.setAttribute('aria-label','Mở rộng sidebar');
       expandRail.title='Mở rộng sidebar';
       expandRail.innerHTML=svg('expand');
       head.appendChild(expandRail);
-      expandRail.addEventListener('click',function(){
-        body.classList.remove('colloc-right-collapsed');
-        try{localStorage.setItem('english-collocations-colloc-right-sidebar-v2','expanded')}catch(e){}
+      expandRail.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        setRightSidebarCollapsed(false);
       });
       var miniRail=document.createElement('div');
       miniRail.className='colloc-right-mini-rail';
@@ -72,6 +82,9 @@
       miniRail.innerHTML='<div class="colloc-mini-toggle-slot"></div><div class="colloc-mini-divider"></div><button type="button" class="colloc-mini-item colloc-mini-checkin" aria-label="Điểm danh"><span class="colloc-mini-icon">◫</span><i></i></button><button type="button" class="colloc-mini-item colloc-mini-learned" aria-label="Đã học"><span class="colloc-mini-icon">✓</span><b data-mini-stat="learned">0</b></button><button type="button" class="colloc-mini-item colloc-mini-inprogress" aria-label="Đang học"><span class="colloc-mini-dot"></span><b data-mini-stat="inprogress">0</b></button><button type="button" class="colloc-mini-item colloc-mini-streak" aria-label="Streak"><span class="colloc-mini-icon">🔥</span><b data-mini-stat="streak">0</b></button><div class="colloc-mini-divider"></div><button type="button" class="colloc-mini-item colloc-mini-goal" aria-label="Mục tiêu"><span class="colloc-mini-icon">◎</span><small data-mini-stat="goal">0/0</small></button><div class="colloc-mini-bottom"><span>STATS</span></div>';
       card.appendChild(miniRail);
       var quick=document.createElement('button');quick.type='button';quick.className='colloc-side-header-extra';
+      quick.setAttribute('data-colloc-right-collapse','1');
+      quick.setAttribute('aria-expanded','true');
+      quick.setAttribute('aria-label','Thu gọn sidebar');
       quick.innerHTML='<span style="display:flex;align-items:center;gap:8px"><span class="colloc-collapse-icon" style="width:14px;height:14px;display:block">'+svg('collapse')+'</span>Thu gọn sidebar</span><span class="colloc-collapse-arrow">»</span>';
       var tz=document.createElement('div');tz.className='colloc-timezone';tz.innerHTML='<span>Asia/Ho_Chi_Minh</span><b>00:00 là ngày mới</b>';
       var hdr=document.createElement('div');hdr.className='colloc-stats-header';hdr.innerHTML='<strong>CHỈ SỐ HỌC TẬP</strong><div class="colloc-stats-tabs"><button type="button" class="active">Tuần</button><button type="button">Tháng</button></div>';
@@ -87,9 +100,10 @@
           hdr.querySelectorAll('.colloc-stats-tabs button').forEach(function(x){x.classList.toggle('active',x===tab)});
         });
       });
-      quick.addEventListener('click',function(){
-        body.classList.toggle('colloc-right-collapsed');
-        try{localStorage.setItem('english-collocations-colloc-right-sidebar-v2',body.classList.contains('colloc-right-collapsed')?'collapsed':'expanded')}catch(e){}
+      quick.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        setRightSidebarCollapsed(true);
       });
       function syncMiniRail(){
         var statsEls=Array.from(card.querySelectorAll('.analytics-stat'));
@@ -118,7 +132,9 @@
       window.addEventListener('preview-table-rendered',syncMiniRail,{passive:true});
       window.addEventListener('preview-data-updated',syncMiniRail,{passive:true});
       window.addEventListener('storage',syncMiniRail,{passive:true});
-      try{if(localStorage.getItem('english-collocations-colloc-right-sidebar-v2')==='collapsed')body.classList.add('colloc-right-collapsed')}catch(e){}
+      try{
+        if(localStorage.getItem('english-collocations-colloc-right-sidebar-v2')==='collapsed')setRightSidebarCollapsed(true);
+      }catch(e){}
     }
   }
 
@@ -210,8 +226,31 @@
     panel.dataset.ready='1';
   }
 
+  function bindRightToggleFallback(){
+    if(body.dataset.collocRightToggleBound==='1')return;
+    body.dataset.collocRightToggleBound='1';
+    document.addEventListener('click',function(e){
+      var collapse=e.target.closest?.('[data-colloc-right-collapse]');
+      if(collapse){
+        e.preventDefault();
+        e.stopPropagation();
+        body.classList.add('colloc-right-collapsed');
+        try{localStorage.setItem('english-collocations-colloc-right-sidebar-v2','collapsed')}catch(err){}
+        return;
+      }
+      var expand=e.target.closest?.('[data-colloc-right-expand]');
+      if(expand){
+        e.preventDefault();
+        e.stopPropagation();
+        body.classList.remove('colloc-right-collapsed');
+        try{localStorage.setItem('english-collocations-colloc-right-sidebar-v2','expanded')}catch(err){}
+      }
+    },true);
+  }
+
   function run(){
     if(!ensureBody())return;
+    bindRightToggleFallback();
     helper();targetCopy();leftNav();rightExtras();settings();batch();search();advancedDock();
     window.removeEventListener('preview-vocabulary-ready',advancedDock);
     window.addEventListener('preview-vocabulary-ready',advancedDock,{once:true});
