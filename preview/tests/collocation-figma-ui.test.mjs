@@ -10,7 +10,7 @@ const vocab = fs.readFileSync('preview/vocabulary-ui.js','utf8');
 const smart = fs.readFileSync('preview/smart-tools.js','utf8');
 
 test('Collocation Figma 25:8 module is registered without replacing core data/auth flow', ()=>{
-  assert.match(loader,/collocationFigma:\s*['"]\.\/collocation-figma-25-8\.js\?v=2['"]/);
+  assert.match(loader,/collocationFigma:\s*['"]\.\/collocation-figma-25-8\.js\?v=3['"]/);
   assert.match(loader,/load\('collocationFigma'\)/);
   assert.doesNotMatch(loader,/stagedLoad\(\['collocationFigma'/);
   assert.match(js,/STYLE_HREF/);
@@ -83,4 +83,18 @@ test('Figma adapter is defensive and avoids recurring DOM work', ()=>{
   assert.match(js,/function boot\(\)\{run\(\)\}/);
   assert.match(app,/runtime-loader\.js\?v=1/);
   assert.match(app,/tableSelectAll/);
+});
+
+
+test('Figma 35:16 left navigation collapsed rail uses 56px geometry without touching data/auth', ()=>{
+  assert.match(css,/body\.collocation-figma-25-8\.nav-collapsed \.left-nav\{\n    width:56px!important/);
+  assert.match(css,/nav-collapsed \.left-nav-brand/);
+  assert.match(css,/nav-collapsed \.left-nav-collapse/);
+  assert.match(css,/nav-collapsed \.left-nav-item/);
+  assert.match(css,/nav-collapsed \.left-nav-count\{\n    display:none!important/);
+  assert.match(css,/nav-collapsed \.app\{\n    width:calc\(100% - 56px\)!important;\n    margin-left:56px!important/);
+  assert.match(app,/leftNavToggle/);
+  assert.match(js,/Thu gọn sidebar/);
+  assert.doesNotMatch(js,/localStorage\.clear\(/);
+  assert.doesNotMatch(js,/localStorage\.removeItem\(['"]english-collocations-preview-v2/);
 });
