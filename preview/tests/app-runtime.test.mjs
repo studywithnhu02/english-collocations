@@ -17,10 +17,13 @@ test('inline Preview module script is syntactically valid',async()=>{
   assert.equal(result.status,0,result.stderr||'inline app module has syntax errors');
 });
 
-test('example pair runtime fix is present and previous malformed duplication is absent',()=>{
+test('example pair runtime fix and persistence paths are present without malformed duplication',()=>{
   assert.ok(app.includes("function syncExamplePair(r,index){"));
-  assert.ok(app.includes("r.e=r.examples[0]?.e||'';r.em=r.examples[0]?.em||''}function commit(el)"));
+  assert.ok(app.includes("r.e=r.examples[0]?.e||'';"));
+  assert.ok(app.includes("r.em=r.examples[0]?.em||''"));
+  assert.ok(app.includes("function commit(el){"));
   assert.ok(!app.includes("r.em=r.examples[0]?.em||''}r.e=r.examples[0]?.e||''"));
-  assert.ok(app.includes("function load(){const raw=localStorage.getItem(KEY);if(raw!==null)"));
+  assert.ok(app.includes("function updateRow(id,changes={},eventKind='row-edit'){"));
+  assert.ok(app.includes("schedulePersist:scheduleRowPersist"));
   assert.ok(app.includes("localStorage.setItem(KEY+'_recovery',raw)"));
 });
