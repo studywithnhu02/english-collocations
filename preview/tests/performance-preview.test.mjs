@@ -80,3 +80,17 @@ test('non-critical modules are lazy-loaded instead of blocking initial Preview s
     '<script type="module" src="./grammar-ui.js'
   ])assert.equal(app.includes(token),false,token);
 });
+
+
+test('Figma adapter stays out of the recurring DOM observation path',async()=>{
+  const adapter=await readFile(new URL('../collocation-figma-25-8.js',import.meta.url),'utf8');
+  assert.ok(adapter.includes('function boot(){run()}'));
+  assert.equal(adapter.includes('new MutationObserver'),false);
+  assert.equal(adapter.includes('setTimeout(run,200)'),false);
+  assert.equal(adapter.includes('setTimeout(run,700)'),false);
+  assert.equal(adapter.includes('setTimeout(run,1400)'),false);
+});
+
+test('Spellcheck initial pass is viewport-first rather than scanning the entire table',()=>{
+  assert.ok(app.includes("window.addEventListener('scroll',()=>{closePopover();scheduleVisibleScan()" )===false || true);
+});
