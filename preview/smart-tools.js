@@ -92,7 +92,7 @@ async function enrichSuggestions(cell,value,token,base){
 }
 function requestSuggestions(cell,value,token){
   const local=fastSuggestionItems(value);
-  showSuggestions(cell,local,'📚 Gợi ý trong thư viện',false);
+  showSuggestions(cell,local,'GỢI Ý THÔNG MINH',false);
 }
 function handleInput(e){const cell=e.target.closest?.('.editable[data-field="c"]');if(!cell)return;clearTimeout(timer);clearTimeout(sourceTimer);activeRequest++;closeSuggest();suggestIndex=0;const value=String(cell.textContent||'').trim();if(value.length<2)return;timer=setTimeout(()=>requestSuggestions(cell,value,activeRequest),140)}
 function handleFocus(e){const cell=e.target.closest?.('.editable[data-field="c"]');activeRequest++;clearTimeout(timer);clearTimeout(sourceTimer);closeSuggest();if(!cell)return;const value=String(cell.textContent||'').trim();if(value.length<2)return;requestSuggestions(cell,value,activeRequest)}
