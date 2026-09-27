@@ -13,9 +13,9 @@
   }
 
   function ensureBody(){
-    if(!body||body.classList.contains('grammar-mode')) return false;
-    body.classList.add(root);
-    return true;
+    if(!body) return false;
+    if(body.classList.contains('grammar-mode')){body.classList.remove(root);return false}
+    body.classList.add(root);return true;
   }
 
   function helper(){
@@ -32,18 +32,15 @@
     var card=document.querySelector('.analytics-card');
     if(!card||card.dataset.figma258==='1') return;
     card.dataset.figma258='1';
-    var head=card.querySelector('.analytics-head');
-    var title=card.querySelector('.analytics-title');
+    var head=card.querySelector('.analytics-head'),title=card.querySelector('.analytics-title');
     if(title) title.textContent='TỔNG QUAN HỌC TẬP';
     if(head){
       var more=document.createElement('button');
-      more.type='button';more.className='colloc-head-more';more.setAttribute('aria-label','Tuỳ chọn');more.innerHTML=svg('more');
-      head.appendChild(more);
+      more.type='button';more.className='colloc-head-more';more.setAttribute('aria-label','Tuỳ chọn');more.innerHTML=svg('more');head.appendChild(more);
     }
     var stats=card.querySelector('.analytics-stats');
     if(stats){
-      var quick=document.createElement('button');
-      quick.type='button';quick.className='colloc-side-header-extra';
+      var quick=document.createElement('button');quick.type='button';quick.className='colloc-side-header-extra';
       quick.innerHTML='<span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;display:block">'+svg('collapse')+'</span>Thu gọn sidebar</span><span style="font-size:13px">»</span>';
       var tz=document.createElement('div');tz.className='colloc-timezone';tz.innerHTML='<span>Asia/Ho_Chi_Minh</span><b>00:00 là ngày mới</b>';
       var hdr=document.createElement('div');hdr.className='colloc-stats-header';hdr.innerHTML='<strong>CHỈ SỐ HỌC TẬP</strong><div class="colloc-stats-tabs"><button type="button" class="active">Tuần</button><button type="button">Tháng</button></div>';
@@ -54,15 +51,11 @@
       });
       try{if(localStorage.getItem('english-collocations-colloc-right-sidebar-v2')==='collapsed')body.classList.add('colloc-right-collapsed')}catch(e){}
     }
-    var checkin=card.querySelector('#analyticsCheckin');
-    if(checkin){
-      checkin.style.zIndex='2';
-    }
   }
 
   function settings(){
-    var actions=document.querySelector('#box1 .actions'), brand=document.getElementById('box1');
-    if(!actions||!brand||document.querySelector('.colloc-settings-panel')) return;
+    var actions=document.querySelector('#box1 .actions'),brand=document.getElementById('box1');
+    if(!actions||!brand||document.querySelector('.colloc-settings-panel'))return;
     var panel=document.createElement('div');panel.className='colloc-settings-panel';panel.hidden=true;
     panel.innerHTML='<div class="panel-title">QUẢN LÝ PREVIEW</div><button type="button" data-proxy="theme">☀️ Light mode</button><button type="button" data-proxy="backup">💾 Backup</button><button type="button" data-proxy="restore">📂 Restore</button><button type="button" data-proxy="csv">📊 Export CSV</button><button type="button" data-proxy="clear" style="color:#b45309">🗑️ Xóa tất cả</button>';
     document.body.appendChild(panel);
@@ -101,4 +94,8 @@
 
   function boot(){run();setTimeout(run,200);setTimeout(run,700);setTimeout(run,1400)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+
+  if(body){
+    new MutationObserver(function(){if(body.classList.contains('grammar-mode'))body.classList.remove(root);else run()}).observe(body,{attributes:true,attributeFilter:['class']});
+  }
 })();
