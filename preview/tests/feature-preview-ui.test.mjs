@@ -53,11 +53,18 @@ test('blanking an example sentence clears its paired example meaning',()=>{
   assert.ok(app.includes("if(field==='e'&&!val)r.examples[index].em='';"));
 });
 
-test('structure auto-fill and keyboard undo/redo contracts are wired',()=>{for(const token of ['data-field="structure"','PreviewIngestion?.autoFill?.(id,val)','undoHistory','redoHistory','createHistory','document.addEventListener(\'keydown\''])assert.ok(app.includes(token),token)});
+test('Structure remains manual and keyboard undo/redo contracts are wired',()=>{
+  assert.ok(app.includes('data-field="structure"'));
+  assert.ok(!app.includes('inferStructure'));
+  assert.ok(!app.includes('structure-core.mjs'));
+  for(const token of ['undoHistory','redoHistory','createHistory','document.addEventListener(\'keydown\''])assert.ok(app.includes(token),token);
+});
 
 test('example pair mapping, collocation cascade clear, unlimited examples and fixed header are wired',()=>{
   assert.ok(app.includes('data-example-index'));
-  assert.ok(app.includes("r.structure=val?inferStructure(val):'';if(!val)r.m=''"));
+  assert.ok(!app.includes("r.structure=val?inferStructure(val):'';if(!val)r.m=''"));
+  assert.ok(app.includes("if(field==='c'&&val){"));
+  assert.ok(app.includes("window.PreviewIngestion?.autoFill?.(id,val)"));
   assert.ok(app.includes("xs.push({e:'',em:''});"));
   assert.ok(!app.includes('xs.length>=20'));
   assert.ok(app.includes('vocabulary-ui.js?v=6'));
