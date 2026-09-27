@@ -23,7 +23,7 @@ test('example pair runtime fix and persistence paths are present without malform
   assert.ok(app.includes("r.em=r.examples[0]?.em||''"));
   assert.ok(app.includes("function commit(el){"));
   assert.ok(!app.includes("r.em=r.examples[0]?.em||''}r.e=r.examples[0]?.e||''"));
-  assert.ok(app.includes("function updateRow(id,changes={},eventKind='row-edit'){"));
+  assert.ok(app.includes("function updateRow(id,changes={},eventKind='row-edit',trackHistory=false){"));
   assert.ok(app.includes("schedulePersist:scheduleRowPersist"));
   assert.ok(app.includes("localStorage.setItem(KEY+'_recovery',raw)"));
 });
