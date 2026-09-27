@@ -1,5 +1,5 @@
 import {extractJson, normalizeBatchResult} from './ai-agent-core.js';
-import {aiJson} from './ai-client.js';
+import {aiJson} from './ai-client.js?v=2';
 import {STORY_MODES,buildStoryPrompt,cleanStoryText,validateStorySelection,storyCoverage} from './contextual-story-core.mjs';
 // Browser-local AI Agent v3 — lazy shared AI worker, batch inference, rule router, human-approved edits.
 const STORAGE_KEY='english-collocations-preview-v2';
