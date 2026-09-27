@@ -32,5 +32,9 @@ function stagedLoad(names,index=0){
     stagedLoad(names,index+1);
   },index===0?1800:900);
 }
-window.PreviewModules={load,paths:MODULES};
+async function loadGrammar(){
+  await Promise.all([load('grammar'),load('grammarExercises')]);
+  return true;
+}
+window.PreviewModules={load,loadGrammar,paths:MODULES};
 stagedLoad(['vocabulary','goals','srs','coverage','coach','domains','quiz','focus','family','anki','print','aiAgent']);
