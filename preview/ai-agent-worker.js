@@ -1,6 +1,7 @@
 import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
 const MODEL_ID='onnx-community/Qwen2.5-0.5B-Instruct';
 let pipePromise=null;
+let workQueue=Promise.resolve();
 async function getPipe(){
   if(!pipePromise){
     self.postMessage({type:'status',stage:'loading',message:'Đang tải AI model lần đầu…'});
@@ -40,7 +41,7 @@ function cleanGenerated(text){
   }catch{}
   return s.replace(/^```(?:json|text)?\s*/i,'').replace(/\s*```$/,'').trim();
 }
-self.onmessage=async({data})=>{
+async function handleMessage(data){
   const{id,messages=[],batch=false,story=false,type,options={}}=data||{};
   if(type==='warmup'){
     try{await getPipe();self.postMessage({type:'warmup-ready'})}catch{}
@@ -60,4 +61,7 @@ self.onmessage=async({data})=>{
     const raw=out?.[0]?.generated_text||'';
     self.postMessage({id,ok:true,text:cleanGenerated(raw)});
   }catch(e){self.postMessage({id,ok:false,error:e?.message||String(e)})}
+}
+self.onmessage=({data})=>{
+  workQueue=workQueue.then(()=>handleMessage(data)).catch(()=>{});
 };
