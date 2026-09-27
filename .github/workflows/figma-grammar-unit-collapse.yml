@@ -1,0 +1,241 @@
+name: Figma grammar UI alignment
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  update-preview:
+    if: github.actor == 'studywithnhu02'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch grammar preview UI
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('preview/app.html')
+          text = path.read_text(encoding='utf-8')
+
+          css_marker = '<style id="grammar-figma-unit-collapse-v1">'
+          css = r'''<style id="grammar-figma-unit-collapse-v1">
+          /* Figma ENGOOD parity: collapsible Unit groups in the grammar rail. */
+          body.grammar-mode .grammar2-unit-group-toggle{
+            width:100%;
+            min-height:38px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:8px;
+            padding:10px;
+            margin:0;
+            border:0;
+            border-top:1px solid #f5f5f5;
+            border-radius:0;
+            background:#fff;
+            color:#404040;
+            cursor:pointer;
+            text-align:left;
+            font:500 12px/16px Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+          }
+          body.grammar-mode .grammar2-unit-group-toggle:hover{background:#fafafa}
+          body.grammar-mode .grammar2-unit-group-toggle:focus-visible{outline:2px solid #a3a3a3;outline-offset:-2px}
+          body.grammar-mode .grammar2-unit-group-toggle .grammar2-unit-group-main{display:flex;align-items:center;gap:8px;min-width:0}
+          body.grammar-mode .grammar2-unit-group-toggle .grammar2-unit-group-chevron{
+            width:14px;height:14px;display:grid;place-items:center;flex:none;
+            color:#737373;font-size:12px;line-height:1;
+            transition:transform .15s ease;
+          }
+          body.grammar-mode .grammar2-unit-group-toggle.is-collapsed .grammar2-unit-group-chevron{transform:rotate(-90deg)}
+          body.grammar-mode .grammar2-unit-group-toggle .grammar2-unit-group-title{min-width:0;display:flex;flex-direction:column;gap:1px}
+          body.grammar-mode .grammar2-unit-group-toggle .grammar2-unit-group-title > :first-child{font:400 10px/12.5px "SFMono-Regular",Consolas,monospace;color:#a3a3a3;white-space:nowrap}
+          body.grammar-mode .grammar2-unit-group-toggle .grammar2-unit-group-title > :last-child{font:500 12px/16px Inter,system-ui,sans-serif;color:#404040;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+          body.grammar-mode .grammar2-unit-group-toggle .grammar2-unit-group-count{padding:2px 6px;border-radius:4px;background:#f5f5f5;color:#a3a3a3;font:400 10px/15px "SFMono-Regular",Consolas,monospace;white-space:nowrap}
+          body.grammar-mode .grammar2-unit-group-toggle.is-open .grammar2-unit-group-count{background:#fff;border:1px solid #e5e5e5;color:#525252}
+          body.grammar-mode .grammar2-unit.is-group-hidden{display:none!important}
+          body.grammar-mode .grammar2-unit-group-toggle + .grammar2-unit-list-spacer{display:none}
+          @media(max-width:700px){
+            body.grammar-mode .grammar2-unit-group-toggle{min-height:40px;padding:10px 12px}
+          }
+          </style>'''
+
+          js_marker = '<script id="grammar-figma-unit-collapse-v1">'
+          js = r'''<script id="grammar-figma-unit-collapse-v1">
+          (function(){
+            function initGrammarUnitCollapse(){
+              if(!document.body.classList.contains('grammar-mode')) return;
+              var rail = document.querySelector('.grammar2-rail, .grammar2-list');
+              if(!rail || rail.dataset.unitCollapseReady === '1') return;
+              rail.dataset.unitCollapseReady = '1';
+
+              var units = Array.from(rail.querySelectorAll('.grammar2-unit'));
+              if(!units.length) return;
+
+              function elementOrder(a,b){
+                if(a===b) return 0;
+                var pos = a.compareDocumentPosition(b);
+                return (pos & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
+              }
+
+              var candidates = Array.from(rail.querySelectorAll('*')).filter(function(el){
+                if(el.classList.contains('grammar2-unit')) return false;
+                if(el.closest('.grammar2-unit')) return false;
+                var t = (el.textContent || '').replace(/\\s+/g,' ').trim();
+                return /^Units\\s+\\d+\\s*[–-]\\s*\\d+/i.test(t) && t.length <= 180;
+              });
+
+              // Keep the deepest useful candidate for each Unit heading.
+              candidates = candidates.filter(function(el){
+                return !Array.from(el.children).some(function(child){
+                  var t = (child.textContent || '').replace(/\\s+/g,' ').trim();
+                  return /^Units\\s+\\d+\\s*[–-]\\s*\\d+/i.test(t) && t.length <= 180;
+                });
+              }).sort(elementOrder);
+
+              if(!candidates.length) return;
+
+              candidates.forEach(function(header, index){
+                var next = candidates[index + 1];
+                var groupUnits = units.filter(function(unit){
+                  var afterHeader = header.compareDocumentPosition(unit) & Node.DOCUMENT_POSITION_FOLLOWING;
+                  var beforeNext = !next || (next.compareDocumentPosition(unit) & Node.DOCUMENT_POSITION_FOLLOWING);
+                  return !!afterHeader && !!beforeNext;
+                });
+                if(!groupUnits.length) return;
+
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'grammar2-unit-group-toggle is-open';
+                button.setAttribute('aria-expanded','true');
+
+                var main = document.createElement('span');
+                main.className = 'grammar2-unit-group-main';
+                var chevron = document.createElement('span');
+                chevron.className = 'grammar2-unit-group-chevron';
+                chevron.textContent = '⌄';
+                var title = document.createElement('span');
+                title.className = 'grammar2-unit-group-title';
+
+                var sourceText = (header.textContent || '').replace(/\\s+/g,' ').trim();
+                var match = sourceText.match(/^(Units\\s+\\d+\\s*[–-]\\s*\\d+)(?:\\s+·?\\s*(.*))?$/i);
+                var range = match ? match[1] : sourceText;
+                var label = match && match[2] ? match[2].replace(/^·\\s*/,'') : '';
+                var rangeEl = document.createElement('span');
+                rangeEl.textContent = range;
+                var labelEl = document.createElement('span');
+                labelEl.textContent = label || 'Grammar units';
+                title.appendChild(rangeEl);
+                title.appendChild(labelEl);
+                main.appendChild(chevron);
+                main.appendChild(title);
+
+                var count = document.createElement('span');
+                count.className = 'grammar2-unit-group-count is-open';
+                count.textContent = groupUnits.length + ' units';
+                button.appendChild(main);
+                button.appendChild(count);
+
+                header.parentNode.insertBefore(button, header);
+                header.style.display = 'none';
+
+                button.addEventListener('click', function(){
+                  var collapsed = button.classList.toggle('is-collapsed');
+                  button.classList.toggle('is-open', !collapsed);
+                  button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                  groupUnits.forEach(function(unit){ unit.classList.toggle('is-group-hidden', collapsed); });
+                });
+
+                // Start open to match the Figma frame while preserving the new collapse interaction.
+                groupUnits.forEach(function(unit){ unit.classList.remove('is-group-hidden'); });
+              });
+            }
+
+            function boot(){
+              initGrammarUnitCollapse();
+              var observer = new MutationObserver(function(){ initGrammarUnitCollapse(); });
+              observer.observe(document.body,{childList:true,subtree:true});
+              setTimeout(initGrammarUnitCollapse,300);
+              setTimeout(initGrammarUnitCollapse,1000);
+            }
+            if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+            else boot();
+          })();
+          </script>'''
+
+          if css_marker not in text:
+              text = text.replace('</head>', css + '\n</head>', 1)
+          if js_marker not in text:
+              text = text.replace('</body>', js + '\n</body>', 1)
+
+          path.write_text(text, encoding='utf-8')
+          print('patched', path)
+          PY
+
+      - name: Validate static patch
+        shell: bash
+        run: |
+          grep -q 'grammar-figma-unit-collapse-v1' preview/app.html
+          grep -q 'grammar2-unit-group-toggle' preview/app.html
+          grep -q 'grammar2-unit.is-group-hidden' preview/app.html
+          if grep -q '3 BƯỚC HỌC' preview/app.html; then
+            echo 'Unexpected old learning strip text remains'
+            exit 1
+          fi
+
+      - name: Test unit collapse behavior
+        shell: bash
+        run: |
+          cat > /tmp/test-grammar-collapse.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import { execSync, spawn } from 'node:child_process';
+          import fs from 'node:fs';
+
+          const server = spawn('python3',['-m','http.server','4173','--directory','preview'],{stdio:'ignore'});
+          try {
+            const browser = await chromium.launch({headless:true});
+            const page = await browser.newPage({viewport:{width:1920,height:1080}});
+            await page.goto('http://127.0.0.1:4173/app.html',{waitUntil:'domcontentloaded'});
+            await page.evaluate(()=>document.body.classList.add('grammar-mode'));
+            await page.waitForTimeout(1200);
+            const groups = await page.locator('.grammar2-unit-group-toggle').count();
+            if(groups < 2) throw new Error(`Expected at least 2 collapsible Unit groups, got ${groups}`);
+            const first = page.locator('.grammar2-unit-group-toggle').first();
+            const before = await first.getAttribute('aria-expanded');
+            if(before !== 'true') throw new Error(`First Unit group should start open, got ${before}`);
+            await first.click();
+            const after = await first.getAttribute('aria-expanded');
+            if(after !== 'false') throw new Error(`First Unit group did not collapse, got ${after}`);
+            const hidden = await page.locator('.grammar2-unit.is-group-hidden').count();
+            if(hidden < 1) throw new Error('Collapsing a Unit group did not hide its units');
+            await first.click();
+            const reopened = await first.getAttribute('aria-expanded');
+            if(reopened !== 'true') throw new Error(`First Unit group did not reopen, got ${reopened}`);
+            console.log(JSON.stringify({groups,before,after,hidden,reopened}));
+            await browser.close();
+          } finally {
+            server.kill('SIGTERM');
+          }
+          JS
+          npx --yes playwright@1.55.0 install --with-deps chromium >/dev/null 2>&1
+          node /tmp/test-grammar-collapse.mjs
+
+      - name: Commit preview change and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name 'studywithnhu02'
+          git config user.email 'studywithnhu02@gmail.com'
+          git add preview/app.html .github/workflows/figma-grammar-unit-collapse.yml
+          git commit -m 'feat: add collapsible grammar unit groups' || exit 0
+          git push origin HEAD:main
+          git rm .github/workflows/figma-grammar-unit-collapse.yml
+          git commit -m 'chore: remove temporary grammar UI workflow'
+          git push origin HEAD:main
