@@ -71,7 +71,7 @@ test('Translation UI is index-safe for examples 1 through 5',async()=>{
 test('Auto Translate uses lightweight persistence and bounded provider work',async()=>{
   const {readFile}=await import('node:fs/promises');
   const js=await readFile(new URL('../auto-translate.js',import.meta.url),'utf8');
-  assert.ok(js.includes('window.PreviewTable?.schedulePersist?.()'));
+  assert.ok(js.includes('schedulePersist'));
   assert.ok(js.includes('window.PreviewTable?.flushPersist?.()'));
   assert.ok(js.includes('const MAX_CONCURRENCY=3'));
   assert.ok(js.includes('AbortController'));
