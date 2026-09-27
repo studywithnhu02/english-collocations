@@ -1,6 +1,6 @@
 import {aiJson} from './ai-client.js';
 import {normalizeVocabularyRow} from './vocabulary-core.mjs';
-import {buildAutoFillChanges,parseAutoFillResponse,validateAutoFillResult} from './smart-ingestion-core.mjs';
+import {buildAutoFillChanges,parseAutoFillResponse,validateAutoFillResult} from './smart-ingestion-core.mjs?v=2';
 
 const KEY='english-collocations-preview-v2';
 const requestVersions=new Map();
