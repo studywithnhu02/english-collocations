@@ -71,7 +71,7 @@ test('non-critical modules are lazy-loaded instead of blocking initial Preview s
     "aiAgent:'./ai-agent.js?v=12'",
     "grammar:'./grammar-ui.js?v=6'",
     "loadBatch(['domains','vocabulary'],1400)",
-    'window.PreviewModules={load,loadGrammar,paths:MODULES}'
+    'window.PreviewModules={load,loadAI,loadGrammar,paths:MODULES}'
   ])assert.ok(loader.includes(token),token);
   for(const token of [
     '<script type="module" src="./goals-ui.js',
