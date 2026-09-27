@@ -30,7 +30,7 @@ function ask(collocation,needs,attempt=0){
   return aiJson([
     {role:'system',content:'Return ONE JSON object only. Allowed keys: meaningVi, exampleEn, exampleVi. Fill only the requested fields and use empty strings for all other fields. '+(needs.meaning?'meaningVi is a concise natural Vietnamese meaning.':'Do not generate meaningVi.')+' '+(needs.example?'exampleEn MUST contain the exact supplied collocation string naturally in one short sentence and exampleVi must faithfully translate that exact sentence.':'Do not generate an example sentence.')+' No markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'+strict},
     {role:'user',content:JSON.stringify(request)}
-  ],{batch:false,purpose:'autofill',maxNewTokens:needs.meaning&&needs.example?144:(needs.example?112:48),timeoutMs:20000});
+  ],{batch:false,purpose:'autofill',maxNewTokens:needs.meaning&&needs.example?144:(needs.example?112:48),timeoutMs:12000});
 }
 async function waitForTranslator(limitMs=4000){
   const started=Date.now();
@@ -87,7 +87,7 @@ export async function autoFill(id,value){
     const needs={meaning:!String(initialCurrent.m||'').trim(),example:!String(initialCurrent.e||'').trim()};
     let result={meaningVi:'',exampleEn:'',exampleVi:''};
     let validation={ok:false};
-    for(let attempt=0;attempt<2;attempt++){
+    for(let attempt=0;attempt<1;attempt++){
       const raw=await ask(text,needs,attempt);
       if(requestVersions.get(key)!==version)return;
       result=parseAutoFillResponse(raw);
