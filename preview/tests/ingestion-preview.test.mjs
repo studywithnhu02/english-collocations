@@ -42,3 +42,10 @@ test('Auto-fill does not use AI translation for a pre-existing example sentence'
   const ai={meaningVi:'hoàn thành đúng hạn',exampleEn:'We should meet a deadline for the project.',exampleVi:'Chúng ta nên hoàn thành một thời hạn cho dự án.'};
   assert.deepEqual(buildAutoFillChanges(row,ai,'meet a deadline'),{m:'hoàn thành đúng hạn'});
 });
+
+
+test('Auto-fill applies results through the lightweight in-place table update path',()=>{
+  assert.ok(js.includes('window.PreviewTable?.updateRow?.(key,{...changes,source},\'row-edit\',false)'));
+  assert.ok(js.includes('if(window.PreviewTable?.setRows)window.PreviewTable.setRows(next)'));
+  assert.ok(js.includes('setBusy(key,true)'));
+});
