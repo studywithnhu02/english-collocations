@@ -1,15 +1,31 @@
 import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
-const MODEL_ID='onnx-community/Qwen2.5-0.5B-Instruct';
-let pipePromise=null;
+const MODEL_CONFIG={
+  fast:{id:'onnx-community/SmolLM2-135M-Instruct-ONNX-MHA',dtype:'q4f16',label:'Fast AI'},
+  quality:{id:'onnx-community/Qwen2.5-0.5B-Instruct',dtype:'q4',label:'Quality AI'}
+};
+const pipePromises=new Map();
 let workQueue=Promise.resolve();
-async function getPipe(){
-  if(!pipePromise){
-    self.postMessage({type:'status',stage:'loading',message:'Đang tải AI model lần đầu…'});
-    pipePromise=pipeline('text-generation',MODEL_ID,{device:'webgpu',dtype:'q4'})
-      .then(p=>{self.postMessage({type:'status',stage:'ready',message:'WebGPU sẵn sàng'});return p})
-      .catch(async()=>{self.postMessage({type:'status',stage:'fallback',message:'WebGPU không khả dụng · chuyển sang WASM/CPU'});return pipeline('text-generation',MODEL_ID,{dtype:'q4'})});
+function profileFor(options={},batch=false,story=false){
+  const purpose=String(options?.purpose||'');
+  return purpose==='autofill'||purpose==='suggestions'||purpose==='suggestion-meanings'?'fast':'quality';
+}
+async function getPipe(profile='quality'){
+  const config=MODEL_CONFIG[profile]||MODEL_CONFIG.quality;
+  if(!pipePromises.has(profile)){
+    const promise=(async()=>{
+      self.postMessage({type:'status',stage:'loading',message:'Đang tải '+config.label+' lần đầu…'});
+      try{
+        const pipe=await pipeline('text-generation',config.id,{device:'webgpu',dtype:config.dtype});
+        self.postMessage({type:'status',stage:'ready',message:config.label+' · WebGPU sẵn sàng'});
+        return pipe;
+      }catch{
+        self.postMessage({type:'status',stage:'fallback',message:config.label+' · chuyển sang WASM/CPU'});
+        return pipeline('text-generation',config.id,{dtype:config.dtype});
+      }
+    })();
+    pipePromises.set(profile,promise);
   }
-  return pipePromise;
+  return pipePromises.get(profile);
 }
 function cleanGenerated(text){
   let s=String(text||'').trim();
@@ -48,15 +64,17 @@ async function handleMessage(data){
     return;
   }
   try{
-    const pipe=await getPipe();
     const purpose=String(options?.purpose||'');
+    const profile=profileFor(options,batch,story);
+    const pipe=await getPipe(profile);
     const message=purpose==='autofill'?'🧠 Đang tạo nghĩa + câu ví dụ…':purpose==='suggestions'?'📚 Đang mở rộng collocation…':batch?'Đang phân tích theo batch…':'Đang xử lý AI…';
     self.postMessage({id,type:'status',stage:'inference',message});
     const prompt=messages.map(m=>`${m.role}: ${m.content}`).join('\n\n')+'\n\nassistant:';
     const requested=Number(options?.maxNewTokens);
     const fallback=story?176:(batch?384:96);
-    const maxNewTokens=Math.min(Math.max(Number.isFinite(requested)&&requested>0?requested:fallback,32),512);
-    const generation={max_new_tokens:maxNewTokens,temperature:Number(options?.temperature??0.05),do_sample:false,repetition_penalty:1.15,no_repeat_ngram_size:3};
+    const profileCap=profile==='fast'?144:512;
+    const maxNewTokens=Math.min(Math.max(Number.isFinite(requested)&&requested>0?requested:fallback,32),profileCap);
+    const generation={max_new_tokens:maxNewTokens,temperature:Number(options?.temperature??0.05),do_sample:false,repetition_penalty:1.12,no_repeat_ngram_size:3};
     const out=await pipe(prompt,generation);
     const raw=out?.[0]?.generated_text||'';
     self.postMessage({id,ok:true,text:cleanGenerated(raw)});

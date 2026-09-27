@@ -13,25 +13,26 @@ export function parseAutoFillResponse(text){
 export function buildAutoFillChanges(row,result,collocation=''){
   const current=row&&typeof row==='object'?row:{},next=result&&typeof result==='object'?result:{},changes={};
   if(!String(current.m||'').trim()&&next.meaningVi)changes.m=next.meaningVi;
-  const validation=validateAutoFillResult(collocation||current.c,next);
+  const validation=validateAutoFillResult(collocation||current.c,next,{requireMeaning:!String(current.m||'').trim(),requireExample:!String(current.e||'').trim()});
   if(!String(current.e||'').trim()&&validation.exampleContainsCollocation)changes.e=next.exampleEn;
   if(!String(current.em||'').trim()&&!String(current.e||'').trim()&&validation.exampleContainsCollocation&&next.exampleVi)changes.em=next.exampleVi;
   return changes;
 }
 
 
-export function validateAutoFillResult(collocation,result){
+export function validateAutoFillResult(collocation,result,{requireMeaning=true,requireExample=true}={}){
   const phrase=String(collocation??'').trim().replace(/\s+/g,' ').toLocaleLowerCase('en-US');
   const value=result&&typeof result==='object'?result:{};
   const example=String(value.exampleEn??'').trim();
   const meaning=String(value.meaningVi??'').trim();
   const exampleVi=String(value.exampleVi??'').trim();
   const exampleLower=example.toLocaleLowerCase('en-US');
+  const hasMeaning=Boolean(meaning),hasExample=Boolean(example),exampleContainsCollocation=Boolean(phrase&&exampleLower.includes(phrase)),hasExampleVi=Boolean(exampleVi);
   return {
-    ok:Boolean(phrase&&meaning&&example&&exampleVi&&exampleLower.includes(phrase)),
-    hasMeaning:Boolean(meaning),
-    hasExample:Boolean(example),
-    exampleContainsCollocation:Boolean(phrase&&exampleLower.includes(phrase)),
-    hasExampleVi:Boolean(exampleVi)
+    ok:Boolean(phrase&&(!requireMeaning||hasMeaning)&&(!requireExample||(hasExample&&hasExampleVi&&exampleContainsCollocation))),
+    hasMeaning,
+    hasExample,
+    exampleContainsCollocation,
+    hasExampleVi
   };
 }

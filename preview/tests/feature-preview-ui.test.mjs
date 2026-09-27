@@ -15,9 +15,9 @@ test('GitHub Preview status is inside Box 1',()=>{
 test('Goals, SRS and Smart Tools modules are loaded',()=>{
   assert.ok(app.includes('./goals-ui.js?v=1'));
   assert.ok(app.includes('./srs-ui.js?v=1'));
-  assert.ok(app.includes('./smart-tools.js?v=9'));
+  assert.ok(app.includes('./smart-tools.js?v=11'));
   assert.ok(app.includes('id="appUser"'));
-  assert.ok(app.includes('id="appLogout"'));assert.ok(app.includes('domains-ui.js?v=3'));assert.ok(app.includes('vocabulary-ui.js?v=6'));assert.ok(app.includes('<th>CẤU TRÚC</th>'));assert.ok(app.includes('<th>Ngày Done</th>'));assert.ok(app.includes('min-width:1420px'));assert.ok(app.includes('max-width:none'));assert.ok(app.includes('./history-core.mjs?v=1'));assert.ok(app.includes('class="done-date"'));
+  assert.ok(app.includes('id="appLogout"'));assert.ok(app.includes('domains-ui.js?v=3'));assert.ok(app.includes('vocabulary-ui.js?v=8'));assert.ok(app.includes('<th>CẤU TRÚC</th>'));assert.ok(app.includes('<th>Ngày Done</th>'));assert.ok(app.includes('min-width:1420px'));assert.ok(app.includes('max-width:none'));assert.ok(app.includes('./history-core.mjs?v=1'));assert.ok(app.includes('class="done-date"'));
 });
 
 test('Story output is highlighted and dialogue is split into lines',()=>{
@@ -37,9 +37,9 @@ test('Smart suggestion is wired to the collocation cell with CEFR, duplicate mar
   assert.ok(smart.includes('✓ Đã có trong bảng'));
   assert.ok(smart.includes('.startsWith(q)'));
   assert.ok(smart.includes('begin exactly with the supplied input'));assert.ok(smart.includes('getExternalSuggestions'));
-  assert.ok(smart.includes('up to 30 common natural English collocations'));assert.ok(smart.includes('purpose:\'suggestion-meanings\''));assert.ok(smart.includes('maxNewTokens:768'));assert.ok(smart.includes('slice(0,60)'));assert.ok(smart.includes('open MIT set'));
-  assert.ok(smart.includes('local.length<10'));
-  assert.ok(smart.includes('suggestCefr'));assert.ok(smart.includes('Nghĩa tiếng Việt được ưu tiên'));
+  assert.ok(smart.includes('up to 30 common natural English collocations'));assert.ok(smart.includes('purpose:\'suggestion-meanings\''));assert.ok(smart.includes('maxNewTokens:768'));assert.ok(smart.includes('slice(0,60)'));assert.ok(smart.includes('local Preview Library'));
+  assert.ok(smart.includes("textContent='✨ Tìm thêm từ + AI'"));
+  assert.ok(smart.includes('suggestCefr'));assert.ok(smart.includes('local Preview Library'));
   assert.ok(!smart.includes('Smart Refinement'));
   assert.ok(!smart.includes('refineRun'));
 });
@@ -64,9 +64,9 @@ test('example pair mapping, collocation cascade clear, unlimited examples and fi
   assert.ok(app.includes('data-example-index'));
   assert.ok(!app.includes("r.structure=val?inferStructure(val):'';if(!val)r.m=''"));
   assert.ok(app.includes("if(field==='c'&&val){"));
-  assert.ok(app.includes("window.PreviewIngestion?.autoFill?.(id,val)"));
+  assert.ok(app.includes("window.PreviewIngestion?.queueAutoFill?.(id,val)"));
   assert.ok(app.includes("xs.push({e:'',em:''});"));
   assert.ok(!app.includes('xs.length>=20'));
-  assert.ok(app.includes('vocabulary-ui.js?v=6'));
+  assert.ok(app.includes('vocabulary-ui.js?v=8'));
   assert.ok(app.includes("exampleIndex:index"));
 });

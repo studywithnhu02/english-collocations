@@ -1,12 +1,17 @@
-import {aiJson} from './ai-client.js?v=2';
+import {aiJson} from './ai-client.js?v=3';
 import {normalizeVocabularyRow} from './vocabulary-core.mjs';
 import {buildAutoFillChanges,parseAutoFillResponse,validateAutoFillResult} from './smart-ingestion-core.mjs?v=2';
 
 const KEY='english-collocations-preview-v2';
 const requestVersions=new Map();
 const busyIds=new Set();
+const pendingById=new Map();
+let queueTimer=0;
+let queueIdleId=0;
+let queueRunning=false;
 
 function read(){try{const value=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(value)?value:[]}catch{return[]}}
+function getRow(id){return window.PreviewTable?.getRow?.(id)||read().find(r=>String(r.id)===String(id))||null}
 
 function setBusy(id,on){
   const key=String(id);
@@ -17,14 +22,16 @@ function setBusy(id,on){
   if(persist)persist.textContent=on?'🧠 AI đang điền…':'Local data';
 }
 
-function ask(collocation,attempt=0){
-  const strict=attempt>0
-    ?'CRITICAL REPAIR: The previous answer was invalid. exampleEn MUST contain the exact collocation string exactly as supplied, without paraphrasing, and exampleVi MUST translate that exact sentence.'
-    :'';
+function ask(collocation,needs,attempt=0){
+  const strict=attempt>0?' CRITICAL REPAIR: previous output was invalid. Preserve the collocation text exactly.':'';
+  const fields=[];
+  if(needs.meaning)fields.push('meaningVi');
+  if(needs.example)fields.push('exampleEn','exampleVi');
+  const request={collocation:String(collocation||'').trim(),requestedFields:fields,attempt};
   return aiJson([
-    {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn MUST contain the exact collocation text exactly as supplied and use it naturally in a short workplace or conversational sentence. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. '+strict+' Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
-    {role:'user',content:JSON.stringify({collocation:String(collocation||'').trim(),attempt})}
-  ],{batch:false,purpose:'autofill',maxNewTokens:256,timeoutMs:20000});
+    {role:'system',content:'Return ONE JSON object only. Allowed keys: meaningVi, exampleEn, exampleVi. Fill only the requested fields and use empty strings for all other fields. '+(needs.meaning?'meaningVi is a concise natural Vietnamese meaning.':'Do not generate meaningVi.')+' '+(needs.example?'exampleEn MUST contain the exact supplied collocation string naturally in one short sentence and exampleVi must faithfully translate that exact sentence.':'Do not generate an example sentence.')+' No markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'+strict},
+    {role:'user',content:JSON.stringify(request)}
+  ],{batch:false,purpose:'autofill',maxNewTokens:needs.meaning&&needs.example?144:(needs.example?112:48),timeoutMs:12000});
 }
 async function waitForTranslator(limitMs=4000){
   const started=Date.now();
@@ -35,32 +42,66 @@ async function waitForTranslator(limitMs=4000){
   return null;
 }
 
+function rowStillNeedsFill(id,value){
+  const row=getRow(id);
+  if(!row)return false;
+  if(String(row.c||'').trim()!==String(value||'').trim())return false;
+  return !String(row.m||'').trim()||!String(row.e||'').trim();
+}
+function scheduleQueuePump(delay=450){
+  clearTimeout(queueTimer);
+  if(queueIdleId&&'cancelIdleCallback' in window)window.cancelIdleCallback(queueIdleId);
+  queueIdleId=0;
+  queueTimer=setTimeout(()=>{
+    queueTimer=0;
+    const run=()=>{queueIdleId=0;pumpQueue()};
+    if('requestIdleCallback' in window)queueIdleId=requestIdleCallback(run,{timeout:1800});else run();
+  },delay);
+}
+async function pumpQueue(){
+  if(queueRunning)return;
+  const first=pendingById.entries().next().value;
+  if(!first)return;
+  pendingById.delete(first[0]);
+  queueRunning=true;
+  try{await autoFill(first[1].id,first[1].value)}
+  finally{queueRunning=false;if(pendingById.size)scheduleQueuePump(120)}
+}
+function queueAutoFill(id,value){
+  const key=String(id),text=String(value||'').trim();
+  if(!text||!rowStillNeedsFill(key,text))return;
+  pendingById.set(key,{id:key,value:text});
+  scheduleQueuePump(450);
+}
 export async function autoFill(id,value){
   const key=String(id),text=String(value||'').trim();
-  if(!text)return;
+  if(!text||!rowStillNeedsFill(key,text))return;
   const version=(requestVersions.get(key)||0)+1;
   requestVersions.set(key,version);
   busyIds.add(key);
   setBusy(key,true);
   try{
+    const initialCurrent=getRow(key);
+    if(!initialCurrent)return;
+    const needs={meaning:!String(initialCurrent.m||'').trim(),example:!String(initialCurrent.e||'').trim()};
     let result={meaningVi:'',exampleEn:'',exampleVi:''};
-    let validation;
-    for(let attempt=0;attempt<2;attempt++){
-      const raw=await ask(text,attempt);
+    let validation={ok:false};
+    for(let attempt=0;attempt<1;attempt++){
+      const raw=await ask(text,needs,attempt);
       if(requestVersions.get(key)!==version)return;
       result=parseAutoFillResponse(raw);
-      validation=validateAutoFillResult(text,result);
+      validation=validateAutoFillResult(text,result,{requireMeaning:needs.meaning,requireExample:needs.example});
       if(validation.ok)break;
     }
     if(requestVersions.get(key)!==version)return;
-    const now=read(),current=now.find(r=>String(r.id)===key);
+    const current=getRow(key);
     if(!current||String(current.c||'').trim()!==text)return;
     const changes=buildAutoFillChanges(current,result,text);
     if(!Object.keys(changes).length)return;
     const source={...(current.source&&typeof current.source==='object'?current.source:{}),type:'ai'};
     const applied=window.PreviewTable?.updateRow?.(key,{...changes,source},'row-edit',false);
     if(!applied){
-      const next=now.map(r=>String(r.id)===key?normalizeVocabularyRow({...r,...changes,source}):r);
+      const now=read(),next=now.map(r=>String(r.id)===key?normalizeVocabularyRow({...r,...changes,source}):r);
       if(window.PreviewTable?.setRows)window.PreviewTable.setRows(next);
       else{
         localStorage.setItem(KEY,JSON.stringify(next));
@@ -68,7 +109,7 @@ export async function autoFill(id,value){
       }
     }
     const filledExampleEn=String(changes.e||'').trim(),existingExample=String(current.e||'').trim(),exampleToTranslate=filledExampleEn||existingExample;
-    if(requestVersions.get(key)===version&&exampleToTranslate&&!String(current.em||'').trim()){
+    if(requestVersions.get(key)===version&&!String(changes.em||'').trim()&&exampleToTranslate&&!String(current.em||'').trim()){
       const translator=await waitForTranslator();
       if(translator&&requestVersions.get(key)===version){
         try{await translator(key,'e',exampleToTranslate)}catch(error){console.warn('[PreviewIngestion] translation fallback failed',error)}
@@ -76,10 +117,12 @@ export async function autoFill(id,value){
     }
   }catch(error){
     console.error('[PreviewIngestion]',error);
+    const fallbackRow=getRow(key);
+    if(requestVersions.get(key)===version&&!String(fallbackRow?.m||'').trim())window.AutoTranslate?.run?.(key,'c',text).catch?.(()=>{});
   }finally{
     busyIds.delete(key);
     if(requestVersions.get(key)===version)setBusy(key,false);
   }
 }
 
-window.PreviewIngestion={autoFill,maybeAutoFill:autoFill,requestVersions};
+window.PreviewIngestion={autoFill,queueAutoFill,maybeAutoFill:queueAutoFill,requestVersions};
