@@ -899,8 +899,11 @@ body.collocation-figma-25-8 .colloc-right-mini-rail{
     font:600 9px/9px "SFMono-Regular",Consolas,monospace!important;
     color:#047857!important;
   }
-  body.collocation-figma-25-8.colloc-right-collapsed .colloc-mini-item:nth-of-type(4) b{
+  body.collocation-figma-25-8.colloc-right-collapsed .colloc-mini-inprogress b{
     color:#92400e!important;
+  }
+  body.collocation-figma-25-8.colloc-right-collapsed .colloc-mini-streak b{
+    color:#d97706!important;
   }
   body.collocation-figma-25-8.colloc-right-collapsed .colloc-mini-item small{
     font:400 8px/8px "SFMono-Regular",Consolas,monospace!important;
