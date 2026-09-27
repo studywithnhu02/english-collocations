@@ -10,7 +10,7 @@ const vocab = fs.readFileSync('preview/vocabulary-ui.js','utf8');
 const smart = fs.readFileSync('preview/smart-tools.js','utf8');
 
 test('Collocation Figma 25:8 module is registered without replacing core data/auth flow', ()=>{
-  assert.match(loader,/collocationFigma:\s*['"]\.\/collocation-figma-25-8\.js\?v=3['"]/);
+  assert.match(loader,/collocationFigma:\s*['"]\.\/collocation-figma-25-8\.js\?v=4['"]/);
   assert.match(loader,/load\('collocationFigma'\)/);
   assert.doesNotMatch(loader,/stagedLoad\(\['collocationFigma'/);
   assert.match(js,/STYLE_HREF/);
@@ -106,7 +106,7 @@ test('Right sidebar collapsed rail can always be expanded again', ()=>{
   assert.match(js,/body\.classList\.remove\('colloc-right-collapsed'\)/);
   assert.match(js,/english-collocations-colloc-right-sidebar-v2','expanded'/);
   assert.match(js,/expand:'<svg/);
-  assert.match(css,/colloc-right-expand/);
+  assert.match(css,/colloc-right-expand/);\n  assert.match(css,/colloc-side-header-extra\{[^}]*pointer-events:auto/);
   assert.match(css,/colloc-right-mini-rail/);
   assert.match(css,/grid-template-columns:minmax\(0,1fr\) 56px/);
 });

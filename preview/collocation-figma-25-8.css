@@ -943,3 +943,28 @@ body.collocation-figma-25-8 .colloc-right-mini-rail{
     display:none!important;
   }
 }
+
+
+/* Reliable right-sidebar controls: keep them above analytics content and pointer-active. */
+body.collocation-figma-25-8 .colloc-side-header-extra{
+  position:absolute!important;
+  z-index:80!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+  user-select:none!important;
+}
+body.collocation-figma-25-8 .colloc-right-expand{
+  pointer-events:auto!important;
+  cursor:pointer!important;
+  z-index:90!important;
+}
+body.collocation-figma-25-8 .colloc-side-header-extra:focus-visible,
+body.collocation-figma-25-8 .colloc-right-expand:focus-visible{
+  outline:2px solid #a3a3a3!important;
+  outline-offset:2px!important;
+}
+@media(min-width:1001px){
+  body.collocation-figma-25-8:not(.colloc-right-collapsed) .colloc-side-header-extra{
+    display:flex!important;
+  }
+}
