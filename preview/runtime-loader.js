@@ -13,7 +13,8 @@ const MODULES=Object.freeze({
   print:'./print-export.js?v=1',
   grammar:'./grammar-ui.js?v=6',
   grammarExercises:'./grammar-exercises.js?v=1',
-  grammarFigma:'./grammar-figma-polish.js?v=1'
+  grammarFigma:'./grammar-figma-polish.js?v=1',
+  collocationFigma:'./collocation-figma-25-8.js?v=1'
 });
 const loaded=new Map();
 function load(name){
@@ -38,4 +39,4 @@ async function loadGrammar(){
   return true;
 }
 window.PreviewModules={load,loadGrammar,paths:MODULES};
-stagedLoad(['vocabulary','goals','srs','coverage','coach','domains','quiz','focus','family','anki','print','aiAgent']);
+stagedLoad(['collocationFigma','vocabulary','goals','srs','coverage','coach','domains','quiz','focus','family','anki','print','aiAgent']);
