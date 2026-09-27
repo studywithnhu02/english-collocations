@@ -72,6 +72,19 @@ function patchKey(id,sourceField,exampleIndex=0){
 function queuePersistence(){
   const table=window.PreviewTable;
   if(typeof table?.schedulePersist==='function')table.schedulePersist();
+  else if(typeof table?.getRows==='function'){
+    try{localStorage.setItem(DATA_KEY,JSON.stringify(table.getRows()))}catch{}
+  }
+}
+function flushAll(){
+  window.PreviewTable?.flushPersist?.();
+  if(memoryCache){
+    try{
+      const entries=Object.entries(memoryCache);
+      const trimmed=entries.slice(Math.max(0,entries.length-CACHE_MAX));
+      localStorage.setItem(CACHE_KEY,JSON.stringify(Object.fromEntries(trimmed)));
+    }catch{}
+  }
 }
 const toast=(()=>{
   let el=null,lastAt=0,hideTimer=0;
