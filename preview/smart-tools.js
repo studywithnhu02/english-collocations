@@ -1,7 +1,5 @@
-import {aiJson} from './ai-client.js?v=2';
 import {extractJson} from './ai-agent-core.js';
 import {fastSuggestionItems,normalizeSmartInput,synonymsFor} from './smart-tools-core.mjs';
-import {inferCefr} from './vocabulary-core.mjs';
 import {getExternalSuggestions} from './collocation-sources.mjs';
 const DATA_KEY='english-collocations-preview-v2';let timer=0,sourceTimer=0,activeRequest=0,suggestCell=null,suggestValues=[],suggestIndex=0;
 const esc=value=>String(value??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
@@ -56,6 +54,7 @@ function sanitizeAiMeaningItems(text){
 async function enrichSuggestions(cell,value,token,base){
   let merged=buildItems(base||[]);
   let rawExternal=[];
+  const {aiJson}=await import('./ai-client.js?v=3');
   try{
     rawExternal=await getExternalSuggestions(value,{max:100});
     if(token!==activeRequest||document.activeElement!==cell||!document.contains(cell))return;
