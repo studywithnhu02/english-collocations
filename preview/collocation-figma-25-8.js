@@ -1,7 +1,13 @@
 /* Collocation Figma 25:8 — safe DOM adapter for the existing Preview implementation. */
 (function(){
   'use strict';
-  var root='collocation-figma-25-8', body=document.body;
+  var root='collocation-figma-25-8', body=document.body, STYLE_HREF='./collocation-figma-25-8.css?v=1';
+
+  function styleLink(){
+    if(document.querySelector('link[data-collocation-figma-25-8]'))return;
+    var link=document.createElement('link');link.rel='stylesheet';link.href=STYLE_HREF;link.dataset.collocationFigma258='1';
+    document.head.appendChild(link);
+  }
 
   function svg(name){
     var paths={
@@ -14,6 +20,7 @@
 
   function ensureBody(){
     if(!body) return false;
+    styleLink();
     if(body.classList.contains('grammar-mode')){body.classList.remove(root);return false}
     body.classList.add(root);return true;
   }
