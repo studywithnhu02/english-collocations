@@ -34,9 +34,9 @@ test('Status is persisted and exported',()=>{
 test('Previously hidden UI remains hidden and feature modules remain loaded',()=>{
   assert.ok(html.includes('class="card agent-shell ai" hidden aria-hidden="true"'));
   assert.ok(html.includes('hidden aria-hidden="true"><h2>🔐 Preview an toàn</h2>'));
-  assert.ok(html.includes('./ai-agent.js?v=9'));
-  assert.ok(html.includes('./spellcheck.js?v=1'));
-  assert.ok(html.includes('./auto-translate.js?v=8'));
+  assert.ok(html.includes('./ai-agent.js?v=10'));
+  assert.ok(html.includes('./spellcheck.js?v=2'));
+  assert.ok(html.includes('./auto-translate.js?v=10'));
 });
 
 console.log('Status Preview contract tests: PASS');
