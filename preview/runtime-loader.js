@@ -11,7 +11,7 @@ const MODULES=Object.freeze({
   coach:'./coach-ui.js?v=2',
   anki:'./anki-export.js?v=1',
   print:'./print-export.js?v=1',
-  grammar:'./grammar-ui.js?v=7',
+  grammar:'./grammar-ui.js?v=6',
   grammarExercises:'./grammar-exercises.js?v=1',
   grammarFigma:'./grammar-figma-polish.js?v=1'
 });
