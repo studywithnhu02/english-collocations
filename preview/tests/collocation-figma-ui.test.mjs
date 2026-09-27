@@ -39,7 +39,7 @@ test('Figma 25:8 copy and controls match the reference hierarchy', ()=>{
   assert.match(js,/CEFR & IELTS/);
   assert.match(js,/Collocation Learning Hub/);
   assert.match(js,/Quản lý kho từ vựng/);
-  assert.match(js,/Tất cả trạng thái/);
+  assert.match(js,/Tất cả trạng thái/);\n  assert.match(js,/figma-sep/);\n  assert.match(js,/colloc-helper-logout/);\n  assert.match(js,/Thu gọn sidebar/);
   assert.match(js,/Tìm collocation, cấu trúc, nghĩa hoặc ví dụ/);
   assert.match(js,/leftNavSettings/);
   assert.match(js,/Phiên bản v2\.4/);
@@ -64,7 +64,7 @@ test('Advanced vocabulary controls are kept out of the pixel-critical toolbar bu
   assert.match(js,/collocAdvancedDock/);
   assert.match(css,/\.main>\.card:not\(\.brand\):not\(\.table-card\) \.vocab-filter/);
   assert.match(css,/\.main>\.card:not\(\.brand\):not\(\.table-card\) #vocabToolbar/);
-  assert.match(css,/colloc-advanced-dock/);
+  assert.match(css,/colloc-advanced-dock/);\n  assert.match(css,/\.suggest-popover\{/);\n  assert.match(css,/width:288px!important/);\n  assert.match(css,/box-shadow:0 20px 25px -5px rgba\(0,0,0,.1\)/);
 });
 
 test('Figma adapter is defensive and avoids recurring DOM work', ()=>{
