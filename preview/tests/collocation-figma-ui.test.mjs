@@ -7,6 +7,7 @@ const loader = fs.readFileSync('preview/runtime-loader.js','utf8');
 const css = fs.readFileSync('preview/collocation-figma-25-8.css','utf8');
 const js = fs.readFileSync('preview/collocation-figma-25-8.js','utf8');
 const vocab = fs.readFileSync('preview/vocabulary-ui.js','utf8');
+const smart = fs.readFileSync('preview/smart-tools.js','utf8');
 
 test('Collocation Figma 25:8 module is registered without replacing core data/auth flow', ()=>{
   assert.match(loader,/collocationFigma:\s*['"]\.\/collocation-figma-25-8\.js\?v=2['"]/);
@@ -71,7 +72,7 @@ test('Advanced vocabulary controls are kept out of the pixel-critical toolbar bu
   assert.match(css,/colloc-advanced-dock/);
   assert.match(css,/\.suggest-popover\{/);
   assert.match(css,/width:288px!important/);
-  assert.match(css,/box-shadow:0 20px 25px -5px rgba\(0,0,0,.1\)/);
+  assert.match(css,/box-shadow:0 20px 25px -5px rgba\(0,0,0,.1\)/);\n  assert.match(smart,/GỢI Ý THÔNG MINH/);
 });
 
 test('Figma adapter is defensive and avoids recurring DOM work', ()=>{
