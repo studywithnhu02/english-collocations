@@ -31,7 +31,7 @@
     if(!brand) return;
     var el=document.createElement('div');
     el.className='colloc-helper';
-    el.innerHTML='<div class="colloc-helper-left"><span class="colloc-helper-label">QUẢN LÝ PREVIEW</span><span class="dot"></span><span>Đang xác thực…</span><span class="colloc-helper-logout" role="button" tabindex="0">Đăng xuất</span><span class="sep">·</span><span>Đang kiểm tra Preview…</span><span class="sep">·</span><span>Đang kiểm tra source GitHub.</span></div><div class="colloc-helper-sync"><span class="sync-dot"></span><span>Local Data Synced</span></div>';
+    el.innerHTML='<div class="colloc-helper-left"><span class="colloc-helper-label">QUẢN LÝ PREVIEW</span><span class="dot"></span><span>Đang xác thực…</span><span class="sep">·</span><span class="colloc-helper-logout" role="button" tabindex="0">Đăng xuất</span><span class="sep">·</span><span>Đang kiểm tra Preview…</span><span class="sep">·</span><span>Đang kiểm tra source GitHub.</span></div><div class="colloc-helper-sync"><span class="sync-dot"></span><span>Local Data Synced</span></div>'
     brand.after(el);
     var logout=el.querySelector('.colloc-helper-logout'),real=document.getElementById('appLogout');
     if(logout&&real){
@@ -119,7 +119,7 @@
 
     function targetCopy(){
     var eyebrow=document.querySelector('#box1 .eyebrow'),title=document.querySelector('#box1 .box-title'),sub=document.querySelector('#box1 .box-sub');
-    if(eyebrow) eyebrow.textContent='ESSENTIAL COLLOCATIONS IN USE  ·  ELEMENTARY  ·  CEFR & IELTS';
+    if(eyebrow) eyebrow.innerHTML='<span>ESSENTIAL COLLOCATIONS IN USE</span><span class="figma-sep">·</span><span class="figma-meta">ELEMENTARY</span><span class="figma-sep">·</span><span class="figma-meta">CEFR &amp; IELTS</span>';
     if(title) title.textContent='Collocation Learning Hub';
     if(sub) sub.textContent='Quản lý kho từ vựng · Hệ thống cấu trúc hóa, luyện phản xạ và phân tích cụm từ tự nhiên.';
     var status=document.getElementById('statusFilter');if(status)status.querySelector('option[value=""]')?.replaceChildren(document.createTextNode('Tất cả trạng thái'));
@@ -139,6 +139,8 @@
     count.className='left-nav-count';count.id='leftNavCollocationCount';count.textContent=document.getElementById('count')?.textContent||'124';
     coll?.appendChild(count);
     var grammarCount=document.createElement('span');grammarCount.className='left-nav-count left-nav-count-muted';grammarCount.textContent='114';grammar?.appendChild(grammarCount);
+    var toggleText=document.querySelector('#leftNavToggle .left-nav-toggle-text');
+    if(toggleText)toggleText.textContent='Thu gọn sidebar';
     var state=document.getElementById('leftNavState');
     var foot=state?.closest('.left-nav-foot');
     if(foot){
