@@ -1,4 +1,4 @@
-import {aiJson} from './ai-client.js';
+import {aiJson} from './ai-client.js?v=2';
 import {normalizeVocabularyRow} from './vocabulary-core.mjs';
 import {buildAutoFillChanges,parseAutoFillResponse,validateAutoFillResult} from './smart-ingestion-core.mjs?v=2';
 
