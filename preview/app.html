@@ -567,6 +567,20 @@ body.grammar-mode .grammar2-note .grammar2-note-tip{position:absolute;left:24px;
 @media(max-width:1050px){body.grammar-mode .grammar2-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto auto}.grammar-mode .grammar2-head,.grammar-mode .grammar2-note,.grammar-mode .grammar2-toolbar,.grammar-mode .grammar2-body,.grammar-mode .grammar2-side{grid-column:1;grid-row:auto}.grammar-mode .grammar2-body{grid-template-columns:288px minmax(0,1fr)}.grammar-mode .grammar2-side{min-height:auto}.grammar-mode .grammar2-detail{grid-column:2;grid-row:1}.grammar-mode .grammar2-unit-list{height:360px}.grammar-mode .grammar2-detail-card{min-height:auto}.grammar-mode .grammar2-side-resizer{display:none}}
 @media(max-width:700px){body.grammar-mode .grammar2-layout{grid-template-columns:1fr}.grammar-mode .grammar2-head{min-height:91px;height:auto;padding:12px 16px;flex-direction:column;align-items:flex-start}.grammar-mode .grammar2-note{min-height:63px;height:auto;padding:8px 16px 30px}.grammar-mode .grammar2-note .grammar2-note-label{left:16px}.grammar-mode .grammar2-note .grammar2-note-steps{left:106px;right:16px;flex-wrap:wrap;top:12px;white-space:normal}.grammar-mode .grammar2-note .grammar2-note-tip{left:16px}.grammar-mode .grammar2-toolbar{height:auto;grid-template-columns:1fr;padding:10px 16px}.grammar-mode .grammar2-body{grid-template-columns:1fr}.grammar-mode .grammar2-list{grid-column:1;border-right:0!important;border-bottom:1px solid #e5e5e5!important}.grammar-mode .grammar2-detail{grid-column:1;grid-row:2;padding:8px!important}.grammar-mode .grammar2-unit-list{height:320px}.grammar-mode .grammar2-learn{grid-template-columns:1fr}.grammar-mode .grammar2-detail-top{min-height:auto;flex-direction:column}.grammar-mode .grammar2-example{align-items:flex-start;flex-direction:column}.grammar-mode .grammar2-example p{padding-left:0;border-left:0;border-top:2px solid #e5e5e5;padding-top:8px}}
 </style>
+<style id="grammar-figma-ui-v3">
+/* Grammar Figma UI v3 — final header/detail polish. */
+body.grammar-mode .grammar2-head-copy{min-width:0;display:flex;flex-direction:column;gap:2px}
+body.grammar-mode .grammar2-breadcrumb{display:flex;align-items:center;gap:8px;height:16px;white-space:nowrap;overflow:hidden}
+body.grammar-mode .grammar2-breadcrumb span{font-size:10px;line-height:16px;letter-spacing:.5px;color:#525252;font-weight:700;font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;text-transform:uppercase}
+body.grammar-mode .grammar2-breadcrumb span:nth-of-type(n+2){font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;letter-spacing:0;font-weight:500;color:#737373}
+body.grammar-mode .grammar2-breadcrumb i{font-style:normal;color:#d4d4d4;font-size:12px;line-height:16px}
+body.grammar-mode .grammar2-title-row{display:flex;align-items:center;gap:10px;min-width:0;height:48px}
+body.grammar-mode .grammar2-title-row h1{width:auto;margin:0;padding-right:7px;font-size:16px;line-height:24px;letter-spacing:-.4px;color:#171717;font-weight:600;white-space:normal}
+body.grammar-mode .grammar2-title-row .grammar2-title-divider{font-size:16px;line-height:24px;color:#d4d4d4;flex:none}
+body.grammar-mode .grammar2-title-row p{min-width:0;max-width:576px;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;line-height:16px;color:#737373}
+body.grammar-mode .grammar2-head-actions #grammarExercise{background:#171717!important;border-color:#171717!important;color:#fff!important}
+body.grammar-mode .grammar2-focus small::before{content:"•";color:#525252;margin-right:6px}
+</style>
 </head>
 <body class="auth-checking nav-expanded">
 <nav class="left-nav" id="leftNav" aria-label="Điều hướng chính">

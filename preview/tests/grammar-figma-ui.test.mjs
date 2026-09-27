@@ -58,3 +58,22 @@ test('Existing Grammar behavior hooks are preserved',()=>{
 });
 
 console.log('Grammar Figma UI parity tests: PASS');
+
+
+test('Header follows the Figma hierarchy and action order',()=>{
+  assert.ok(grammar.includes('grammar2-head-copy'));
+  assert.ok(grammar.includes('ESSENTIAL GRAMMAR IN USE'));
+  assert.ok(grammar.includes('Raymond Murphy'));
+  const qi=grammar.indexOf('id="grammarQuiz"');
+  const ei=grammar.indexOf('id="grammarExercise"');
+  assert.ok(qi>0 && ei>qi,'Ôn nhanh should appear before Bài tập');
+  assert.ok(grammar.includes('<h1>Grammar<br>Learning Hub</h1>'));
+});
+
+test('Visual v3 fixes remove old emoji title and align detail emphasis without changing behavior hooks',()=>{
+  assert.match(app,/\.grammar2-title-row h1\{[^}]*font-size:16px/);
+  assert.match(app,/\.grammar2-focus strong\{font-size:24px/);
+  assert.ok(!grammar.includes('📘 Grammar Learning Hub'));
+  assert.ok(grammar.includes('grammarExercise'));
+  assert.ok(grammar.includes('grammarQuiz'));
+});
