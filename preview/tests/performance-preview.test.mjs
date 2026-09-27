@@ -32,7 +32,7 @@ test('collocation edit sends AI work to the idle Auto-fill queue only when field
 
 test('Auto-fill validates only missing fields and does not duplicate example translation',()=>{
   assert.ok(core.includes('requireMeaning=true,requireExample=true'));
-  assert.ok(core.includes('requireExample:!String(current.e||').toString());
+  assert.ok(core.includes("requireExample:!String(current.e||'').trim()"));
   assert.ok(ingestion.includes("!String(changes.em||'').trim()"));
 });
 
