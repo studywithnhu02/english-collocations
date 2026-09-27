@@ -24,13 +24,10 @@ const requestVersion=new Map();
 const inflight=new Map();
 const lastSource=new Map();
 const queue=[];
-const pendingPatches=new Map();
 let activeRequests=0;
 let memoryCache=null;
 let cacheWriteTimer=0;
-let dataWriteTimer=0;
 let cacheIdleId=0;
-let dataIdleId=0;
 let eventsBound=false;
 
 function getCache(){
@@ -73,66 +70,10 @@ function cacheSet(key,value){
 function patchKey(id,sourceField,exampleIndex=0){
   return translationKey(id,sourceField,sourceField==='e'?exampleIndex:null);
 }
-function queuePatch(id,sourceField,sourceText,targetText,exampleIndex=0){
-  const key=patchKey(id,sourceField,exampleIndex);
-  pendingPatches.set(key,{id:String(id),sourceField,sourceText:normalize(sourceText),targetText:normalize(targetText),exampleIndex:Math.max(0,Number(exampleIndex)||0)});
-  scheduleDataFlush();
+function queuePersistence(){
+  const table=window.PreviewTable;
+  if(typeof table?.schedulePersist==='function')table.schedulePersist();
 }
-function applyPatchToRow(row,patch){
-  if(String(row?.id)!==String(patch.id))return false;
-  const expected=normalize(patch.sourceText);
-  const target=normalize(patch.targetText);
-  if(patch.sourceField==='e'){
-    const index=patch.exampleIndex;
-    const examples=Array.isArray(row.examples)?row.examples.map(item=>({e:normalize(item?.e||''),em:normalize(item?.em||'')})):[];
-    while(examples.length<=index)examples.push({e:'',em:''});
-    if(normalize(examples[index].e)!==expected)return false;
-    examples[index].em=target;
-    row.examples=examples;
-    if(index===0){row.e=expected;row.em=target}
-    return true;
-  }
-  if(normalize(row?.[patch.sourceField]||'')!==expected)return false;
-  row[targetFieldFor(patch.sourceField)]=target;
-  return true;
-}
-function flushDataPatches(){
-  if(!pendingPatches.size)return;
-  clearTimeout(dataWriteTimer);
-  dataWriteTimer=0;
-  const patches=[...pendingPatches.values()];
-  pendingPatches.clear();
-  try{
-    const raw=localStorage.getItem(DATA_KEY)||'[]';
-    const rows=JSON.parse(raw);
-    if(!Array.isArray(rows))return;
-    let changed=0;
-    for(const patch of patches){
-      const row=rows.find(item=>String(item?.id)===String(patch.id));
-      if(row&&applyPatchToRow(row,patch))changed++;
-    }
-    if(changed) localStorage.setItem(DATA_KEY,JSON.stringify(rows));
-  }catch{}
-}
-function scheduleDataFlush(){
-  clearTimeout(dataWriteTimer);
-  if(dataIdleId&&'cancelIdleCallback' in window)window.cancelIdleCallback(dataIdleId);
-  dataWriteTimer=setTimeout(()=>{
-    dataWriteTimer=0;
-    if('requestIdleCallback' in window)dataIdleId=requestIdleCallback(()=>{dataIdleId=0;flushDataPatches()},{timeout:2500});else flushDataPatches();
-  },DATA_FLUSH_MS);
-}
-function flushAll(){
-  flushDataPatches();
-  if(memoryCache){
-    try{
-      const entries=Object.entries(memoryCache);
-      const trimmed=entries.slice(Math.max(0,entries.length-CACHE_MAX));
-      localStorage.setItem(CACHE_KEY,JSON.stringify(Object.fromEntries(trimmed)));
-    }catch{}
-  }
-}
-
 const toast=(()=>{
   let el=null,lastAt=0,hideTimer=0;
   return (message,error=false)=>{
@@ -167,24 +108,24 @@ function drainQueue(){
     });
   }
 }
-async function fetchWithTimeout(url,options={},timeout=PROVIDER_TIMEOUT_MS){
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),timeout);
-  try{return await fetch(url,{...options,signal:controller.signal})}
+async function fetchWithTimeout(url,options={},timeout=PROVIDER_TIMEOUT_MS,signal=null){
+  const controller=signal?null:new AbortController();
+  const timer=setTimeout(()=>controller?.abort(),timeout);
+  try{return await fetch(url,{...options,signal:signal||controller.signal})}
   finally{clearTimeout(timer)}
 }
-async function googleTranslate(text){
+async function googleTranslate(text,signal=null){
   const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q='+encodeURIComponent(text);
-  const response=await fetchWithTimeout(url,{mode:'cors',cache:'force-cache'});
+  const response=await fetchWithTimeout(url,{mode:'cors',cache:'force-cache'},PROVIDER_TIMEOUT_MS,signal);
   if(!response.ok)throw new Error('Google '+response.status);
   const data=await response.json();
   const value=normalize(Array.isArray(data?.[0])?data[0].map(item=>item?.[0]||'').join(''):'');
   if(!value)throw new Error('Google empty');
   return value;
 }
-async function myMemoryTranslate(text){
+async function myMemoryTranslate(text,signal=null){
   const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=en|vi';
-  const response=await fetchWithTimeout(url,{mode:'cors',cache:'force-cache'});
+  const response=await fetchWithTimeout(url,{mode:'cors',cache:'force-cache'},PROVIDER_TIMEOUT_MS,signal);
   if(!response.ok)throw new Error('MyMemory '+response.status);
   const data=await response.json();
   const value=normalize(data?.responseData?.translatedText||'');
@@ -198,15 +139,24 @@ async function requestTranslation(key){
   const promise=new Promise((resolve,reject)=>{
     enqueue(()=>{
       let fallbackTimer=0;
-      const google=googleTranslate(key);
-      const fallback=new Promise((resolve,reject)=>{
-        fallbackTimer=setTimeout(()=>myMemoryTranslate(key).then(resolve,reject),FALLBACK_DELAY_MS);
+      const googleController=new AbortController();
+      const memoryController=new AbortController();
+      const google=googleTranslate(key,googleController.signal);
+      const fallback=new Promise((fallbackResolve,fallbackReject)=>{
+        fallbackTimer=setTimeout(()=>myMemoryTranslate(key,memoryController.signal).then(fallbackResolve,fallbackReject),FALLBACK_DELAY_MS);
       });
       return Promise.any([google,fallback]).then(value=>{
         clearTimeout(fallbackTimer);
+        googleController.abort();
+        memoryController.abort();
         cacheSet(key,value);
         resolve(value);
-      }).catch(()=>reject(new Error('Translation failed')));
+      }).catch(error=>{
+        clearTimeout(fallbackTimer);
+        googleController.abort();
+        memoryController.abort();
+        reject(error);
+      });
     });
   });
   inflight.set(key,promise);
@@ -252,7 +202,7 @@ async function run(id,sourceField,sourceText,exampleIndex=0){
     if(!sourceMatches(sourceEl?.textContent||sourceEl?.value||'',cleanSource))return;
     showState(tr,sourceField,'done',cached,exampleIndex);
     window.PreviewTable?.patchTranslation?.(id,sourceField,cached,exampleIndex);
-    queuePatch(id,sourceField,cleanSource,cached,exampleIndex);
+    queuePersistence();
     lastSource.set(key,cleanSource);
     return;
   }
@@ -264,7 +214,7 @@ async function run(id,sourceField,sourceText,exampleIndex=0){
     const currentSourceEl=cell(currentTr,sourceField,sourceField==='e'?exampleIndex:null);
     if(!sourceMatches(currentSourceEl?.textContent||currentSourceEl?.value||'',cleanSource))return;
     window.PreviewTable?.patchTranslation?.(id,sourceField,translated,exampleIndex);
-    queuePatch(id,sourceField,cleanSource,translated,exampleIndex);
+    queuePersistence();
     lastSource.set(key,cleanSource);
     showState(currentTr,sourceField,'done',translated,exampleIndex);
     toast('✓ Đã dịch → '+(targetField==='m'?'NGHĨA COLLOCATION':'NGHĨA CÂU VÍ DỤ'));
