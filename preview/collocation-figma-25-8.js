@@ -1,7 +1,7 @@
 /* Collocation Figma 25:8 — safe DOM adapter for the existing Preview implementation. */
 (function(){
   'use strict';
-  var root='collocation-figma-25-8', body=document.body, STYLE_HREF='./collocation-figma-25-8.css?v=2';
+  var root='collocation-figma-25-8', body=document.body, STYLE_HREF='./collocation-figma-25-8.css?v=3';
 
   function styleLink(){
     if(document.querySelector('link[data-collocation-figma-25-8]'))return;
