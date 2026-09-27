@@ -91,6 +91,10 @@ test('Figma adapter stays out of the recurring DOM observation path',async()=>{
   assert.equal(adapter.includes('setTimeout(run,1400)'),false);
 });
 
-test('Spellcheck initial pass is viewport-first rather than scanning the entire table',()=>{
-  assert.ok(app.includes("window.addEventListener('scroll',()=>{closePopover();scheduleVisibleScan()" )===false || true);
+test('Spellcheck initial pass is viewport-first and scroll-driven',async()=>{
+  const spellcheck=await readFile(new URL('../spellcheck.js',import.meta.url),'utf8');
+  assert.ok(spellcheck.includes('function scanVisible()'));
+  assert.ok(spellcheck.includes('scheduleVisibleScan()'));
+  assert.ok(spellcheck.includes('getBoundingClientRect()'));
+  assert.equal(spellcheck.includes('const cells=[...document.querySelectorAll(\'#body .editable\')].filter(cell=>fields.includes(cell.dataset.field))'),false);
 });
