@@ -70,8 +70,8 @@ test('non-critical modules are lazy-loaded instead of blocking initial Preview s
     "goals:'./goals-ui.js?v=1'",
     "aiAgent:'./ai-agent.js?v=12'",
     "grammar:'./grammar-ui.js?v=6'",
-    "stagedLoad(['vocabulary','goals','srs'",
-    'window.PreviewModules={load,loadGrammar,paths:MODULES}'
+    "loadBatch(['domains','vocabulary'],1400)",
+    'window.PreviewModules={load,loadAI,loadGrammar,paths:MODULES}'
   ])assert.ok(loader.includes(token),token);
   for(const token of [
     '<script type="module" src="./goals-ui.js',
@@ -79,4 +79,22 @@ test('non-critical modules are lazy-loaded instead of blocking initial Preview s
     '<script type="module" src="./ai-agent.js',
     '<script type="module" src="./grammar-ui.js'
   ])assert.equal(app.includes(token),false,token);
+});
+
+
+test('Figma adapter stays out of the recurring DOM observation path',async()=>{
+  const adapter=await readFile(new URL('../collocation-figma-25-8.js',import.meta.url),'utf8');
+  assert.ok(adapter.includes('function boot(){run()}'));
+  assert.equal(adapter.includes('new MutationObserver'),false);
+  assert.equal(adapter.includes('setTimeout(run,200)'),false);
+  assert.equal(adapter.includes('setTimeout(run,700)'),false);
+  assert.equal(adapter.includes('setTimeout(run,1400)'),false);
+});
+
+test('Spellcheck initial pass is viewport-first and scroll-driven',async()=>{
+  const spellcheck=await readFile(new URL('../spellcheck.js',import.meta.url),'utf8');
+  assert.ok(spellcheck.includes('function scanVisible()'));
+  assert.ok(spellcheck.includes('scheduleVisibleScan()'));
+  assert.ok(spellcheck.includes('getBoundingClientRect()'));
+  assert.equal(spellcheck.includes('const cells=[...document.querySelectorAll(\'#body .editable\')].filter(cell=>fields.includes(cell.dataset.field))'),false);
 });

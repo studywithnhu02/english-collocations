@@ -99,10 +99,14 @@
     helper();rightExtras();settings();batch();search();
   }
 
-  function boot(){run();setTimeout(run,200);setTimeout(run,700);setTimeout(run,1400)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-
-  if(body){
-    new MutationObserver(function(){if(body.classList.contains('grammar-mode'))body.classList.remove(root);else run()}).observe(body,{attributes:true,attributeFilter:['class']});
+  function boot(){run()}
+  function bindViewSwitch(){
+    var coll=document.getElementById('leftNavCollocation');
+    var grammar=document.getElementById('leftNavGrammar');
+    coll?.addEventListener('click',function(){body.classList.add(root)},{passive:true});
+    grammar?.addEventListener('click',function(){body.classList.remove(root)},{passive:true});
   }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){boot();bindViewSwitch()},{once:true});
+  }else{boot();bindViewSwitch()}
 })();

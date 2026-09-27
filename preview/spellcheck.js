@@ -101,27 +101,38 @@ function visibleCells(){
     return r.bottom>0&&r.top<innerHeight;
   });
 }
+const scannedText=new Map();
+let scanIdle=0,scanTimer=0;
+function scanVisible(){
+  if(!enabled)return;
+  const cells=[...document.querySelectorAll('#body .editable')].filter(cell=>{
+    if(!fields.includes(cell.dataset.field)||cell.offsetParent===null)return false;
+    const r=cell.getBoundingClientRect();
+    return r.bottom>0&&r.top<innerHeight;
+  });
+  for(const cell of cells){
+    const tr=cell.closest('tr'),id=tr?.dataset.id,field=cell.dataset.field;
+    if(id==null)continue;
+    const key=cellKey(field,id),text=cell.textContent||'';
+    if(scannedText.get(key)===text)continue;
+    scannedText.set(key,text);
+    scheduleCell(cell,120);
+  }
+}
+function scheduleVisibleScan(){
+  clearTimeout(scanTimer);
+  if(scanIdle&&'cancelIdleCallback' in window)window.cancelIdleCallback(scanIdle);
+  scanIdle=0;
+  scanTimer=setTimeout(()=>{
+    const run=()=>{scanIdle=0;scanVisible()};
+    if('requestIdleCallback' in window)scanIdle=requestIdleCallback(run,{timeout:900});else run();
+  },180);
+}
 function scanInitial(){
-  if(!enabled||initialScanStarted)return;
+  if(initialScanStarted)return;
   initialScanStarted=true;
-  const cells=[...document.querySelectorAll('#body .editable')].filter(cell=>fields.includes(cell.dataset.field));
-  let index=0;
-  const step=deadline=>{
-    if(!enabled){initialScanStarted=false;return}
-    const end=Date.now()+8;
-    while(index<cells.length&&(deadline?.timeRemaining?.()>2||Date.now()<end)){
-      const cell=cells[index++];
-      if(cell.offsetParent!==null)scheduleCell(cell,120);
-    }
-    if(index<cells.length){
-      if('requestIdleCallback' in window)requestIdleCallback(step,{timeout:300});
-      else setTimeout(()=>step({timeRemaining:()=>8}),60);
-    }else{
-      initialScanStarted=false;
-    }
-  };
-  if('requestIdleCallback' in window)requestIdleCallback(step,{timeout:500});
-  else setTimeout(()=>step({timeRemaining:()=>8}),250);
+  scheduleVisibleScan();
+  setTimeout(()=>{initialScanStarted=false},1000);
 }
 function positionPopover(pop,rect){
   document.body.appendChild(pop);
@@ -189,7 +200,7 @@ function boot(){
   styles();ensureToggle();bind();
   getWorker().addEventListener('message',handleWorkerMessage);
   setTimeout(scanInitial,900);
-  window.addEventListener('resize',closePopover,{passive:true});
-  window.addEventListener('scroll',closePopover,{passive:true,capture:true});
+  window.addEventListener('resize',()=>{closePopover();scheduleVisibleScan()},{passive:true});
+  window.addEventListener('scroll',()=>{closePopover();scheduleVisibleScan()},{passive:true,capture:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
