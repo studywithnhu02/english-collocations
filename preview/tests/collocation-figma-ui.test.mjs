@@ -98,3 +98,15 @@ test('Figma 35:16 left navigation collapsed rail uses 56px geometry without touc
   assert.doesNotMatch(js,/localStorage\.clear\(/);
   assert.doesNotMatch(js,/localStorage\.removeItem\(['"]english-collocations-preview-v2/);
 });
+
+
+test('Right sidebar collapsed rail can always be expanded again', ()=>{
+  assert.match(js,/className='colloc-right-expand'/);
+  assert.match(js,/aria-label','Mở rộng sidebar'/);
+  assert.match(js,/body\.classList\.remove\('colloc-right-collapsed'\)/);
+  assert.match(js,/english-collocations-colloc-right-sidebar-v2','expanded'/);
+  assert.match(js,/expand:'<svg/);
+  assert.match(css,/colloc-right-expand/);
+  assert.match(css,/colloc-right-mini-rail/);
+  assert.match(css,/grid-template-columns:minmax\(0,1fr\) 56px/);
+});

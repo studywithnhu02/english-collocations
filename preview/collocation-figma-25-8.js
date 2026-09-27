@@ -13,6 +13,7 @@
     var paths={
       more:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>',
       collapse:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6-6 6 6 6M3 12h18"/></svg>',
+      expand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6 6 6-6 6"/></svg>',
       search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.7"/><path d="m16.2 16.2 4.2 4.2"/></svg>'
     };
     return paths[name]||'';
@@ -54,6 +55,22 @@
     var stats=card.querySelector('.analytics-stats');
     var checkin=card.querySelector('#analyticsCheckin');
     if(stats){
+      var expandRail=document.createElement('button');
+      expandRail.type='button';
+      expandRail.className='colloc-right-expand';
+      expandRail.setAttribute('aria-label','Mở rộng sidebar');
+      expandRail.title='Mở rộng sidebar';
+      expandRail.innerHTML=svg('expand');
+      head.appendChild(expandRail);
+      expandRail.addEventListener('click',function(){
+        body.classList.remove('colloc-right-collapsed');
+        try{localStorage.setItem('english-collocations-colloc-right-sidebar-v2','expanded')}catch(e){}
+      });
+      var miniRail=document.createElement('div');
+      miniRail.className='colloc-right-mini-rail';
+      miniRail.setAttribute('aria-label','Chỉ số nhanh');
+      miniRail.innerHTML='<div class="colloc-mini-toggle-slot"></div><div class="colloc-mini-divider"></div><button type="button" class="colloc-mini-item colloc-mini-checkin" aria-label="Điểm danh"><span class="colloc-mini-icon">◫</span><i></i></button><button type="button" class="colloc-mini-item colloc-mini-learned" aria-label="Đã học"><span class="colloc-mini-icon">✓</span><b data-mini-stat="learned">0</b></button><button type="button" class="colloc-mini-item colloc-mini-inprogress" aria-label="Đang học"><span class="colloc-mini-dot"></span><b data-mini-stat="inprogress">0</b></button><button type="button" class="colloc-mini-item colloc-mini-streak" aria-label="Streak"><span class="colloc-mini-icon">🔥</span><b data-mini-stat="streak">0</b></button><div class="colloc-mini-divider"></div><button type="button" class="colloc-mini-item colloc-mini-goal" aria-label="Mục tiêu"><span class="colloc-mini-icon">◎</span><small data-mini-stat="goal">0/0</small></button><div class="colloc-mini-bottom"><span>STATS</span></div>';
+      card.appendChild(miniRail);
       var quick=document.createElement('button');quick.type='button';quick.className='colloc-side-header-extra';
       quick.innerHTML='<span style="display:flex;align-items:center;gap:8px"><span class="colloc-collapse-icon" style="width:14px;height:14px;display:block">'+svg('collapse')+'</span>Thu gọn sidebar</span><span class="colloc-collapse-arrow">»</span>';
       var tz=document.createElement('div');tz.className='colloc-timezone';tz.innerHTML='<span>Asia/Ho_Chi_Minh</span><b>00:00 là ngày mới</b>';
@@ -74,6 +91,33 @@
         body.classList.toggle('colloc-right-collapsed');
         try{localStorage.setItem('english-collocations-colloc-right-sidebar-v2',body.classList.contains('colloc-right-collapsed')?'collapsed':'expanded')}catch(e){}
       });
+      function syncMiniRail(){
+        var statsEls=Array.from(card.querySelectorAll('.analytics-stat'));
+        var map={};
+        statsEls.forEach(function(el){
+          var label=(el.querySelector('span')?.textContent||'').trim().toUpperCase();
+          var value=(el.querySelector('b')?.textContent||'0').trim();
+          if(label.includes('ĐÃ HỌC'))map.learned=value;
+          if(label.includes('ĐANG HỌC'))map.inprogress=value;
+          if(label.includes('STREAK'))map.streak=value;
+          if(label.includes('THÁNG NÀY'))map.month=value;
+        });
+        var goals=document.querySelectorAll('#goalsCard .goal-row');
+        var goal='0/0';
+        if(goals.length){
+          var input=goals[0].querySelector('.goal-target input'),count=goals[0].querySelector('.goal-count');
+          var target=input?.value||input?.getAttribute('value')||'0',done=(count?.textContent||'0').trim().split('/')[0];
+          goal=done+'/'+target;
+        }
+        miniRail.querySelector('[data-mini-stat="learned"]').textContent=map.learned||'0';
+        miniRail.querySelector('[data-mini-stat="inprogress"]').textContent=map.inprogress||'0';
+        miniRail.querySelector('[data-mini-stat="streak"]').textContent=map.streak||'0';
+        miniRail.querySelector('[data-mini-stat="goal"]').textContent=goal;
+      }
+      syncMiniRail();
+      window.addEventListener('preview-table-rendered',syncMiniRail,{passive:true});
+      window.addEventListener('preview-data-updated',syncMiniRail,{passive:true});
+      window.addEventListener('storage',syncMiniRail,{passive:true});
       try{if(localStorage.getItem('english-collocations-colloc-right-sidebar-v2')==='collapsed')body.classList.add('colloc-right-collapsed')}catch(e){}
     }
   }
