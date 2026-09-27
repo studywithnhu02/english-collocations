@@ -12,7 +12,7 @@ function setBusy(id,on){
   const key=String(id);
   const tr=document.querySelector('#body tr[data-id="'+CSS.escape(key)+'"]');
   const cell=tr?.querySelector('.editable[data-field="c"]');
-  if(cell)cell.setAttribute('data-ai-status',on?'loading':'');const structureCell=tr?.querySelector('.editable[data-field="structure"]');if(structureCell)structureCell.setAttribute('data-ai-status',on?'loading':'');
+  if(cell)cell.setAttribute('data-ai-status',on?'loading':'');
   const persist=document.getElementById('persist');
   if(persist)persist.textContent=on?'🧠 AI đang điền…':'Local data';
 }
