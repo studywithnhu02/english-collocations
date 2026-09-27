@@ -39,4 +39,5 @@ async function loadGrammar(){
   return true;
 }
 window.PreviewModules={load,loadGrammar,paths:MODULES};
-stagedLoad(['collocationFigma','vocabulary','goals','srs','coverage','coach','domains','quiz','focus','family','anki','print','aiAgent']);
+stagedLoad(['vocabulary','goals','srs','coverage','coach','domains','quiz','focus','family','anki','print','aiAgent']);
+stagedLoad(['collocationFigma'],0);
