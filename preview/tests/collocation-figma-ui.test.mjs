@@ -9,7 +9,7 @@ const js = fs.readFileSync('preview/collocation-figma-25-8.js','utf8');
 const vocab = fs.readFileSync('preview/vocabulary-ui.js','utf8');
 
 test('Collocation Figma 25:8 module is registered without replacing core data/auth flow', ()=>{
-  assert.match(loader,/collocationFigma:\s*['"]\.\/collocation-figma-25-8\.js\?v=1['"]/);
+  assert.match(loader,/collocationFigma:\s*['"]\.\/collocation-figma-25-8\.js\?v=2['"]/);
   assert.match(loader,/load\('collocationFigma'\)/);
   assert.doesNotMatch(loader,/stagedLoad\(\['collocationFigma'/);
   assert.match(js,/STYLE_HREF/);
@@ -39,7 +39,10 @@ test('Figma 25:8 copy and controls match the reference hierarchy', ()=>{
   assert.match(js,/CEFR & IELTS/);
   assert.match(js,/Collocation Learning Hub/);
   assert.match(js,/Quản lý kho từ vựng/);
-  assert.match(js,/Tất cả trạng thái/);\n  assert.match(js,/figma-sep/);\n  assert.match(js,/colloc-helper-logout/);\n  assert.match(js,/Thu gọn sidebar/);
+  assert.match(js,/Tất cả trạng thái/);
+  assert.match(js,/figma-sep/);
+  assert.match(js,/colloc-helper-logout/);
+  assert.match(js,/Thu gọn sidebar/);
   assert.match(js,/Tìm collocation, cấu trúc, nghĩa hoặc ví dụ/);
   assert.match(js,/leftNavSettings/);
   assert.match(js,/Phiên bản v2\.4/);
@@ -51,8 +54,9 @@ test('Right learning sidebar follows Figma vertical flow instead of overlap posi
   assert.match(js,/checkin\.remove\(\)/);
   assert.match(js,/tz\.after\(checkin\)/);
   assert.match(js,/checkin\.after\(hdr\)/);
-  assert.match(css,/sidebar \.analytics-card\{height:auto!important;min-height:0!important/);
-  assert.match(css,/sidebar #analyticsCheckin\{position:static!important;display:flex!important/);
+  assert.match(css,/sidebar \.analytics-card\{position:relative!important/);
+  assert.match(css,/height:548\.25px!important/);
+  assert.match(css,/sidebar #analyticsCheckin\{position:absolute!important/);
   assert.doesNotMatch(css,/analytics-checkin\{[^}]*position:absolute!important/);
   assert.match(css,/goal-row/);
   assert.match(css,/goal-target input/);
@@ -64,7 +68,10 @@ test('Advanced vocabulary controls are kept out of the pixel-critical toolbar bu
   assert.match(js,/collocAdvancedDock/);
   assert.match(css,/\.main>\.card:not\(\.brand\):not\(\.table-card\) \.vocab-filter/);
   assert.match(css,/\.main>\.card:not\(\.brand\):not\(\.table-card\) #vocabToolbar/);
-  assert.match(css,/colloc-advanced-dock/);\n  assert.match(css,/\.suggest-popover\{/);\n  assert.match(css,/width:288px!important/);\n  assert.match(css,/box-shadow:0 20px 25px -5px rgba\(0,0,0,.1\)/);
+  assert.match(css,/colloc-advanced-dock/);
+  assert.match(css,/\.suggest-popover\{/);
+  assert.match(css,/width:288px!important/);
+  assert.match(css,/box-shadow:0 20px 25px -5px rgba\(0,0,0,.1\)/);
 });
 
 test('Figma adapter is defensive and avoids recurring DOM work', ()=>{
@@ -74,4 +81,5 @@ test('Figma adapter is defensive and avoids recurring DOM work', ()=>{
   assert.doesNotMatch(js,/setTimeout\(run,1400\)/);
   assert.match(js,/function boot\(\)\{run\(\)\}/);
   assert.match(app,/runtime-loader\.js\?v=1/);
+  assert.match(app,/tableSelectAll/);
 });
