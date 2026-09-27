@@ -1,4 +1,4 @@
-import {aiJson} from './ai-client.js';
+import {aiJson} from './ai-client.js?v=2';
 import {extractJson} from './ai-agent-core.js';
 import {fastSuggestionItems,normalizeSmartInput,synonymsFor} from './smart-tools-core.mjs';
 import {inferCefr} from './vocabulary-core.mjs';
