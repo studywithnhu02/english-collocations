@@ -58,7 +58,7 @@ export async function autoFill(id,value){
     const changes=buildAutoFillChanges(current,result,text);
     if(!Object.keys(changes).length)return;
     const source={...(current.source&&typeof current.source==='object'?current.source:{}),type:'ai'};
-    const applied=window.PreviewTable?.updateRow?.(key,{...changes,source},'ai-auto-fill');
+    const applied=window.PreviewTable?.updateRow?.(key,{...changes,source},'row-edit',false);
     if(!applied){
       const next=now.map(r=>String(r.id)===key?normalizeVocabularyRow({...r,...changes,source}):r);
       if(window.PreviewTable?.setRows)window.PreviewTable.setRows(next);
