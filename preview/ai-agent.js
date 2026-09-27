@@ -1,17 +1,17 @@
 import {extractJson, normalizeBatchResult} from './ai-agent-core.js';
+import {aiJson} from './ai-client.js?v=2';
 import {STORY_MODES,buildStoryPrompt,cleanStoryText,validateStorySelection,storyCoverage} from './contextual-story-core.mjs';
-// Browser-local AI Agent v3 — batch inference, WebGPU-first, rule router, human-approved edits.
-const MODEL_ID='onnx-community/Qwen2.5-0.5B-Instruct';
+// Browser-local AI Agent v3 — lazy shared AI worker, batch inference, rule router, human-approved edits.
 const STORAGE_KEY='english-collocations-preview-v2';
-let worker=null,requestId=0,busy=false,pending=[];
+let busy=false,pending=[];
 const esc=s=>String(s??'').replace(/[&<>\"']/g,a=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[a]));
 function readRows(){try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return []}}
 function writeRows(rows){localStorage.setItem(STORAGE_KEY,JSON.stringify(rows));window.dispatchEvent(new CustomEvent('preview-data-updated'));return rows}
 function selectedIds(){return [...document.querySelectorAll('#body tr')].filter(tr=>tr.querySelector('.row-check')?.checked).map(tr=>String(tr.dataset.id))}
 function selectedRows(){const ids=selectedIds(),rows=readRows();return ids.length?rows.filter(r=>ids.includes(String(r.id))):[]}
-function ensureWorker(){return worker||(worker=new Worker('./ai-agent-worker.js?v=6',{type:'module'}))}
-function callModel(messages,batch=false,options={}){return new Promise((resolve,reject)=>{const id=++requestId,w=ensureWorker();const fn=e=>{if(e.data?.id!==id)return;if(e.data?.type==='status'){status(e.data.message||'Đang xử lý…');return}w.removeEventListener('message',fn);e.data.ok?resolve(e.data.text):reject(new Error(e.data.error||'AI error'))};w.addEventListener('message',fn);w.postMessage({id,messages,batch,...options})})}
-function warmupModel(){try{ensureWorker().postMessage({type:'warmup'})}catch{}}
+function callModel(messages,batch=false,options={}){
+  return aiJson(messages,{...options,batch});
+}
 function styles(){if(document.getElementById('agentStyles'))return;const s=document.createElement('style');s.id='agentStyles';s.textContent=`.agent-card{padding:0!important;overflow:hidden}.agent-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.agent-title{font-weight:850;font-size:15px}.agent-sub,.agent-note,.agent-status{font-size:11px;color:var(--muted);margin-top:5px}.agent-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.agent-actions button{font-size:11px;padding:8px}.agent-input{margin-top:10px}.agent-input textarea{width:100%;min-height:70px;resize:vertical}.agent-result{margin-top:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;max-height:360px;overflow:auto}.agent-status.ok{color:var(--green)}.agent-status.err{color:var(--danger)}.agent-safe{font-size:10px;color:var(--green);margin-top:8px}.diff-item{border-top:1px solid var(--line);padding:9px 0}.diff-old{color:var(--danger);margin-top:5px}.diff-new{color:var(--green);margin-top:3px}.diff-actions{display:flex;gap:6px;margin-top:6px}.diff-actions button{font-size:10px;padding:5px 7px}.agent-apply{width:100%;margin-top:9px}.agent-apply[disabled]{opacity:.5}.agent-empty{color:var(--muted)}.contextual-story-card{padding:0!important;overflow:hidden}.story-head{padding:12px 14px;border-bottom:1px solid var(--line)}.story-title{font-weight:850;font-size:15px}.story-sub{font-size:10px;color:var(--muted);margin-top:3px}.story-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px 0}.story-mode-btn{padding:8px 8px;font-size:10px}.story-mode-btn.active{background:var(--blue);color:#fff;border-color:transparent}.story-mode-btn:disabled{opacity:.6}.story-selected{padding:8px 12px 0;color:var(--muted);font-size:10px}.story-status{padding:7px 12px 0;color:var(--muted);font-size:10px}.story-result{margin:8px 12px 12px;padding:9px;background:var(--card2);border:1px solid var(--line);border-radius:10px;font-size:11px;line-height:1.5;max-height:300px;overflow:auto}.story-result span{color:var(--muted)}.story-paragraph{margin:0}.story-line{display:grid;grid-template-columns:24px minmax(0,1fr);gap:7px;padding:6px 0;border-bottom:1px solid var(--line)}.story-line:last-child{border-bottom:0}.story-speaker{font-weight:900;color:var(--blue)}.story-line-text{min-width:0}.story-collocation{background:#f5c451;color:#111827;border-radius:4px;padding:1px 3px;font-weight:800}.story-legend{padding:7px 12px 0;color:var(--muted);font-size:9px}.agent-badge{font-size:10px;color:var(--green);margin-left:6px}.agent-progress{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}.agent-progress>i{display:block;height:100%;width:0;background:var(--green);transition:width .2s}`;document.head.appendChild(s)}
 function status(t,k=''){const e=document.getElementById('agentStatus');if(e)e.className='agent-status '+k,e.textContent=t}
 function progress(n=0){const e=document.querySelector('#agentProgress>i');if(e)e.style.width=Math.max(0,Math.min(100,n))+'%'}
@@ -131,5 +131,5 @@ async function runContextualStory(mode){
 }
 
 function removeLegacyOllama(){document.querySelectorAll('.ollama-box,#testOllama,#stop,#chatStatus,.chat,.composer,.ai-head').forEach(e=>e.remove())}
-function boot(){styles();removeLegacyOllama();renderAgent();renderStoryCard();document.addEventListener('change',e=>{if(e.target.matches('.row-check'))updateStorySelection()});setTimeout(warmupModel,900);}
+function boot(){styles();removeLegacyOllama();renderAgent();renderStoryCard();document.addEventListener('change',e=>{if(e.target.matches('.row-check'))updateStorySelection()});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();

@@ -1,4 +1,4 @@
-import {aiJson} from './ai-client.js';
+import {aiJson} from './ai-client.js?v=2';
 import {normalizeVocabularyRow} from './vocabulary-core.mjs';
 import {buildAutoFillChanges,parseAutoFillResponse,validateAutoFillResult} from './smart-ingestion-core.mjs?v=2';
 
@@ -57,11 +57,15 @@ export async function autoFill(id,value){
     if(!current||String(current.c||'').trim()!==text)return;
     const changes=buildAutoFillChanges(current,result,text);
     if(!Object.keys(changes).length)return;
-    const next=now.map(r=>String(r.id)===key?normalizeVocabularyRow({...r,...changes,source:{...(r.source&&typeof r.source==='object'?r.source:{}),type:'ai'}}):r);
-    if(window.PreviewTable?.setRows)window.PreviewTable.setRows(next);
-    else{
-      localStorage.setItem(KEY,JSON.stringify(next));
-      window.dispatchEvent(new CustomEvent('preview-data-updated',{detail:{source:'ai-auto-fill'}}));
+    const source={...(current.source&&typeof current.source==='object'?current.source:{}),type:'ai'};
+    const applied=window.PreviewTable?.updateRow?.(key,{...changes,source},'row-edit',false);
+    if(!applied){
+      const next=now.map(r=>String(r.id)===key?normalizeVocabularyRow({...r,...changes,source}):r);
+      if(window.PreviewTable?.setRows)window.PreviewTable.setRows(next);
+      else{
+        localStorage.setItem(KEY,JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent('preview-data-updated',{detail:{source:'ai-auto-fill'}}));
+      }
     }
     const filledExampleEn=String(changes.e||'').trim(),existingExample=String(current.e||'').trim(),exampleToTranslate=filledExampleEn||existingExample;
     if(requestVersions.get(key)===version&&exampleToTranslate&&!String(current.em||'').trim()){

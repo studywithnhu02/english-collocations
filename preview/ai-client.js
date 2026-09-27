@@ -1,5 +1,5 @@
 let worker=null,sequence=0;
-function getWorker(){return worker||(worker=new Worker('./ai-agent-worker.js?v=12',{type:'module'}))}
+function getWorker(){return worker||(worker=new Worker('./ai-agent-worker.js?v=13',{type:'module'}))}
 export function aiJson(messages,options={}){
   const timeoutMs=Math.max(1000,Number(options.timeoutMs)||20000);
   return new Promise((resolve,reject)=>{
