@@ -11,6 +11,7 @@ let queueIdleId=0;
 let queueRunning=false;
 
 function read(){try{const value=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(value)?value:[]}catch{return[]}}
+function getRow(id){return window.PreviewTable?.getRow?.(id)||read().find(r=>String(r.id)===String(id))||null}
 
 function setBusy(id,on){
   const key=String(id);
@@ -42,8 +43,7 @@ async function waitForTranslator(limitMs=4000){
 }
 
 function rowStillNeedsFill(id,value){
-  const rows=window.PreviewTable?.getRows?.()||read();
-  const row=rows.find(r=>String(r.id)===String(id));
+  const row=getRow(id);
   if(!row)return false;
   if(String(row.c||'').trim()!==String(value||'').trim())return false;
   return !String(row.m||'').trim()||!String(row.e||'').trim();
@@ -81,8 +81,7 @@ export async function autoFill(id,value){
   busyIds.add(key);
   setBusy(key,true);
   try{
-    const initialRows=window.PreviewTable?.getRows?.()||read();
-    const initialCurrent=initialRows.find(r=>String(r.id)===key);
+    const initialCurrent=getRow(key);
     if(!initialCurrent)return;
     const needs={meaning:!String(initialCurrent.m||'').trim(),example:!String(initialCurrent.e||'').trim()};
     let result={meaningVi:'',exampleEn:'',exampleVi:''};
@@ -95,14 +94,14 @@ export async function autoFill(id,value){
       if(validation.ok)break;
     }
     if(requestVersions.get(key)!==version)return;
-    const now=read(),current=now.find(r=>String(r.id)===key);
+    const current=getRow(key);
     if(!current||String(current.c||'').trim()!==text)return;
     const changes=buildAutoFillChanges(current,result,text);
     if(!Object.keys(changes).length)return;
     const source={...(current.source&&typeof current.source==='object'?current.source:{}),type:'ai'};
     const applied=window.PreviewTable?.updateRow?.(key,{...changes,source},'row-edit',false);
     if(!applied){
-      const next=now.map(r=>String(r.id)===key?normalizeVocabularyRow({...r,...changes,source}):r);
+      const now=read(),next=now.map(r=>String(r.id)===key?normalizeVocabularyRow({...r,...changes,source}):r);
       if(window.PreviewTable?.setRows)window.PreviewTable.setRows(next);
       else{
         localStorage.setItem(KEY,JSON.stringify(next));
@@ -118,7 +117,7 @@ export async function autoFill(id,value){
     }
   }catch(error){
     console.error('[PreviewIngestion]',error);
-    const fallbackRow=(window.PreviewTable?.getRows?.()||read()).find(r=>String(r.id)===key);
+    const fallbackRow=getRow(key);
     if(requestVersions.get(key)===version&&!String(fallbackRow?.m||'').trim())window.AutoTranslate?.run?.(key,'c',text).catch?.(()=>{});
   }finally{
     busyIds.delete(key);
