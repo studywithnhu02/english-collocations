@@ -11,8 +11,9 @@ const MODULES=Object.freeze({
   coach:'./coach-ui.js?v=2',
   anki:'./anki-export.js?v=1',
   print:'./print-export.js?v=1',
-  grammar:'./grammar-ui.js?v=6',
-  grammarExercises:'./grammar-exercises.js?v=1'
+  grammar:'./grammar-ui.js?v=7',
+  grammarExercises:'./grammar-exercises.js?v=1',
+  grammarFigma:'./grammar-figma-polish.js?v=1'
 });
 const loaded=new Map();
 function load(name){
@@ -33,7 +34,7 @@ function stagedLoad(names,index=0){
   },index===0?1800:900);
 }
 async function loadGrammar(){
-  await Promise.all([load('grammar'),load('grammarExercises')]);
+  await Promise.all([load('grammarFigma'),load('grammar'),load('grammarExercises')]);
   return true;
 }
 window.PreviewModules={load,loadGrammar,paths:MODULES};
