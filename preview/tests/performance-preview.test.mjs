@@ -7,6 +7,7 @@ const ingestion=await readFile(new URL('../smart-ingestion.js',import.meta.url),
 const core=await readFile(new URL('../smart-ingestion-core.mjs',import.meta.url),'utf8');
 const smart=await readFile(new URL('../smart-tools.js',import.meta.url),'utf8');
 const worker=await readFile(new URL('../ai-agent-worker.js',import.meta.url),'utf8');
+const agent=await readFile(new URL('../ai-agent.js',import.meta.url),'utf8');
 const vocab=await readFile(new URL('../vocabulary-ui.js',import.meta.url),'utf8');
 const loader=await readFile(new URL('../runtime-loader.js',import.meta.url),'utf8');
 
@@ -53,6 +54,7 @@ test('Auto-fill and suggestion AI use the lightweight model while Agent keeps th
   assert.ok(worker.includes("purpose==='autofill'||purpose==='suggestions'||purpose==='suggestion-meanings'?'fast':'quality'"));
   assert.ok(worker.includes('workQueue=workQueue.then'));
   assert.ok(worker.includes("profileCap=profile==='fast'?144:512"));
+  assert.ok(agent.includes("import {aiJson} from './ai-client.js?v=3'"));
 });
 
 test('Vocabulary decoration uses one row map instead of reading the dataset for every DOM row',()=>{
