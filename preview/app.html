@@ -362,6 +362,127 @@ body.light-theme tbody tr:hover{background:#00000005}
 @media(max-width:1000px){th{position:sticky;top:0}.main>.brand,.main>.card:not(.brand):not(.table-card){padding:12px 14px 10px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
+<style id="grammar-figma-ui-v1">
+/* Grammar Figma UI v1 — visual-only redesign for the post-folder theory workspace. */
+body.grammar-mode{background:#f7f7f7;color:#171717}
+body.grammar-mode .app{padding:0;gap:0}
+body.grammar-mode .left-nav{width:240px;padding:8px 8px;background:#fafafa;border-right:1px solid #e5e5e5;box-shadow:none;gap:4px}
+body.grammar-mode .left-nav-brand{min-height:40px;padding:5px 8px}
+body.grammar-mode .left-nav-logo{width:28px;height:28px;border-radius:7px;background:#171717;box-shadow:none;font-size:12px}
+body.grammar-mode .left-nav-brand-text{font-size:13px;font-weight:600;color:#171717}
+body.grammar-mode .left-nav-collapse{background:transparent;border:0;height:30px;padding:7px 9px;color:#737373;border-radius:6px}
+body.grammar-mode .left-nav-collapse:hover{background:#f0f0f0;color:#171717}
+body.grammar-mode .left-nav-section{padding:12px 10px 4px;color:#a3a3a3;font-size:9px;letter-spacing:.08em}
+body.grammar-mode .left-nav-item{min-height:32px;padding:7px 10px;border-radius:6px;color:#737373;font-size:12px;font-weight:500}
+body.grammar-mode .left-nav-item:hover{background:#f0f0f0;color:#171717}
+body.grammar-mode .left-nav-item.active{background:#e5e5e5;color:#171717;border-color:transparent}
+body.grammar-mode .left-nav-icon{font-size:14px}
+body.grammar-mode .left-nav-foot{padding:8px;color:#a3a3a3;border-top:1px solid #e5e5e5}
+body.grammar-mode.nav-expanded .app{width:calc(100% - 240px);margin-left:240px}
+body.grammar-mode.nav-collapsed .app{width:calc(100% - 68px);margin-left:68px}
+
+.grammar-mode .grammar-screen{min-height:100vh;padding:0;background:#fff}
+.grammar-mode .grammar2-layout{grid-template-columns:minmax(0,1fr) 288px;gap:0;min-height:100vh;background:#fff}
+.grammar-mode .grammar2-main{min-width:0;background:#fff}
+.grammar-mode .grammar2-head{height:91px;margin:0;padding:12px 24px;border-bottom:1px solid rgba(229,229,229,.8);align-items:center}
+.grammar-mode .grammar2-eyebrow{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:10px;line-height:16px;letter-spacing:.5px;color:#525252;font-weight:700}
+.grammar-mode .grammar2-head h1{font-size:16px;line-height:24px;letter-spacing:-.4px;color:#171717;width:100px;margin:0}
+.grammar-mode .grammar2-head p{font-size:12px;line-height:16px;color:#737373;max-width:576px;margin:0}
+.grammar-mode .grammar2-head-actions{gap:8px;align-items:center}
+.grammar-mode .grammar2-head-actions button{height:30px;padding:6px 11px;border-radius:6px;border:1px solid #e5e5e5;background:#fff;color:#525252;font-size:12px;font-weight:500;box-shadow:0 1px 1px rgba(0,0,0,.03)}
+.grammar-mode .grammar2-head-actions button:hover{background:#fafafa;color:#171717;border-color:#d4d4d4}
+.grammar-mode .grammar2-head-actions button:not(.secondary):last-child{background:#171717;color:#fff;border-color:#171717}
+
+.grammar-mode .grammar2-note{height:63px;margin:0;padding:8px 24px;border:0;border-bottom:1px solid rgba(229,229,229,.7);border-radius:0;background:rgba(250,250,250,.8);font-size:12px;line-height:16px;color:#404040;display:flex;align-items:center;gap:8px;position:relative}
+.grammar-mode .grammar2-note:before{content:"3 BƯỚC HỌC";display:inline-flex;align-items:center;height:20px;padding:2px 6px;border-radius:4px;background:rgba(229,229,229,.7);color:#404040;font-size:10px;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+.grammar-mode .grammar2-note b{display:none}
+.grammar-mode .grammar2-note::after{content:"Phần “Mẹo nhớ” là bản tóm tắt dễ học, không phải nguyên văn tài liệu.";position:absolute;left:24px;bottom:8px;color:#a3a3a3;font-size:11px;font-style:italic;font-weight:400}
+.grammar-mode .grammar2-toolbar{height:51px;margin:0;padding:10px 24px;grid-template-columns:minmax(240px,1fr) 342px 150px;gap:10px;border-bottom:1px solid rgba(229,229,229,.7);background:#fff}
+.grammar-mode .grammar2-toolbar input,.grammar-mode .grammar2-toolbar select{height:30px;border:1px solid #e5e5e5;border-radius:6px;background:rgba(250,250,250,.7);color:#525252;font-size:12px;box-shadow:none}
+.grammar-mode .grammar2-toolbar input{padding:7px 12px 7px 33px}
+.grammar-mode .grammar2-toolbar select{padding:6px 32px 6px 13px;background-color:rgba(250,250,250,.7)}
+.grammar-mode .grammar2-toolbar input:focus,.grammar-mode .grammar2-toolbar select:focus{outline:none;border-color:#a3a3a3;box-shadow:0 0 0 2px rgba(23,23,23,.06)}
+
+.grammar-mode .grammar2-body{grid-template-columns:288px minmax(0,1fr);gap:0;min-height:calc(100vh - 205px);align-items:stretch}
+.grammar-mode .grammar2-list{border:0;border-right:1px solid #e5e5e5;border-radius:0;box-shadow:none;background:#fff}
+.grammar-mode .grammar2-list-head{height:42px;padding:12px 16px;border-bottom:1px solid #e5e5e5;color:#a3a3a3;font-size:10px;display:flex;align-items:center;justify-content:space-between}
+.grammar-mode .grammar2-list-head b{color:#404040}
+.grammar-mode .grammar2-unit-list{max-height:none;height:calc(100vh - 247px);padding:0;overflow:auto}
+.grammar-mode .grammar2-unit{grid-template-columns:30px minmax(0,1fr) 18px;gap:10px;width:100%;height:56px;padding:10px 12px;margin:0;border:0;border-bottom:1px solid #f0f0f0;border-radius:0;background:#fff;color:#171717}
+.grammar-mode .grammar2-unit:hover{background:#fafafa}
+.grammar-mode .grammar2-unit.selected{background:#f5f5f5;border-color:#e5e5e5;color:#171717}
+.grammar-mode .grammar2-unit-no{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:10px;color:#a3a3a3}
+.grammar-mode .grammar2-unit strong{font-size:12px;line-height:16px;font-weight:600;color:#404040}
+.grammar-mode .grammar2-unit small{font-size:10px;line-height:15px;color:#a3a3a3;margin-top:2px}
+.grammar-mode .grammar2-unit-check{font-size:12px;color:#737373}
+
+.grammar-mode .grammar2-detail{position:relative;top:auto;background:#fff;min-width:0}
+.grammar-mode .grammar2-detail-card{min-height:calc(100vh - 205px);padding:24px;background:#fff;border:0;border-radius:0;box-shadow:none}
+.grammar-mode .grammar2-detail-top{padding-bottom:18px;border-bottom:1px solid #e5e5e5}
+.grammar-mode .grammar2-unit-badge{display:inline-flex;padding:3px 7px;border-radius:4px;background:#f5f5f5;color:#525252;border:1px solid #e5e5e5;font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:9px;letter-spacing:.2px}
+.grammar-mode .grammar2-part{font-size:10px;color:#a3a3a3}
+.grammar-mode .grammar2-detail-top h2{font-size:20px;line-height:28px;letter-spacing:-.25px;color:#171717;margin:8px 0 2px}
+.grammar-mode .grammar2-detail-top p{font-size:11px;line-height:16px;color:#737373}
+.grammar-mode .grammar2-detail-top>button{height:30px;padding:6px 11px;border-radius:6px;border:1px solid #e5e5e5;background:#fff;color:#525252;font-size:12px;box-shadow:0 1px 1px rgba(0,0,0,.03)}
+.grammar-mode .grammar2-detail-top>button:not(.secondary){background:#171717;color:#fff;border-color:#171717}
+.grammar-mode .grammar2-focus{margin-top:18px;padding:14px 15px;border:1px solid #e5e5e5;border-radius:6px;background:#fafafa;gap:6px}
+.grammar-mode .grammar2-focus span{font-size:10px;color:#737373;letter-spacing:.5px}
+.grammar-mode .grammar2-focus strong{font-size:14px;line-height:21px;color:#171717;font-weight:600}
+.grammar-mode .grammar2-focus small{font-size:11px;line-height:16px;color:#737373}
+.grammar-mode .grammar2-example{margin-top:12px;padding:12px;border:1px dashed #d4d4d4;border-radius:6px;background:#fff}
+.grammar-mode .grammar2-example span{font-size:10px;color:#737373;font-weight:600}
+.grammar-mode .grammar2-example p{margin:5px 0 0;font-size:12px;line-height:18px;color:#404040}
+.grammar-mode .grammar2-exercise-cta{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px;padding:13px 14px;border:1px solid #e5e5e5;border-radius:6px;background:#fff}
+.grammar-mode .grammar2-exercise-cta b{font-size:12px;color:#171717}
+.grammar-mode .grammar2-exercise-cta small{display:block;margin-top:2px;font-size:10px;line-height:15px;color:#737373}
+.grammar-mode .grammar2-exercise-cta button{height:30px;padding:6px 11px;border-radius:6px;border:1px solid #e5e5e5;background:#fff;color:#404040;font-size:11px}
+.grammar-mode .grammar2-learn{grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.grammar-mode .grammar2-learn>div{min-height:150px;padding:14px;border:1px solid #e5e5e5;border-radius:6px;background:#fff}
+.grammar-mode .grammar2-learn b{font-size:11px;color:#404040}
+.grammar-mode .grammar2-learn ol{margin:7px 0 0;padding-left:17px;color:#737373;font-size:11px;line-height:18px}
+.grammar-mode .grammar2-learn p{margin:7px 0 0;color:#737373;font-size:11px;line-height:18px}
+.grammar-mode .grammar2-nav{margin-top:14px;padding-top:12px;border-top:1px solid #e5e5e5}
+.grammar-mode .grammar2-nav button{height:30px;padding:6px 9px;border-radius:6px;border:1px solid #e5e5e5;background:#fff;color:#525252;font-size:11px}
+.grammar-mode .grammar2-nav button:hover:not(:disabled){background:#fafafa}
+.grammar-mode .grammar2-nav span{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:10px;color:#a3a3a3}
+
+.grammar-mode .grammar2-side{position:relative;top:auto;height:100vh;overflow:auto;padding:205px 0 0;border-left:1px solid #e5e5e5;background:#fff}
+.grammar-mode .grammar2-side-card{padding:16px;background:#fff;border:0;border-radius:0;box-shadow:none}
+.grammar-mode .grammar2-side-title{margin-bottom:8px}
+.grammar-mode .grammar2-side-title strong{font-size:12px;font-weight:600;color:#404040}
+.grammar-mode .grammar2-side-title span{font-size:10px;color:#a3a3a3}
+.grammar-mode .grammar2-stats{gap:8px;margin-bottom:14px}
+.grammar-mode .grammar2-stats>div{min-height:89px;padding:11px;border:1px solid #e5e5e5;background:#fff;border-radius:6px}
+.grammar-mode .grammar2-stats span{font-size:10px;color:#a3a3a3}
+.grammar-mode .grammar2-stats b{font-size:24px;line-height:29px;margin-top:5px;color:#171717;font-weight:600}
+.grammar-mode .grammar2-stats small{font-size:9px;color:#a3a3a3;margin-top:2px}
+.grammar-mode .grammar2-progress{min-height:66px!important;grid-column:1/-1}
+.grammar-mode .grammar2-progress>div b{font-size:14px}
+.grammar-mode .grammar2-progress>i{height:6px;background:#f5f5f5;border-color:#e5e5e5}
+.grammar-mode .grammar2-progress>i em{background:#171717}
+.grammar-mode .grammar2-chapters{gap:0;border-top:1px solid #e5e5e5}
+.grammar-mode .grammar2-chapter{min-height:51px;padding:8px 9px;margin:0;border:0;border-bottom:1px solid #e5e5e5;border-radius:0;background:#fff}
+.grammar-mode .grammar2-chapter:hover{background:#fafafa}
+.grammar-mode .grammar2-chapter.active{background:#f5f5f5;border-color:#e5e5e5;box-shadow:none}
+.grammar-mode .grammar2-chapter span,.grammar-mode .grammar2-chapter small{font-size:9px;color:#a3a3a3}
+.grammar-mode .grammar2-chapter strong{font-size:11px;line-height:16px;color:#404040;font-weight:600}
+.grammar-mode .grammar2-chapter>i{height:3px;background:#f5f5f5}
+.grammar-mode .grammar2-chapter>i em{background:#737373}
+.grammar-mode .grammar2-side-resizer{z-index:45;right:288px;width:10px}
+.grammar-mode .grammar2-side-resizer::before{width:1px;height:32px;background:#d4d4d4;box-shadow:none;opacity:.6}
+
+body.light-theme.grammar-mode{background:#f7f7f7}
+body.light-theme.grammar-mode .left-nav{background:#fafafa}
+body.light-theme.grammar-mode .grammar-screen,body.light-theme.grammar-mode .grammar2-layout,body.light-theme.grammar-mode .grammar2-main,body.light-theme.grammar-mode .grammar2-detail,body.light-theme.grammar-mode .grammar2-detail-card,body.light-theme.grammar-mode .grammar2-side,body.light-theme.grammar-mode .grammar2-side-card{background:#fff;color:#171717}
+body.light-theme.grammar-mode .grammar2-unit,body.light-theme.grammar-mode .grammar2-chapter{background:#fff;color:#171717}
+body.light-theme.grammar-mode .grammar2-unit:hover,body.light-theme.grammar-mode .grammar2-chapter:hover{background:#fafafa}
+body.light-theme.grammar-mode .grammar2-unit.selected,body.light-theme.grammar-mode .grammar2-chapter.active{background:#f5f5f5;color:#171717}
+
+@media(max-width:1200px){.grammar-mode .grammar2-layout{grid-template-columns:minmax(0,1fr) 260px}.grammar-mode .grammar2-toolbar{grid-template-columns:minmax(220px,1fr) 260px 140px}.grammar-mode .grammar2-side-resizer{right:260px}}
+@media(max-width:1050px){body.grammar-mode .grammar2-layout{grid-template-columns:1fr}.grammar-mode .grammar2-side{order:3;position:static;height:auto;padding:0;border-left:0;border-top:1px solid #e5e5e5}.grammar-mode .grammar2-side-resizer{display:none}.grammar-mode .grammar2-unit-list{height:360px}.grammar-mode .grammar2-detail-card{min-height:auto}.grammar-mode .grammar2-toolbar{grid-template-columns:1fr 1fr}.grammar-mode .grammar2-toolbar input{grid-column:1/-1}}
+@media(max-width:700px){body.grammar-mode .left-nav{display:none}body.grammar-mode.nav-expanded .app,body.grammar-mode.nav-collapsed .app{width:100%;margin-left:0}.grammar-mode .grammar2-head{height:auto;min-height:91px;flex-direction:column;align-items:flex-start}.grammar-mode .grammar2-note{height:auto;min-height:63px;padding-bottom:28px}.grammar-mode .grammar2-toolbar{height:auto;grid-template-columns:1fr;padding:10px 16px}.grammar-mode .grammar2-toolbar input{grid-column:auto}.grammar-mode .grammar2-body{grid-template-columns:1fr}.grammar-mode .grammar2-list{border-right:0;border-bottom:1px solid #e5e5e5}.grammar-mode .grammar2-unit-list{height:320px}.grammar-mode .grammar2-learn{grid-template-columns:1fr}.grammar-mode .grammar2-detail-card{padding:16px}
+}
+</style>
 </head>
 <body class="auth-checking nav-expanded">
 <nav class="left-nav" id="leftNav" aria-label="Điều hướng chính">
