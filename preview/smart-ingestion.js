@@ -22,7 +22,7 @@ function ask(collocation,attempt=0){
     ?'CRITICAL REPAIR: The previous answer was invalid. exampleEn MUST contain the exact collocation string exactly as supplied, without paraphrasing, and exampleVi MUST translate that exact sentence.'
     :'';
   return aiJson([
-    {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi, structure. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn MUST contain the exact collocation text exactly as supplied and use it naturally in a short workplace or conversational sentence. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. structure must be a reusable pattern for the collocation using + separators and placeholders such as something, someone, doing something, or to + verb. '+strict+' Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
+    {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn MUST contain the exact collocation text exactly as supplied and use it naturally in a short workplace or conversational sentence. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. '+strict+' Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
     {role:'user',content:JSON.stringify({collocation:String(collocation||'').trim(),attempt})}
   ],{batch:false,purpose:'autofill',maxNewTokens:256,timeoutMs:20000});
 }
