@@ -15,7 +15,7 @@ test('GitHub Preview status is inside Box 1',()=>{
 test('Goals, SRS and Smart Tools modules are loaded',()=>{
   assert.ok(app.includes('./goals-ui.js?v=1'));
   assert.ok(app.includes('./srs-ui.js?v=1'));
-  assert.ok(app.includes('./smart-tools.js?v=11'));
+  assert.ok(app.includes('./smart-tools.js?v=12'));
   assert.ok(app.includes('id="appUser"'));
   assert.ok(app.includes('id="appLogout"'));assert.ok(app.includes('domains-ui.js?v=3'));assert.ok(app.includes('vocabulary-ui.js?v=8'));assert.ok(app.includes('<th>CẤU TRÚC</th>'));assert.ok(app.includes('<th>Ngày Done</th>'));assert.ok(app.includes('min-width:1420px'));assert.ok(app.includes('max-width:none'));assert.ok(app.includes('./history-core.mjs?v=1'));assert.ok(app.includes('class="done-date"'));
 });
