@@ -43,6 +43,7 @@ jobs:
           node --check preview/family-ui.js
           node --check preview/coverage-ui.js
           node --check preview/coach-ui.js
+          node --check preview/runtime-loader.js
           node --check preview/anki-export.js
           node --check preview/print-export.js
       - name: Inline app runtime syntax tests
