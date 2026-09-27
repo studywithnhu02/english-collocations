@@ -21,14 +21,15 @@ function setBusy(id,on){
   if(persist)persist.textContent=on?'🧠 AI đang điền…':'Local data';
 }
 
-function ask(collocation,attempt=0){
-  const strict=attempt>0
-    ?'CRITICAL REPAIR: The previous answer was invalid. exampleEn MUST contain the exact collocation string exactly as supplied, without paraphrasing, and exampleVi MUST translate that exact sentence.'
-    :'';
+function ask(collocation,needs,attempt=0){
+  const strict=attempt>0?' CRITICAL REPAIR: previous output was invalid. Preserve the collocation text exactly.':'';
+  const fields=['meaningVi'];
+  if(needs.example)fields.push('exampleEn','exampleVi');
+  const request={collocation:String(collocation||'').trim(),requestedFields:fields,attempt};
   return aiJson([
-    {role:'system',content:'Return ONE JSON object only with exactly these keys: meaningVi, exampleEn, exampleVi. Keep the supplied collocation exact. meaningVi is a concise natural Vietnamese meaning. exampleEn MUST contain the exact collocation text exactly as supplied and use it naturally in a short workplace or conversational sentence. exampleVi must be the faithful Vietnamese translation of that exact exampleEn. '+strict+' Do not add markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'},
-    {role:'user',content:JSON.stringify({collocation:String(collocation||'').trim(),attempt})}
-  ],{batch:false,purpose:'autofill',maxNewTokens:160,timeoutMs:20000});
+    {role:'system',content:'Return ONE JSON object only. Allowed keys: meaningVi, exampleEn, exampleVi. Fill only the requested fields and use empty strings for all other fields. '+(needs.meaning?'meaningVi is a concise natural Vietnamese meaning.':'Do not generate meaningVi.')+' '+(needs.example?'exampleEn MUST contain the exact supplied collocation string naturally in one short sentence and exampleVi must faithfully translate that exact sentence.':'Do not generate an example sentence.')+' No markdown, explanations, CEFR, tags, topics, alternatives or extra keys.'+strict},
+    {role:'user',content:JSON.stringify(request)}
+  ],{batch:false,purpose:'autofill',maxNewTokens:needs.meaning&&needs.example?144:(needs.example?112:48),timeoutMs:20000});
 }
 async function waitForTranslator(limitMs=4000){
   const started=Date.now();
@@ -79,13 +80,17 @@ export async function autoFill(id,value){
   busyIds.add(key);
   setBusy(key,true);
   try{
+    const initialRows=window.PreviewTable?.getRows?.()||read();
+    const initialCurrent=initialRows.find(r=>String(r.id)===key);
+    if(!initialCurrent)return;
+    const needs={meaning:!String(initialCurrent.m||'').trim(),example:!String(initialCurrent.e||'').trim()};
     let result={meaningVi:'',exampleEn:'',exampleVi:''};
-    let validation;
+    let validation={ok:false};
     for(let attempt=0;attempt<2;attempt++){
-      const raw=await ask(text,attempt);
+      const raw=await ask(text,needs,attempt);
       if(requestVersions.get(key)!==version)return;
       result=parseAutoFillResponse(raw);
-      validation=validateAutoFillResult(text,result);
+      validation=validateAutoFillResult(text,result,{requireMeaning:needs.meaning,requireExample:needs.example});
       if(validation.ok)break;
     }
     if(requestVersions.get(key)!==version)return;
