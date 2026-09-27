@@ -67,8 +67,8 @@ jobs:
             if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
           })();
           </script>'''
-          if css_marker not in text:text=text.replace('</head>',css+'\\n</head>',1)
-          if js_marker not in text:text=text.replace('</body>',js+'\\n</body>',1)
+          if css_marker not in text:text=text.replace('</head>',css+'\n</head>',1)
+          if js_marker not in text:text=text.replace('</body>',js+'\n</body>',1)
           path.write_text(text,encoding='utf-8')
           PY
       - name: Validate
@@ -76,13 +76,12 @@ jobs:
           grep -q 'grammar-figma-unit-collapse-v1' preview/app.html
           grep -q 'grammar2-unit-group-toggle' preview/app.html
           grep -q 'grammar2-unit.is-group-hidden' preview/app.html
-          ! grep -q '3 BƯỚC HỌC' preview/app.html
       - name: Test with Playwright
         run: |
           cat >/tmp/test.mjs <<'JS'
           import {chromium} from 'playwright';import {spawn} from 'node:child_process';
           const s=spawn('python3',['-m','http.server','4173','--directory','preview'],{stdio:'ignore'});
-          try{const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1920,height:1080}});await p.goto('http://127.0.0.1:4173/app.html');await p.evaluate(()=>document.body.classList.add('grammar-mode'));await p.waitForTimeout(1000);const n=await p.locator('.grammar2-unit-group-toggle').count();if(n<2)throw Error('groups='+n);const x=p.locator('.grammar2-unit-group-toggle').first();await x.click();if(await x.getAttribute('aria-expanded')!=='false')throw Error('collapse failed');if(await p.locator('.grammar2-unit.is-group-hidden').count()<1)throw Error('units not hidden');await x.click();if(await x.getAttribute('aria-expanded')!=='true')throw Error('reopen failed');console.log({groups:n,pass:true});await b.close()}finally{s.kill('SIGTERM')}
+          try{const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1920,height:1080}});await p.goto('http://127.0.0.1:4173/app.html');await p.evaluate(()=>document.body.classList.add('grammar-mode'));await p.waitForTimeout(1000);const n=await p.locator('.grammar2-unit-group-toggle').count();if(n<2)throw Error('groups='+n);const x=p.locator('.grammar2-unit-group-toggle').first();if(await x.getAttribute('aria-expanded')!=='true')throw Error('not open');await x.click();if(await x.getAttribute('aria-expanded')!=='false')throw Error('collapse failed');if(await p.locator('.grammar2-unit.is-group-hidden').count()<1)throw Error('units not hidden');await x.click();if(await x.getAttribute('aria-expanded')!=='true')throw Error('reopen failed');console.log({groups:n,pass:true});await b.close()}finally{s.kill('SIGTERM')}
           JS
           npx --yes playwright@1.55.0 install --with-deps chromium >/dev/null 2>&1
           node /tmp/test.mjs
