@@ -62,6 +62,14 @@
       head.after(quick);quick.after(tz);
       if(checkin){tz.after(checkin);checkin.after(hdr)}else tz.after(hdr);
       hdr.after(stats);
+      hdr.querySelectorAll('.colloc-stats-tabs button').forEach(function(tab,i){
+        tab.dataset.analyticsMode=i===1?'month':'week';
+        tab.addEventListener('click',function(){
+          var real=card.querySelector('.analytics-tab[data-analytics-mode="'+tab.dataset.analyticsMode+'"]');
+          real?.click();
+          hdr.querySelectorAll('.colloc-stats-tabs button').forEach(function(x){x.classList.toggle('active',x===tab)});
+        });
+      });
       quick.addEventListener('click',function(){
         body.classList.toggle('colloc-right-collapsed');
         try{localStorage.setItem('english-collocations-colloc-right-sidebar-v2',body.classList.contains('colloc-right-collapsed')?'collapsed':'expanded')}catch(e){}
@@ -142,6 +150,10 @@
     settings.addEventListener('click',function(e){e.preventDefault();window.__collocOpenSettings?.()});
     document.getElementById('leftNavCollocation')?.addEventListener('click',function(){settings.classList.remove('active')});
     document.getElementById('leftNavGrammar')?.addEventListener('click',function(){settings.classList.remove('active')});
+    window.addEventListener('preview-table-rendered',function(){
+      var n=document.getElementById('leftNavCollocationCount'),count=document.getElementById('count');
+      if(n&&count)n.textContent=count.textContent||'0';
+    },{passive:true});
   }
 
   function advancedDock(){
